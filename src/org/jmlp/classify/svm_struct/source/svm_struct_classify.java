@@ -230,6 +230,7 @@ public class svm_struct_classify {
 	 * label
 	 */
 	public void classify_from_stream(String model_file) {
+		
 		String[] args = { "no.txt", model_file, "no.txt" };
 		int correct = 0, incorrect = 0, no_accuracy = 0;
 		int i;
@@ -487,6 +488,10 @@ public class svm_struct_classify {
 		// {
 		logger.info("Average loss on test set:" + (float) avgloss);
 		logger.info("Zero/one-error on test set " + (float) 100.0 * incorrect
+				/ testsample.n + "(" + correct + " correct, " + incorrect
+				+ " incorrect," + testsample.n + ", total");
+		System.out.println("Average loss on test set:" + (float) avgloss);
+		System.out.println("Zero/one-error on test set " + (float) 100.0 * incorrect
 				/ testsample.n + "(" + correct + " correct, " + incorrect
 				+ " incorrect," + testsample.n + ", total");
 		// }

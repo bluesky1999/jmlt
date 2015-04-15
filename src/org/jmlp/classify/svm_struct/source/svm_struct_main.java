@@ -18,6 +18,7 @@ public class svm_struct_main {
 	public static void read_input_parameters(int argc, String argv[],
 			STRUCT_LEARN_PARM struct_parm, LEARN_PARM learn_parm,
 			KERNEL_PARM kernel_parm) {
+		
 		int i;
 		String type;
 
