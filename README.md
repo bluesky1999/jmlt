@@ -16,4 +16,5 @@ Usage:
    build a jar file: ant <br>
    train: java  -cp jmlt.jar org.jmlp.classify.svm_struct.source.svm_struct_main -c 5000 example/train.txt example/model<br>
    test:   java  -cp jmlt.jar org.jmlp.classify.svm_struct.source.svm_struct_classify example/test.txt example/model example/prediction<br>
-   
+
+jdk 1.70以上   
