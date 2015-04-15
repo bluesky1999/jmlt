@@ -215,8 +215,8 @@ public class svm_struct_classify {
 		logger.info("Zero/one-error on test set " + (float) 100.0 * incorrect
 				/ testsample.n + "(" + correct + " correct, " + incorrect
 				+ " incorrect," + testsample.n + ", total");
-		System.out.println("Average loss on test set:" + (float) avgloss);
-		System.out.println("Zero/one-error on test set " + (float) 100.0 * incorrect
+		System.err.println("Average loss on test set:" + (float) avgloss);
+		System.err.println("Zero/one-error on test set " + (float) 100.0 * incorrect
 				/ testsample.n + "(" + correct + " correct, " + incorrect
 				+ " incorrect," + testsample.n + ", total");
 		// }
