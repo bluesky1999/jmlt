@@ -385,6 +385,7 @@ public class svm_struct_classify {
 				teststats);
 
 	}
+	
 
 	public static void main(String[] args) throws Exception {
 		int correct = 0, incorrect = 0, no_accuracy = 0;
