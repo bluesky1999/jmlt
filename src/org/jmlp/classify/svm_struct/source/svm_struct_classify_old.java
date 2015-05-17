@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.jmlp.file.utils.FileWriterUtil;
 import org.jmlp.str.basic.SSO;
 
-public class svm_struct_classify {
+public class svm_struct_classify_old {
 
 	public static String testfile = "";
 	public static String modelfile = "";
@@ -162,20 +162,18 @@ public class svm_struct_classify {
 
 		// predfl = FileWriterUtil.getPW(predictionsfile);
 
-                logger.info("predict result ===============================");
 		for (i = 0; i < testsample.n; i++) {
 
 			t1 = svm_common.get_runtime();
-			//logger.info("doc [" + i + "] "
-			//		+ testsample.examples[i].x.doc.fvec.toString());
+			logger.info("doc [" + i + "] "
+					+ testsample.examples[i].x.doc.fvec.toString());
 			y = ssa.classify_struct_example(testsample.examples[i].x, model,
 					sparm);
 			if (y == null) {
 				continue;
 			}
-			//logger.info("y:" + y.class_index + "  testsample.examples[" + i
-			//		+ "].y:" + testsample.examples[i].y.class_index);
-			logger.info(testsample.examples[i].y.class_index+" "+y.class_index);
+			logger.info("y:" + y.class_index + "  testsample.examples[" + i
+					+ "].y:" + testsample.examples[i].y.class_index);
 			runtime += (svm_common.get_runtime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 			System.out.println(identifier_list.get(i) + " " + y.toString());
@@ -411,7 +409,6 @@ public class svm_struct_classify {
 		logger.info("modelfile:" + modelfile);
 		logger.info("predictionsfile:" + predictionsfile);
 
-                PrintWriter pw=new PrintWriter(predictionsfile);
 		model = svm_struct_api.read_struct_model(modelfile, sparm);
 		if (svm_struct_common.struct_verbosity >= 1) {
 			logger.info("done");
@@ -444,17 +441,14 @@ public class svm_struct_classify {
 		for (i = 0; i < testsample.n; i++) {
 
 			t1 = svm_common.get_runtime();
-			//logger.info("doc [" + i + "] "
-			//		+ testsample.examples[i].x.doc.fvec.toString());
-			y = ssa.classify_struct_example(testsample.examples[i].x, model,
-					sparm);
+			logger.info("doc [" + i + "] "
+					+ testsample.examples[i].x.doc.fvec.toString());
+			y = ssa.classify_struct_example(testsample.examples[i].x, model,sparm);
 			if (y == null) {
 				continue;
 			}
-			//logger.info("y:" + y.class_index + "  testsample.examples[" + i
-			//		+ "].y:" + testsample.examples[i].y.class_index);
-		        logger.info(testsample.examples[i].y.class_index+" "+y.class_index);
-                        pw.println(testsample.examples[i].y.class_index+" "+y.class_index);
+			logger.info("y:" + y.class_index + "  testsample.examples[" + i
+					+ "].y:" + testsample.examples[i].y.class_index);
 			runtime += (svm_common.get_runtime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 
@@ -488,7 +482,7 @@ public class svm_struct_classify {
 			logger.info("Runtime (without IO) in cpu-seconds:"
 					+ (float) (runtime / 100.0));
 		}
-                pw.close();
+
 		// if((no_accuracy==0)&&(svm_struct_common.struct_verbosity>=1))
 		// {
 		logger.info("Average loss on test set:" + (float) avgloss);
