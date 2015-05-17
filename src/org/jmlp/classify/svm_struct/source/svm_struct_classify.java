@@ -24,7 +24,7 @@ public class svm_struct_classify {
 
 	public void init_svm_struct(String model_file) {
 		
-		System.err.println("in init_svm_struct");
+		//System.err.println("in init_svm_struct");
 		String[] args = { "no.txt", model_file, "no.txt" };
 		int correct = 0, incorrect = 0, no_accuracy = 0;
 		int i;
@@ -468,7 +468,7 @@ public class svm_struct_classify {
 	 */
 	public static void read_input_parameters(int argc, String[] argv,
 			STRUCT_LEARN_PARM struct_parm, int verbosity, int struct_verbosity) {
-		System.err.println("in read_input_parameters");
+		//System.err.println("in read_input_parameters");
 		int i;
 		modelfile = "svm_model";
 		predictionsfile = "svm_predictions";
