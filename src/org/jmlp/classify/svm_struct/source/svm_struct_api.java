@@ -588,6 +588,7 @@ public abstract class svm_struct_api {
 	 */
 	public static STRUCTMODEL read_struct_model(String file,
 			STRUCT_LEARN_PARM sparm) {
+		
 		File modelfl;
 		STRUCTMODEL sm = new STRUCTMODEL();
 		int i, queryid, slackid;
@@ -612,17 +613,17 @@ public abstract class svm_struct_api {
 		FileReader fr = null;
 		BufferedReader br = null;
 		try {
-
-			try {
-				modelfl = new File(file);
-				fr = new FileReader(modelfl);
-				br = new BufferedReader(fr);
-			} catch (FileNotFoundException e2) {
-				InputStream model_is = svm_common.class.getResourceAsStream("/"
-						+ file);
-				InputStreamReader model_isr = new InputStreamReader(model_is);
-				br = new BufferedReader(model_isr);
-			}
+            try {
+                modelfl = new File(file);
+                fr = new FileReader(modelfl);
+                br = new BufferedReader(fr);
+        } catch (FileNotFoundException e2) {
+                InputStream model_is = svm_common.class.getResourceAsStream("/"
+                                + file);
+                InputStreamReader model_isr = new InputStreamReader(model_is);
+                br = new BufferedReader(model_isr);
+        }
+			
 
 			line = br.readLine();
 			// logger.info("line:"+line);
@@ -716,9 +717,9 @@ public abstract class svm_struct_api {
 				model.supvec[i] = sc.create_example(-1, 0, 0, 0.0,
 						sc.create_svector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
-				System.err.println("read model done:");
 				//System.err.println("read supvec["+i+"]:"+model.supvec[i].fvec.toString());
 			}
+			System.err.println("read model done:");
 			if(fr!=null)
 			{
 			  fr.close();

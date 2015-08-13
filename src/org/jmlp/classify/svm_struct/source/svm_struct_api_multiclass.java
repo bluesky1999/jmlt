@@ -202,6 +202,8 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 		}
       
 		y.class_index = bestclass;
+
+		
 		return y;
 	}
 

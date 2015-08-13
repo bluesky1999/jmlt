@@ -831,20 +831,22 @@ public class svm_common {
 	
 		BufferedReader br = null;
 
-		try {
-			
-			FileReader fr = null;
-			fr = new FileReader(new File(input_file));
-			br = new BufferedReader(fr);
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			InputStream model_is = svm_common.class.getResourceAsStream(
-					"/" + input_file);
-			InputStreamReader model_isr = new InputStreamReader(model_is);
-			br = new BufferedReader(model_isr);
-			
-		}
+
+        try {
+
+            FileReader fr = null;
+            fr = new FileReader(new File(input_file));
+            br = new BufferedReader(fr);
+
+        } catch (FileNotFoundException e) {
+            //e.printStackTrace();
+            InputStream model_is = svm_common.class.getResourceAsStream(
+                            "/" + input_file);
+            InputStreamReader model_isr = new InputStreamReader(model_is);
+            br = new BufferedReader(model_isr);
+
+         }
+		
 		// logger.info("in nol ll2");
 		String line = "";
 		int temp_docs = 0;
