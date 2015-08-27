@@ -164,7 +164,7 @@ public class svm_struct_classify {
 
 		// predfl = FileWriterUtil.getPW(predictionsfile);
 
-                logger.info("predict result ===============================");
+        logger.info("predict result ===============================");
 		for (i = 0; i < testsample.n; i++) {
 
 			t1 = svm_common.get_runtime();
