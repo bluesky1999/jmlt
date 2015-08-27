@@ -96,7 +96,7 @@ public class svm_hideo {
 			for (i = 1; i < qp.opt_n; i++) {
 				qstr += ("+" + qp.opt_ce[i] + "*x" + i);
 			}
-			qstr += ("=" + (-qp.opt_ce[0]));
+			qstr += ("=" + (-qp.opt_ce[0])); vbnm
 		}
 
 		logger.info("qstr:" + "\n" + qstr);
