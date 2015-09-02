@@ -465,12 +465,7 @@ public class svm_struct_main {
 		logger.info("alg_tye is " + alg_type + " \n");
 
 		EXAMPLE tempex = null;
-		// String winfo="";
-		/*
-		 * for(int k=0;k<sample.examples.length;k++) {
-		 * tempex=sample.examples[k];
-		 * logger.info("tempex k="+k+" "+tempex.x.doc.fvec.toString()); }
-		 */
+	
 		/* Do the learning and return structmodel. */
 		svm_struct_learn ssl = new svm_struct_learn();
 		if (alg_type == 0) {
