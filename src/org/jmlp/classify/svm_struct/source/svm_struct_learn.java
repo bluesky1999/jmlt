@@ -293,23 +293,9 @@ public class svm_struct_learn {
 							for (j = 0; j < cset.m; j++)
 								if (cset.lhs[j].slackid == i + 1) {
 									if (sparm.slack_norm == 2)
-										slack = Math
-												.max(slack,
-														cset.rhs[j]
-																- (svm_common
-																		.classify_example(
-																				svmModel,
-																				cset.lhs[j]) - sm.w[sizePsi
-																		+ i]
-																		/ (Math.sqrt(2 * svmCnorm))));
+										slack = Math.max(slack,cset.rhs[j]- (svm_common.classify_example(svmModel,cset.lhs[j]) - sm.w[sizePsi+ i]/ (Math.sqrt(2 * svmCnorm))));
 									else
-										slack = Math
-												.max(slack,
-														cset.rhs[j]
-																- svm_common
-																		.classify_example(
-																				svmModel,
-																				cset.lhs[j]));
+										slack = Math.max(slack,cset.rhs[j]- svm_common.classify_example(svmModel,cset.lhs[j]));
 								}
 
 							/**** if `error' add constraint and recompute ****/
@@ -343,14 +329,7 @@ public class svm_struct_learn {
 								if (kparm.kernel_type == svm_common.LINEAR) {
 									diff = svm_common.add_list_ss(fy);
 									if (sparm.slack_norm == 1)
-										cset.lhs[cset.m - 1] = svm_common
-												.create_example(
-														cset.m - 1,
-														0,
-														i + 1,
-														1,
-														svm_common
-																.copy_svector(diff));
+										cset.lhs[cset.m - 1] = svm_common.create_example(cset.m - 1,0,i + 1,1,svm_common.copy_svector(diff));
 									else if (sparm.slack_norm == 2) {
 										/****
 										 * add squared slack variable to feature
@@ -360,20 +339,13 @@ public class svm_struct_learn {
 										slackv[0].weight = 1 / (Math
 												.sqrt(2 * svmCnorm));
 										slackv[1].wnum = 0; /* terminator */
-										slackvec = svm_common.create_svector(
-												slackv, null, 1.0);
-										cset.lhs[cset.m - 1] = svm_common
-												.create_example(cset.m - 1, 0,
-														i + 1, 1,
-														svm_common.add_ss(diff,
-																slackvec));
+										slackvec = svm_common.create_svector(slackv, null, 1.0);
+										cset.lhs[cset.m - 1] = svm_common.create_example(cset.m - 1, 0,i + 1, 1,svm_common.add_ss(diff,slackvec));
 									}
 								} else { /* kernel is used */
 									if (sparm.slack_norm == 1)
 										cset.lhs[cset.m - 1] = svm_common
-												.create_example(
-														cset.m - 1,
-														0,
+												.create_example(cset.m - 1,0,
 														i + 1,
 														1,
 														svm_common

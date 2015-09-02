@@ -336,6 +336,99 @@ public class svm_struct_main {
 		svm_struct_api.parse_struct_parameters(struct_parm);
 	}
 
+
+	public static void train(String[] args)
+	{
+		if(args.length<2)
+		{
+			print_help();
+			System.exit(1);
+		}
+		
+		SAMPLE sample; /* training sample */
+		LEARN_PARM learn_parm = new LEARN_PARM();
+		KERNEL_PARM kernel_parm = new KERNEL_PARM();
+		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
+		STRUCTMODEL structmodel = new STRUCTMODEL();
+			
+		svm_struct_api.svm_struct_learn_api_init(args);
+
+		long start_time = TimeOpera.getCurrentTimeLong();
+		
+		read_input_parameters(args.length + 1, args, struct_parm, learn_parm,
+				kernel_parm);
+
+		if (struct_verbosity >= 1) {
+			System.out.println("Reading training examples...");
+			logger.info("Reading training examples...");
+		}
+
+		svm_struct_api ssa=svm_struct_api_factory.get_svm_struct_api();
+		
+		/* read the training examples */
+		sample = ssa.read_struct_examples(trainfile, struct_parm);
+		if (struct_verbosity >= 1) {
+			logger.info("done\n");
+		}
+		logger.info("alg_tye is " + alg_type + " \n");
+
+		EXAMPLE tempex = null;
+		// String winfo="";
+		/*
+		 * for(int k=0;k<sample.examples.length;k++) {
+		 * tempex=sample.examples[k];
+		 * logger.info("tempex k="+k+" "+tempex.x.doc.fvec.toString()); }
+		 */
+		/* Do the learning and return structmodel. */
+		svm_struct_learn ssl = new svm_struct_learn();
+		if (alg_type == 0) {
+			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm,
+					structmodel, svm_struct_common.NSLACK_ALG);
+		} else if (alg_type == 1) {
+			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm,
+					structmodel, svm_struct_common.NSLACK_SHRINK_ALG);
+		} else if (alg_type == 2) {
+			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
+					kernel_parm, structmodel,
+					svm_struct_common.ONESLACK_PRIMAL_ALG);
+		} else if (alg_type == 3) {
+			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
+					kernel_parm, structmodel,
+					svm_struct_common.ONESLACK_DUAL_ALG);
+		} else if (alg_type == 4) {
+			logger.info("learn_parm.sharedslack:" + learn_parm.sharedslack);
+			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
+					kernel_parm, structmodel,
+					svm_struct_common.ONESLACK_DUAL_CACHE_ALG);
+		} else if (alg_type == 9) {
+			ssl.svm_learn_struct_joint_custom(sample, struct_parm, learn_parm,
+					kernel_parm, structmodel);
+		} else {
+			System.exit(1);
+		}
+		
+		/*
+		 * Warning: The model contains references to the original data 'docs'.
+		 * If you want to free the original data, and only keep the model, you
+		 * have to make a deep copy of 'model'.
+		 */
+		if (struct_verbosity >= 1) {
+			logger.info("Writing learned model...");
+		}
+		svm_struct_api.write_struct_model(modelfile, structmodel, struct_parm);
+		if (struct_verbosity >= 1) {
+			logger.info("done\n");
+		}
+
+		long end_time = TimeOpera.getCurrentTimeLong();
+		double tot_time = (double) (end_time - start_time) / (double) 1000;
+
+		logger.info("tot_time:" + tot_time);
+		System.out.println("tot_time:" + tot_time);
+
+		svm_struct_api.svm_struct_learn_api_exit();
+	}
+	
 	public static void main(String[] args) {
 		
 		if(args.length<2)
