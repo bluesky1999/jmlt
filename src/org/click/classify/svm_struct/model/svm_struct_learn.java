@@ -1,8 +1,7 @@
 package org.click.classify.svm_struct.model;
 
 import org.apache.log4j.Logger;
-import org.click.classify.svm_struct.data.CCACHE;
-import org.click.classify.svm_struct.data.CCACHEELEM;
+
 import org.click.classify.svm_struct.data.CONSTSET;
 import org.click.classify.svm_struct.data.DOC;
 import org.click.classify.svm_struct.data.EXAMPLE;
