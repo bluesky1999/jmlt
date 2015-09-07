@@ -20,6 +20,8 @@ import org.click.classify.svm_struct.data.LEARN_PARM;
 import org.click.classify.svm_struct.data.MODEL;
 import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.PATTERN;
+import org.click.classify.svm_struct.data.ReadStruct;
+import org.click.classify.svm_struct.data.ReadSummary;
 import org.click.classify.svm_struct.data.SAMPLE;
 import org.click.classify.svm_struct.data.STRUCTMODEL;
 import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
@@ -615,9 +617,10 @@ public abstract class svm_struct_api {
 		MODEL model;
 		svm_common sc = new svm_common();
 
-		sc.nol_ll(file); /* scan size of model file */
-		max_sv = sc.read_max_docs;
-		max_words = sc.read_max_words_doc;
+		ReadSummary summary=null;
+		summary=sc.nol_ll(file); /* scan size of model file */
+		max_sv = summary.read_max_docs;
+		max_words = summary.read_max_words_doc;
 		max_words += 2;
 
 		words = new WORD[max_words + 10];
@@ -716,17 +719,20 @@ public abstract class svm_struct_api {
 			model.index = null;
 			model.lin_weights = null;
 
+			WORD[] read_words=null;
 			for (i = 1; i < model.sv_num; i++) {
 				//System.err.println("sv:"+i);
 				line = br.readLine();
-				sc.parse_document(line, max_words);
-				model.alpha[i] = sc.read_doc_label;
-				queryid = sc.read_queryid;
-				slackid = sc.read_slackid;
-				costfactor = sc.read_costfactor;
-				wpos = sc.read_wpos;
-				comment = sc.read_comment;
-				words = sc.read_words;
+				ReadStruct rs=new ReadStruct();
+				read_words=sc.parse_document(line, max_words,rs);
+				model.alpha[i] = rs.read_doc_label;
+				queryid = rs.read_queryid;
+				slackid = rs.read_slackid;
+				costfactor = rs.read_costfactor;
+				wpos = rs.read_wpos;
+				comment = rs.read_comment;
+				//words = sc.read_words;
+				words=read_words;
 				//System.out.println("words:" + words.length);
 				// System.out.println("queryid:" + queryid);
 				model.supvec[i] = sc.create_example(-1, 0, 0, 0.0,

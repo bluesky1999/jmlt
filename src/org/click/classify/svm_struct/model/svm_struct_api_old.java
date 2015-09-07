@@ -17,6 +17,8 @@ import org.click.classify.svm_struct.data.LEARN_PARM;
 import org.click.classify.svm_struct.data.MODEL;
 import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.PATTERN;
+import org.click.classify.svm_struct.data.ReadStruct;
+import org.click.classify.svm_struct.data.ReadSummary;
 import org.click.classify.svm_struct.data.SAMPLE;
 import org.click.classify.svm_struct.data.STRUCTMODEL;
 import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
@@ -468,14 +470,16 @@ public class svm_struct_api_old {
 		int totwords, i, num_classes = 0;
 
 		/* Using the read_documents function from SVM-light */
-		docs = svm_common.read_documents(file, target);
+		
+		ReadStruct rs=new ReadStruct();
+		docs = svm_common.read_documents(file, target,rs);
 	
 		// logger.info("in read struct examples: docs.length:"+docs.length);
-		target = svm_common.read_target;
+		target = rs.read_target;
 		logger.info("target:"+target);
-		totwords = svm_common.read_totwords;
+		totwords = rs.read_totwords;
 		logger.info("totwords:"+totwords);
-		n = svm_common.read_totdocs;
+		n = rs.read_totdocs;
          logger.info("n:"+n);
         //logger.info("totwords:"+totwords);
 		for(int k=0;k<docs.length;k++)
@@ -538,14 +542,15 @@ public class svm_struct_api_old {
 		int totwords, i, num_classes = 0;
 
 		/* Using the read_documents function from SVM-light */
-		docs = svm_common.read_documents_from_stream(is, target);
+		ReadStruct rs=new ReadStruct();
+		docs = svm_common.read_documents_from_stream(is, target,rs);
 	
 		// logger.info("in read struct examples: docs.length:"+docs.length);
-		target = svm_common.read_target;
+		target = rs.read_target;
 		logger.info("target:"+target);
-		totwords = svm_common.read_totwords;
+		totwords = rs.read_totwords;
 		logger.info("totwords:"+totwords);
-		n = svm_common.read_totdocs;
+		n = rs.read_totdocs;
          logger.info("n:"+n);
         //logger.info("totwords:"+totwords);
 		for(int k=0;k<docs.length;k++)
@@ -810,9 +815,11 @@ public class svm_struct_api_old {
 		MODEL model;
 		svm_common sc=new svm_common();
 		
-		sc.nol_ll(file); /* scan size of model file */
-		max_sv = sc.read_max_docs;
-		max_words = sc.read_max_words_doc;
+		ReadSummary summary=null;
+		
+		summary=sc.nol_ll(file); /* scan size of model file */
+		max_sv = summary.read_max_docs;
+		max_words = summary.read_max_words_doc;
 		//logger.info("max_sv:"+max_sv);
 		//logger.info("max_words:"+max_words);
 		max_words += 2;
@@ -921,17 +928,21 @@ public class svm_struct_api_old {
 			model.index = null;
 			model.lin_weights = null;
 			
+			WORD[] read_words=null;
+			
 			for (i = 1; i < model.sv_num; i++) {
 				line = br.readLine();
 				//logger.info("i="+i+" line:"+line);
-				sc.parse_document(line, max_words);
-				model.alpha[i] = sc.read_doc_label;
-				queryid = sc.read_queryid;
-				slackid = sc.read_slackid;
-				costfactor = sc.read_costfactor;
-				wpos = sc.read_wpos;
-				comment = sc.read_comment;
-                words=sc.read_words;
+				ReadStruct rs=new ReadStruct();
+				read_words=sc.parse_document(line, max_words,rs);
+				model.alpha[i] = rs.read_doc_label;
+				queryid = rs.read_queryid;
+				slackid = rs.read_slackid;
+				costfactor = rs.read_costfactor;
+				wpos = rs.read_wpos;
+				comment = rs.read_comment;
+               // words=sc.read_words;
+				words=read_words;
                 System.out.println("words:"+words.length);
                 System.out.println("queryid:"+queryid);
 				model.supvec[i] = sc.create_example(-1, 0, 0, 0.0,

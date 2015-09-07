@@ -4,6 +4,8 @@ import org.apache.log4j.Logger;
 import org.click.classify.svm_struct.data.DOC;
 import org.click.classify.svm_struct.data.MODEL;
 import org.click.classify.svm_struct.data.ModelConstant;
+import org.click.classify.svm_struct.data.ReadStruct;
+import org.click.classify.svm_struct.data.ReadSummary;
 import org.click.classify.svm_struct.data.WORD;
 import org.jmlp.file.utils.FileToArray;
 import org.jmlp.str.basic.SSO;
@@ -32,9 +34,12 @@ public class svm_classify {
 		MODEL model;
 
 		read_input_parameters(args.length + 1, args);
-		svm_common.nol_ll(docfile);
-		max_docs = svm_common.read_max_docs;
-		max_words_doc = svm_common.read_max_words_doc;
+		
+		ReadSummary summary=null;
+		summary=svm_common.nol_ll(docfile);
+		
+		max_docs = summary.read_max_docs;
+		max_words_doc = summary.read_max_words_doc;
 		max_words_doc += 2;
 		model = svm_common.read_model(modelfile);
 
@@ -44,16 +49,19 @@ public class svm_classify {
 		}
 
 		String[] test_samples = FileToArray.fileToDimArr(docfile);
-
+        WORD[] read_words;
 		for (int i = 0; i < test_samples.length; i++) {
 			line = test_samples[i];
-			svm_common.parse_document(line, max_words_doc);
-			doc_label = svm_common.read_doc_label;
-			queryid = svm_common.read_queryid;
-			slackid = svm_common.read_slackid;
-			costfactor = svm_common.read_costfactor;
-			comment = svm_common.read_comment;
-			words = svm_common.read_words;
+			
+			ReadStruct rs=new ReadStruct();
+			read_words=svm_common.parse_document(line, max_words_doc,rs);
+			doc_label = rs.read_doc_label;
+			queryid = rs.read_queryid;
+			slackid = rs.read_slackid;
+			costfactor = rs.read_costfactor;
+			comment = rs.read_comment;
+			//words = svm_common.read_words;
+			words = read_words;
 			doc = svm_common.create_example(-1, 0, 0, 0.0,
 					svm_common.create_svector(words, comment, 1.0));
 			if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) { 

@@ -10,6 +10,7 @@ import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LABEL;
 import org.click.classify.svm_struct.data.LEARN_PARM;
 import org.click.classify.svm_struct.data.PATTERN;
+import org.click.classify.svm_struct.data.ReadStruct;
 import org.click.classify.svm_struct.data.SAMPLE;
 import org.click.classify.svm_struct.data.STRUCTMODEL;
 import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
@@ -229,11 +230,12 @@ public class svm_struct_api_multiclass extends svm_struct_api {
 		double[] target = null;
 		int totwords, i, num_classes = 0;
 
-		docs = svm_common.read_documents(file, target);
+		ReadStruct rs=new ReadStruct();
+		docs = svm_common.read_documents(file, target,rs);
 
-		target = svm_common.read_target;
-		totwords = svm_common.read_totwords;
-		n = svm_common.read_totdocs;
+		target = rs.read_target;
+		totwords = rs.read_totwords;
+		n = rs.read_totdocs;
 
 		for (int k = 0; k < docs.length; k++) {
 			if (docs[k] == null || docs[k].fvec == null) {
@@ -277,12 +279,13 @@ public class svm_struct_api_multiclass extends svm_struct_api {
 		DOC[] docs;
 		double[] target = null;
 		int totwords, i, num_classes = 0;
+		
+		ReadStruct rs=new ReadStruct();
+		docs = svm_common.read_documents_from_stream(is, target,rs);
 
-		docs = svm_common.read_documents_from_stream(is, target);
-
-		target = svm_common.read_target;
-		totwords = svm_common.read_totwords;
-		n = svm_common.read_totdocs;
+		target = rs.read_target;
+		totwords = rs.read_totwords;
+		n = rs.read_totdocs;
 		for (int k = 0; k < docs.length; k++) {
 			if (docs[k] == null || docs[k].fvec == null) {
 				continue;
@@ -329,12 +332,13 @@ public class svm_struct_api_multiclass extends svm_struct_api {
 		int totwords, i, num_classes = 0;
 
 		logger.info("begin read documents");
-		docs = svm_common.read_documents_from_arraylist(list, target);
+		ReadStruct rs=new ReadStruct();
+		docs = svm_common.read_documents_from_arraylist(list, target,rs);
 		logger.info("end read documents");
 
-		target = svm_common.read_target;
-		totwords = svm_common.read_totwords;
-		n = svm_common.read_totdocs;
+		target = rs.read_target;
+		totwords = rs.read_totwords;
+		n = rs.read_totdocs;
 		for (int k = 0; k < docs.length; k++) {
 			if (docs[k] == null || docs[k].fvec == null) {
 				continue;

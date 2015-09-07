@@ -11,6 +11,7 @@ import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LEARN_PARM;
 import org.click.classify.svm_struct.data.MODEL;
 import org.click.classify.svm_struct.data.ModelConstant;
+import org.click.classify.svm_struct.data.ReadStruct;
 
 public class svm_learn_main {
 
@@ -385,12 +386,13 @@ public class svm_learn_main {
 			System.out.println(e.getMessage());
 		}
 
-		docs = svm_common.read_documents(docfile, target);
+		ReadStruct rs=new ReadStruct();
+		docs = svm_common.read_documents(docfile, target,rs);
 
-		target = svm_common.read_target;
+		target = rs.read_target;
 		System.out.println("docs length in main:" + docs.length);
-		totwords = svm_common.read_totwords;
-		totdoc = svm_common.read_totdocs;
+		totwords = rs.read_totwords;
+		totdoc = rs.read_totdocs;
 		/*
 		 * pw.println("docs length:"+docs.length); for(int
 		 * k=0;k<docs.length;k++) { pw.print(k+"  "); if(docs[k]!=null) for(int
@@ -405,7 +407,7 @@ public class svm_learn_main {
 		// }
 		if (restartfile != null) {
 			alpha_in = svm_common.read_alphas(restartfile,
-					svm_common.read_totdocs);
+					rs.read_totdocs);
 		}
 		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			kernel_cache = null;

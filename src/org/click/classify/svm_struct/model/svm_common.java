@@ -20,6 +20,8 @@ import org.click.classify.svm_struct.data.MATRIX;
 import org.click.classify.svm_struct.data.MODEL;
 import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.RANDPAIR;
+import org.click.classify.svm_struct.data.ReadStruct;
+import org.click.classify.svm_struct.data.ReadSummary;
 import org.click.classify.svm_struct.data.SVECTOR;
 import org.click.classify.svm_struct.data.SortWordArr;
 import org.click.classify.svm_struct.data.WORD;
@@ -30,7 +32,8 @@ public class svm_common {
 
 	public static int kernel_cache_statistic = 0;
 	public static int verbosity = 0;
-
+   
+	/*
 	public static int read_totdocs;
 	public static int read_totwords;
 	public static int read_max_docs;
@@ -43,9 +46,10 @@ public class svm_common {
 	public static int read_wpos;
 	public static String read_comment;
 
-	public static WORD[] read_words;
+	//public static WORD[] read_words;
 	public static double[] read_target = null;
-
+    */
+	
 	public static int progress_n;
 
 	private static Logger logger = Logger.getLogger(svm_common.class);
@@ -316,7 +320,7 @@ public class svm_common {
 		kernel_parm.custom = "empty";
 	}
 
-	public static DOC[] read_documents(String docfile, double[] label) {
+	public static DOC[] read_documents(String docfile, double[] label,ReadStruct struct) {
 		String line, comment;
 		// PrintWriter pw = null;
 		// FileWriter fw = null;
@@ -335,9 +339,10 @@ public class svm_common {
 			System.out.println("Scanning examples...");
 		}
 
-		nol_ll(docfile); /* scan size of input file */
-		read_max_words_doc += 2;
-		read_max_docs += 2;
+		
+		ReadSummary summary=nol_ll(docfile); /* scan size of input file */
+		struct.read_max_words_doc = summary.read_max_words_doc+2;
+		struct.read_max_docs =summary.read_max_docs+ 2;
 		if (verbosity >= 1) {
 			System.out.println("done\n");
 		}
@@ -347,15 +352,15 @@ public class svm_common {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		docs = new DOC[read_max_docs]; /* feature vectors */
+		docs = new DOC[struct.read_max_docs]; /* feature vectors */
 		// for(int k=0;k<read_docs.length;k++)
 		// {
 		// read_docs[k]=ps.getDOC();
 		// }
 		WORD[] words;
-		label = new double[read_max_docs]; /* target values */
+		label = new double[struct.read_max_docs]; /* target values */
 		// System.out.println("docs length:"+docs.length);
-		words = new WORD[read_max_words_doc + 10];
+		words = new WORD[struct.read_max_words_doc + 10];
 		for (int j = 0; j < words.length; j++) {
 			words[j] = new WORD();
 			words[j].wnum = 0;
@@ -365,7 +370,7 @@ public class svm_common {
 			System.out.println("Reading examples into memory...");
 		}
 		dnum = 0;
-		read_totwords = 0;
+		struct.read_totwords = 0;
 		try {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
@@ -373,27 +378,28 @@ public class svm_common {
 					continue; /* line contains comments */
 				// System.out.println(line);
 
-				if ((words = parse_document(line, read_max_words_doc)) == null) {
+				ReadStruct rs=new ReadStruct();
+				if ((words = parse_document(line, struct.read_max_words_doc,rs)) == null) {
 					System.out.println("\nParsing error in line " + dnum
 							+ "!\n" + line);
 					// System.exit(1);
 					continue;
 				}
-				label[dnum] = read_doc_label;
+				label[dnum] = rs.read_doc_label;
 				/* printf("docnum=%ld: Class=%f ",dnum,doc_label); */
-				if (read_doc_label > 0)
+				if (rs.read_doc_label > 0)
 					dpos++;
-				if (read_doc_label < 0)
+				if (rs.read_doc_label < 0)
 					dneg++;
-				if (read_doc_label == 0)
+				if (rs.read_doc_label == 0)
 					dunlab++;
-				if ((read_wpos > 1)
-						&& ((words[read_wpos - 2]).wnum > read_totwords))
-					read_totwords = words[read_wpos - 2].wnum;
+				if ((rs.read_wpos > 1)
+						&& ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
+					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
-				docs[dnum] = create_example(dnum, read_queryid, read_slackid,
-						read_costfactor,
-						create_svector(words, read_comment, 1.0));
+				docs[dnum] = create_example(dnum, rs.read_queryid, rs.read_slackid,
+						rs.read_costfactor,
+						create_svector(words, rs.read_comment, 1.0));
 				// pw.println("docs dnum[" + dnum + "]"
 				// + docs[dnum].fvec.words.length);
 				/*
@@ -419,13 +425,13 @@ public class svm_common {
 		if (verbosity >= 1) {
 			System.out.println("OK. (" + dnum + " examples read)\n");
 		}
-		read_totdocs = dnum;
-		read_target = label;
+		struct.read_totdocs = dnum;
+		struct.read_target = label;
 		return docs;
 	}
 
 	public static DOC[] read_documents_from_stream(InputStream is,
-			double[] label) {
+			double[] label,ReadStruct struct) {
 		String line, comment;
 		// PrintWriter pw = null;
 		// FileWriter fw = null;
@@ -444,9 +450,10 @@ public class svm_common {
 			System.out.println("Scanning examples...");
 		}
 
-		ArrayList<String> list = nol_ll_stream(is); /* scan size of input file */
-		read_max_words_doc += 2;
-		read_max_docs += 2;
+		ReadSummary summary=new ReadSummary();
+		ArrayList<String> list = nol_ll_stream(is,summary); /* scan size of input file */
+		struct.read_max_words_doc =summary.read_max_words_doc+ 2;
+		struct.read_max_docs = summary.read_max_docs+2;
 		if (verbosity >= 1) {
 			System.out.println("done\n");
 		}
@@ -455,15 +462,15 @@ public class svm_common {
 		 * BufferedReader(fr); } catch (Exception e) {
 		 * System.out.println(e.getMessage()); }
 		 */
-		docs = new DOC[read_max_docs]; /* feature vectors */
+		docs = new DOC[struct.read_max_docs]; /* feature vectors */
 		// for(int k=0;k<read_docs.length;k++)
 		// {
 		// read_docs[k]=ps.getDOC();
 		// }
 		WORD[] words;
-		label = new double[read_max_docs]; /* target values */
+		label = new double[struct.read_max_docs]; /* target values */
 		// System.out.println("docs length:"+docs.length);
-		words = new WORD[read_max_words_doc + 10];
+		words = new WORD[struct.read_max_words_doc + 10];
 		for (int j = 0; j < words.length; j++) {
 			words[j] = new WORD();
 			words[j].wnum = 0;
@@ -473,7 +480,7 @@ public class svm_common {
 			System.out.println("Reading examples into memory...");
 		}
 		dnum = 0;
-		read_totwords = 0;
+		struct.read_totwords = 0;
 		try {
 			// while ((line = br.readLine()) != null) {
 			for (int j = 0; j < list.size(); j++) {
@@ -482,27 +489,28 @@ public class svm_common {
 					continue; /* line contains comments */
 				// System.out.println(line);
 
-				if ((words = parse_document(line, read_max_words_doc)) == null) {
+				ReadStruct rs=new ReadStruct();
+				if ((words = parse_document(line, struct.read_max_words_doc,rs)) == null) {
 					System.out.println("\nParsing error in line " + dnum
 							+ "!\n" + line);
 					// System.exit(1);
 					continue;
 				}
-				label[dnum] = read_doc_label;
+				label[dnum] = rs.read_doc_label;
 				/* printf("docnum=%ld: Class=%f ",dnum,doc_label); */
-				if (read_doc_label > 0)
+				if ( rs.read_doc_label > 0)
 					dpos++;
-				if (read_doc_label < 0)
+				if ( rs.read_doc_label < 0)
 					dneg++;
-				if (read_doc_label == 0)
+				if ( rs.read_doc_label == 0)
 					dunlab++;
-				if ((read_wpos > 1)
-						&& ((words[read_wpos - 2]).wnum > read_totwords))
-					read_totwords = words[read_wpos - 2].wnum;
+				if (( rs.read_wpos > 1)
+						&& ((words[ rs.read_wpos - 2]).wnum >  rs.read_totwords))
+					struct.read_totwords = words[ rs.read_wpos - 2].wnum;
 
-				docs[dnum] = create_example(dnum, read_queryid, read_slackid,
-						read_costfactor,
-						create_svector(words, read_comment, 1.0));
+				docs[dnum] = create_example(dnum,  rs.read_queryid,  rs.read_slackid,
+						 rs.read_costfactor,
+						create_svector(words,  rs.read_comment, 1.0));
 				// pw.println("docs dnum[" + dnum + "]"
 				// + docs[dnum].fvec.words.length);
 				/*
@@ -528,13 +536,13 @@ public class svm_common {
 		if (verbosity >= 1) {
 			System.out.println("OK. (" + dnum + " examples read)\n");
 		}
-		read_totdocs = dnum;
-		read_target = label;
+		struct.read_totdocs = dnum;
+		struct.read_target = label;
 		return docs;
 	}
 
 	public static DOC[] read_documents_from_arraylist(ArrayList<String> list,
-			double[] label) {
+			double[] label,ReadStruct struct) {
 		String line, comment;
 		DOC[] docs;
 
@@ -547,21 +555,21 @@ public class svm_common {
 		}
 
 		logger.info("begin nol ll list");
-		nol_ll_list(list); /* scan size of input file */
+		ReadSummary summary=nol_ll_list(list); /* scan size of input file */
 		logger.info("end nol ll list");
 
-		read_max_words_doc += 2;
-		read_max_docs += 2;
+		struct.read_max_words_doc = summary.read_max_words_doc+2;
+		struct.read_max_docs = summary.read_max_docs+2;
 		if (verbosity >= 1) {
 			// System.out.println("done\n");
 		}
 
-		docs = new DOC[read_max_docs]; /* feature vectors */
+		docs = new DOC[	struct.read_max_docs]; /* feature vectors */
 
 		WORD[] words;
-		label = new double[read_max_docs]; /* target values */
+		label = new double[	struct.read_max_docs]; /* target values */
 
-		words = new WORD[read_max_words_doc + 10];
+		words = new WORD[	struct.read_max_words_doc + 10];
 		for (int j = 0; j < words.length; j++) {
 			words[j] = new WORD();
 			words[j].wnum = 0;
@@ -571,7 +579,7 @@ public class svm_common {
 			System.out.println("Reading examples into memory...");
 		}
 		dnum = 0;
-		read_totwords = 0;
+		struct.read_totwords = 0;
 		try {
 			for (int j = 0; j < list.size(); j++) {
 				line = list.get(j);
@@ -579,25 +587,26 @@ public class svm_common {
 				if (line.charAt(0) == '#')
 					continue; /* line contains comments */
 
-				if ((words = parse_document(line, read_max_words_doc)) == null) {
+				ReadStruct rs=new ReadStruct();
+				if ((words = parse_document(line, 	struct.read_max_words_doc,rs)) == null) {
 					System.out.println("\nParsing error in line " + dnum
 							+ "!\n" + line);
 					continue;
 				}
-				label[dnum] = read_doc_label;
-				if (read_doc_label > 0)
+				label[dnum] = rs.read_doc_label;
+				if ( rs.read_doc_label > 0)
 					dpos++;
-				if (read_doc_label < 0)
+				if (rs.read_doc_label < 0)
 					dneg++;
-				if (read_doc_label == 0)
+				if (rs.read_doc_label == 0)
 					dunlab++;
-				if ((read_wpos > 1)
-						&& ((words[read_wpos - 2]).wnum > read_totwords))
-					read_totwords = words[read_wpos - 2].wnum;
+				if ((rs.read_wpos > 1)
+						&& ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
+					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
-				docs[dnum] = create_example(dnum, read_queryid, read_slackid,
-						read_costfactor,
-						create_svector(words, read_comment, 1.0));
+				docs[dnum] = create_example(dnum, rs.read_queryid, rs.read_slackid,
+						rs.read_costfactor,
+						create_svector(words, rs.read_comment, 1.0));
 				dnum++;
 
 			}
@@ -608,12 +617,12 @@ public class svm_common {
 		if (verbosity >= 1) {
 			System.out.println("OK. (" + dnum + " examples read)\n");
 		}
-		read_totdocs = dnum;
-		read_target = label;
+		struct.read_totdocs = dnum;
+		struct.read_target = label;
 		return docs;
 	}
 
-	public static WORD[] parse_document(String line, int max_words_doc) {
+	public static WORD[] parse_document(String line, int max_words_doc,ReadStruct struct) {
 		int wpos = 0, pos;
 		int wnum;
 		double weight;
@@ -622,23 +631,23 @@ public class svm_common {
 			return null;
 		}
 
-		read_words = new WORD[max_words_doc];
+		WORD[] read_words = new WORD[max_words_doc];
 		for (int k = 0; k < read_words.length; k++) {
 			read_words[k] = new WORD();
 			read_words[k].wnum = 0;
 			read_words[k].weight = 0;
 		}
-		read_queryid = 0;
-		read_slackid = 0;
-		read_costfactor = 1;
+		struct.read_queryid = 0;
+		struct.read_slackid = 0;
+		struct.read_costfactor = 1;
 
 		pos = 0;
-		read_comment = "";
+		struct.read_comment = "";
 		String dline = "";
 		/* printf("Comment: '%s'\n",(*comment)); */
 		// logger.info("lline:"+line);
 		if (line.indexOf("#") > 0) {
-			read_comment = line.substring(line.indexOf("#") + 1, line.length());
+			struct.read_comment = line.substring(line.indexOf("#") + 1, line.length());
 			dline = line.substring(0, line.indexOf("#"));
 		} else {
 			dline = line;
@@ -650,7 +659,7 @@ public class svm_common {
 		if ((seg_arr.length < 1) || (seg_arr[0].indexOf("#") > -1)) {
 			return null;
 		}
-		read_doc_label = Double.parseDouble(seg_arr[0]);
+		struct.read_doc_label = Double.parseDouble(seg_arr[0]);
 
 		String wstr = "";
 		String pstr = "";
@@ -665,11 +674,11 @@ public class svm_common {
 			pstr = pstr.trim();
 			sstr = sstr.trim();
 			if (pstr.equals("qid")) {
-				read_queryid = Integer.parseInt(sstr);
+				struct.read_queryid = Integer.parseInt(sstr);
 			} else if (pstr.equals("sid")) {
-				read_slackid = Integer.parseInt(sstr);
+				struct.read_slackid = Integer.parseInt(sstr);
 			} else if (pstr.equals("cost")) {
-				read_costfactor = Double.parseDouble(sstr);
+				struct.read_costfactor = Double.parseDouble(sstr);
 			} else if (Pattern.matches("[\\d]+", pstr)) {
 				read_words[wpos].wnum = Integer.parseInt(pstr);
 				read_words[wpos].weight = Double.parseDouble(sstr);
@@ -678,11 +687,11 @@ public class svm_common {
 		}
 
 		read_words[wpos].wnum = 0;
-		read_wpos = wpos + 1;
+		struct.read_wpos = wpos + 1;
 		return read_words;
 	}
 
-	public WORD[] parse_big_document(String line, int max_words_doc) {
+	public WORD[] parse_big_document(String line, int max_words_doc,ReadStruct struct) {
 		int wpos = 0, pos = 0;
 		int wnum;
 		double weight;
@@ -691,7 +700,7 @@ public class svm_common {
 			return null;
 		}
 
-		read_words = new WORD[max_words_doc];
+		WORD[] read_words = new WORD[max_words_doc];
 		for (int k = 0; k < read_words.length; k++) {
 			read_words[k] = new WORD();
 			read_words[k].wnum = 0;
@@ -702,7 +711,7 @@ public class svm_common {
 		String token = "";
 		String pstr = "";
 		String sstr = "";
-		read_doc_label = Double.parseDouble(sc.next());
+		struct.read_doc_label = Double.parseDouble(sc.next());
 
 		while ((token = sc.next()) != null) {
 			if (token.indexOf(":") < 0) {
@@ -713,11 +722,11 @@ public class svm_common {
 			pstr = pstr.trim();
 			sstr = sstr.trim();
 			if (pstr.equals("qid")) {
-				read_queryid = Integer.parseInt(sstr);
+				struct.read_queryid = Integer.parseInt(sstr);
 			} else if (pstr.equals("sid")) {
-				read_slackid = Integer.parseInt(sstr);
+				struct.read_slackid = Integer.parseInt(sstr);
 			} else if (pstr.equals("cost")) {
-				read_costfactor = Double.parseDouble(sstr);
+				struct.read_costfactor = Double.parseDouble(sstr);
 			} else if (Pattern.matches("[\\d]+", pstr)) {
 				read_words[wpos].wnum = Integer.parseInt(pstr);
 				read_words[wpos].weight = Double.parseDouble(sstr);
@@ -726,7 +735,7 @@ public class svm_common {
 		}
 
 		read_words[wpos].wnum = 0;
-		read_wpos = wpos + 1;
+		struct.read_wpos = wpos + 1;
 
 		/*
 		 * read_queryid = 0; read_slackid = 0; read_costfactor = 1;
@@ -761,11 +770,11 @@ public class svm_common {
 		return read_words;
 	}
 
-	public static void nol_ll(String input_file) {
+	public static ReadSummary nol_ll(String input_file) {
 
 		// logger.info("input_file:"+input_file);
 		// logger.info("in nol ll");
-
+		ReadSummary summary=new ReadSummary();
 		BufferedReader br = null;
 
 		try {
@@ -799,8 +808,8 @@ public class svm_common {
 				}
 			}
 
-			read_max_docs = temp_docs;
-			read_max_words_doc = temp_words;
+			summary.read_max_docs = temp_docs;
+			summary.read_max_words_doc = temp_words;
 			// System.out.println("read_max_docs:" + read_max_docs);
 			// System.out.println("read_max_words_doc:" + read_max_words_doc);
 
@@ -808,10 +817,12 @@ public class svm_common {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
+		
+		return summary;
 
 	}
 
-	public static ArrayList<String> nol_ll_stream(InputStream is) {
+	public static ArrayList<String> nol_ll_stream(InputStream is,ReadSummary summary) {
 
 		FileReader fr = null;
 		BufferedReader br = null;
@@ -841,8 +852,8 @@ public class svm_common {
 				}
 			}
 
-			read_max_docs = temp_docs;
-			read_max_words_doc = temp_words;
+			summary.read_max_docs = temp_docs;
+			summary.read_max_words_doc = temp_words;
 
 			br.close();
 		} catch (Exception e) {
@@ -853,8 +864,9 @@ public class svm_common {
 
 	}
 
-	public static void nol_ll_list(ArrayList<String> list) {
+	public static ReadSummary nol_ll_list(ArrayList<String> list) {
 
+		ReadSummary summary=new ReadSummary();
 		logger.info("in nol_ll_list");
 		String line = "";
 		int temp_docs = 0;
@@ -878,19 +890,23 @@ public class svm_common {
 				}
 			}
 
-			read_max_docs = temp_docs;
-			read_max_words_doc = temp_words;
+			summary.read_max_docs = temp_docs;
+			summary.read_max_words_doc = temp_words;
 
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
+		
+		return  summary;
 
 	}
 
-	public void nol_big_ll(String input_file) {
+	public ReadSummary nol_big_ll(String input_file) {
 
 		// logger.info("input_file:"+input_file);
 		// logger.info("in nol ll");
+		
+		ReadSummary summary=new ReadSummary();
 		FileReader fr = null;
 		BufferedReader br = null;
 
@@ -930,8 +946,8 @@ public class svm_common {
 				System.out.println("wcount:" + wcount);
 			}
 
-			read_max_docs = temp_docs;
-			read_max_words_doc = temp_words;
+			summary.read_max_docs = temp_docs;
+			summary.read_max_words_doc = temp_words;
 			// System.out.println("read_max_docs:" + read_max_docs);
 			// System.out.println("read_max_words_doc:" + read_max_words_doc);
 
@@ -942,6 +958,7 @@ public class svm_common {
 			System.out.println(e.getMessage());
 		}
 
+		return summary;
 	}
 
 	public static double[] read_alphas(String alphafile, int totdoc)
@@ -1867,8 +1884,8 @@ public class svm_common {
 				logger.info("Reading model...");
 			}
 
-			svm_common.nol_ll(modelfile);
-			max_words = svm_common.read_max_words_doc;
+			ReadSummary summary=svm_common.nol_ll(modelfile);
+			max_words = summary.read_max_words_doc;
 			max_words += 2;
 			line = br.readLine();
 			version_buffer = SSO.afterStr(line, "SVM-multiclass Version")
@@ -1915,18 +1932,20 @@ public class svm_common {
 			model.alpha = new double[model.sv_num];
 			model.index = null;
 			model.lin_weights = null;
-
+			WORD[] read_words;
 			for (i = 1; i < model.sv_num; i++) {
 				line = br.readLine();
 				// logger.info("i:"+i+" "+line);
-				svm_common.parse_document(line, max_words);
-				model.alpha[i] = svm_common.read_doc_label;
-				queryid = svm_common.read_queryid;
-				slackid = svm_common.read_slackid;
-				costfactor = svm_common.read_costfactor;
-				wpos = svm_common.read_wpos;
-				comment = svm_common.read_comment;
-				words = svm_common.read_words;
+				ReadStruct rs=new ReadStruct();
+				read_words=svm_common.parse_document(line, max_words,rs);
+				model.alpha[i] = rs.read_doc_label;
+				queryid = rs.read_queryid;
+				slackid = rs.read_slackid;
+				costfactor = rs.read_costfactor;
+				wpos = rs.read_wpos;
+				comment = rs.read_comment;
+				//words = svm_common.read_words;
+				words =read_words;
 				model.supvec[i] = svm_common.create_example(-1, 0, 0, 0.0,
 						svm_common.create_svector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
