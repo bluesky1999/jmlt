@@ -7,12 +7,14 @@ import org.apache.log4j.Logger;
 
 /**
  * 多分类struct api
+ * 
  * @author zkyz
  */
-public class svm_struct_api_multiclass extends svm_struct_api{
-	
-	private static Logger logger = Logger.getLogger(svm_struct_api_multiclass.class);
-	
+public class svm_struct_api_multiclass extends svm_struct_api {
+
+	private static Logger logger = Logger
+			.getLogger(svm_struct_api_multiclass.class);
+
 	@Override
 	public void init_struct_model(SAMPLE sample, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm) {
@@ -115,14 +117,13 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 		 * computing a new PSI vector.
 		 */
 		doc = x.doc.copyDoc();
-        
+
 		ybar.scores = null;
 		ybar.num_classes = sparm.num_classes;
 
-
 		for (ci = 1; ci <= sparm.num_classes; ci++) {
 			ybar.class_index = ci;
-			
+
 			doc.fvec = psi(x, ybar, sm, sparm);
 			score = svm_common.classify_example(sm.svm_model, doc);
 			score += loss(y, ybar, sparm);
@@ -140,7 +141,9 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 
 	@Override
 	public double loss(LABEL y, LABEL ybar, STRUCT_LEARN_PARM sparm) {
+
 		if (sparm.loss_function == 0) { /* type 0 loss: 0/1 loss */
+			// System.err.println("y.class_index:"+y.class_index);
 			if (y.class_index == ybar.class_index)
 				return (0);
 			else
@@ -172,7 +175,7 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 		DOC doc;
 		int class_index, bestclass = -1, j;
 		boolean first = true;
-		double score=0.0, bestscore = -1;
+		double score = 0.0, bestscore = -1;
 		WORD[] words;
 
 		doc = x.doc.copyDoc();
@@ -180,19 +183,18 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 		y.num_classes = sparm.num_classes;
 		words = doc.fvec.words;
 
-		
-		for (j = 0; j <words.length; j++) {
+		for (j = 0; j < words.length; j++) {
 			if (words[j].wnum > sparm.num_features) {
 				return null;
-				//words[j].wnum = 0;
+				// words[j].wnum = 0;
 			}
 		}
-	
+
 		for (class_index = 1; class_index <= sparm.num_classes; class_index++) {
 			y.class_index = class_index;
 			doc.fvec = psi(x, y, sm, sparm);
-	
-			score = svm_common.classify_example(sm.svm_model, doc);	
+
+			score = svm_common.classify_example(sm.svm_model, doc);
 			y.scores[class_index] = score;
 			if ((bestscore < score) || first) {
 				bestscore = score;
@@ -200,20 +202,19 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 				first = false;
 			}
 		}
-      
+
 		y.class_index = bestclass;
 
-		
 		return y;
 	}
 
 	@Override
 	public SAMPLE read_struct_examples(String file, STRUCT_LEARN_PARM sparm) {
 
-		SAMPLE sample = new SAMPLE(); 
+		SAMPLE sample = new SAMPLE();
 		EXAMPLE[] examples;
-		int n; 
-		DOC[] docs; 
+		int n;
+		DOC[] docs;
 		double[] target = null;
 		int totwords, i, num_classes = 0;
 
@@ -243,7 +244,7 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 				System.exit(1);
 			}
 
-		for (i = 0; i < n; i++) { 
+		for (i = 0; i < n; i++) {
 			examples[i].x.doc = docs[i];
 			examples[i].y.class_index = (int) (target[i] + 0.1);
 			examples[i].y.scores = null;
@@ -259,10 +260,10 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 	@Override
 	public SAMPLE read_struct_examples_from_stream(InputStream is,
 			STRUCT_LEARN_PARM sparm) {
-		SAMPLE sample = new SAMPLE(); 
+		SAMPLE sample = new SAMPLE();
 		EXAMPLE[] examples;
-		int n; 
-		DOC[] docs; 
+		int n;
+		DOC[] docs;
 		double[] target = null;
 		int totwords, i, num_classes = 0;
 
@@ -291,7 +292,7 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 				System.exit(1);
 			}
 
-		for (i = 0; i < n; i++) { 
+		for (i = 0; i < n; i++) {
 			examples[i].x.doc = docs[i];
 			examples[i].y.class_index = (int) (target[i] + 0.1);
 			examples[i].y.scores = null;
@@ -308,18 +309,18 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 	public SAMPLE read_struct_examples_from_arraylist(ArrayList<String> list,
 			STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
-		
-		SAMPLE sample = new SAMPLE(); 
+
+		SAMPLE sample = new SAMPLE();
 		EXAMPLE[] examples;
-		int n; 
-		DOC[] docs; 
+		int n;
+		DOC[] docs;
 		double[] target = null;
 		int totwords, i, num_classes = 0;
-       
+
 		logger.info("begin read documents");
 		docs = svm_common.read_documents_from_arraylist(list, target);
 		logger.info("end read documents");
-		
+
 		target = svm_common.read_target;
 		totwords = svm_common.read_totwords;
 		n = svm_common.read_totdocs;
@@ -343,7 +344,7 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 				System.exit(1);
 			}
 
-		for (i = 0; i < n; i++) { 
+		for (i = 0; i < n; i++) {
 			examples[i].x.doc = docs[i];
 			examples[i].y.class_index = (int) (target[i] + 0.1);
 			examples[i].y.scores = null;
@@ -359,16 +360,17 @@ public class svm_struct_api_multiclass extends svm_struct_api{
 	@Override
 	public PATTERN sample2pattern(String wordString) {
 		int dnum = 0;
-		int queryid=0;
-		int slackid=0;
-		double costfactor=0;
-		String read_comment="";
-		WORD[] words=null;
-		words=string2words(wordString);
-		DOC doc=svm_common.create_example(dnum, queryid, slackid,costfactor,svm_common.create_svector(words, read_comment, 1.0));
-		PATTERN pat=new PATTERN();
-		pat.doc=doc;
-		
+		int queryid = 0;
+		int slackid = 0;
+		double costfactor = 0;
+		String read_comment = "";
+		WORD[] words = null;
+		words = string2words(wordString);
+		DOC doc = svm_common.create_example(dnum, queryid, slackid, costfactor,
+				svm_common.create_svector(words, read_comment, 1.0));
+		PATTERN pat = new PATTERN();
+		pat.doc = doc;
+
 		return pat;
 	}
 

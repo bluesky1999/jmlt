@@ -839,7 +839,7 @@ public class svm_common {
             br = new BufferedReader(fr);
 
         } catch (FileNotFoundException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             InputStream model_is = svm_common.class.getResourceAsStream(
                             "/" + input_file);
             InputStreamReader model_isr = new InputStreamReader(model_is);
