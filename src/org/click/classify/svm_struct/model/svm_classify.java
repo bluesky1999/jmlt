@@ -3,6 +3,7 @@ package org.click.classify.svm_struct.model;
 import org.apache.log4j.Logger;
 import org.click.classify.svm_struct.data.DOC;
 import org.click.classify.svm_struct.data.MODEL;
+import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.WORD;
 import org.jmlp.file.utils.FileToArray;
 import org.jmlp.str.basic.SSO;
@@ -55,7 +56,7 @@ public class svm_classify {
 			words = svm_common.read_words;
 			doc = svm_common.create_example(-1, 0, 0, 0.0,
 					svm_common.create_svector(words, comment, 1.0));
-			if (model.kernel_parm.kernel_type == svm_common.LINEAR) { 
+			if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) { 
 			    logger.info("kernel type is linear aa");
 				dist = svm_common.classify_example_linear(model, doc);
 			} else { /* non-linear kernel */

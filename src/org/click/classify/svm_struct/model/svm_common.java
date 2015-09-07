@@ -18,6 +18,7 @@ import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LEARN_PARM;
 import org.click.classify.svm_struct.data.MATRIX;
 import org.click.classify.svm_struct.data.MODEL;
+import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.RANDPAIR;
 import org.click.classify.svm_struct.data.SVECTOR;
 import org.click.classify.svm_struct.data.SortWordArr;
@@ -26,70 +27,6 @@ import org.jmlp.str.basic.SSO;
 import org.jmlp.time.utils.TimeOpera;
 
 public class svm_common {
-
-	public static final String VERSION = "V6.20";
-	public static final String VERSION_DATE = "14.08.08";
-
-	public static final short LINEAR = 0;
-	public static final short POLY = 1;
-	public static final short RBF = 2;
-	public static final short SIGMOID = 3;
-	public static final short CUSTOM = 4;
-	public static final short GRAM = 5;
-
-	public static final short CLASSIFICATION = 1;
-	public static final short REGRESSION = 2;
-	public static final short RANKING = 3;
-	public static final short OPTIMIZATION = 4;
-
-	public static final int MAXSHRINK = 50000;
-
-	public static final String INST_NAME = "Multi-Class SVM";
-
-	public static final String INST_VERSION = "V2.20";
-
-	public static final String INST_VERSION_DATE = "14.08.08";
-
-	/**
-	 * default precision for solving the optimization problem
-	 */
-	public static final double c = 0.1;
-
-	/**
-	 * default loss rescaling method: 1=slack_rescaling, 2=margin_rescaling
-	 */
-	public static final short DEFAULT_RESCALING = 2;
-
-	/**
-	 * default loss function:
-	 */
-	public static final int DEFAULT_LOSS_FCT = 0;
-
-	/**
-	 * default optimization algorithm to use:
-	 */
-	public static final int DEFAULT_ALG_TYPE = 4;
-
-	/**
-	 * store Psi(x,y) once instead of recomputing it every time:
-	 */
-	public static final int USE_FYCACHE = 0;
-
-	/**
-	 * decide whether to evaluate sum before storing vectors in constraint
-	 * cache: 0 = NO, 1 = YES (best, if sparse vectors and long vector lists), 2
-	 * = YES (best, if short vector lists), 3 = YES (best, if dense vectors and
-	 * long vector lists)
-	 */
-	public static final short COMPACT_CACHED_VECTORS = 2;
-
-	/**
-	 * minimum absolute value below which values in sparse vectors are rounded
-	 * to zero. Values are stored in the FVAL type defined in svm_common.h
-	 * RECOMMENDATION: assuming you use FVAL=float, use 10E-15 if
-	 * COMPACT_CACHED_VECTORS is 1 10E-10 if COMPACT_CACHED_VECTORS is 2 or 3
-	 */
-	public static final double COMPACT_ROUNDING_THRESH = 10E-15;
 
 	public static int kernel_cache_statistic = 0;
 	public static int verbosity = 0;
@@ -161,7 +98,7 @@ public class svm_common {
 		// System.out.println("in kernel");
 		double sum = 0;
 		SVECTOR fa, fb;
-		if (kernel_parm.kernel_type == GRAM) {
+		if (kernel_parm.kernel_type == ModelConstant.GRAM) {
 			// System.out.println("kernel_type:" + GRAM);
 			if ((a.kernelid >= 0) && (b.kernelid >= 0)) {
 
@@ -192,13 +129,13 @@ public class svm_common {
 		kernel_cache_statistic++;
 
 		switch (kernel_parm.kernel_type) {
-		case LINEAR:
+		case ModelConstant.LINEAR:
 			// System.out.println("liner kernel y");
 			return sprod_ss(a, b);
-		case POLY:
+		case ModelConstant.POLY:
 			return Math.pow(kernel_parm.coef_lin * sprod_ss(a, b)
 					+ kernel_parm.coef_const, kernel_parm.poly_degree);
-		case RBF:
+		case ModelConstant.RBF:
 			if (a.twonorm_sq < 0) {
 				a.twonorm_sq = sprod_ss(a, a);
 			} else if (b.twonorm_sq < 0) {
@@ -206,11 +143,11 @@ public class svm_common {
 			}
 			return Math.exp(-kernel_parm.rbf_gamma
 					* (a.twonorm_sq - 2 * sprod_ss(a, b) + b.twonorm_sq));
-		case SIGMOID:
+		case ModelConstant.SIGMOID:
 			return Math.tanh(kernel_parm.coef_lin * sprod_ss(a, b)
 					+ kernel_parm.coef_const);
-		case CUSTOM:
-			//return kernel.custom_kernel(kernel_parm, a, b);
+		case ModelConstant.CUSTOM:
+			// return kernel.custom_kernel(kernel_parm, a, b);
 		default:
 			System.out.println("Error: Unknown kernel function");
 			System.exit(1);
@@ -272,7 +209,8 @@ public class svm_common {
 		for (int i = 0; i < ai.length; i++) {
 			if (ai[i] != null) {
 				vec_n[ai[i].wnum] += (faktor * ai[i].weight);
-				//vec_n[ai[i].wnum]=WeightsUpdate.sum(vec_n[ai[i].wnum], WeightsUpdate.mul(faktor, ai[i].weight));
+				// vec_n[ai[i].wnum]=WeightsUpdate.sum(vec_n[ai[i].wnum],
+				// WeightsUpdate.mul(faktor, ai[i].weight));
 			} else {
 				continue;
 			}
@@ -289,9 +227,10 @@ public class svm_common {
 		for (int i = 0; i < ai.length; i++) {
 			// logger.info("i:"+i+" ai[i].wnum:"+ai[i].wnum);
 			if (ai[i] != null) {
-				
+
 				sum += (vec_n[ai[i].wnum] * ai[i].weight);
-				//sum = WeightsUpdate.sum(sum, WeightsUpdate.mul(vec_n[ai[i].wnum], ai[i].weight));
+				// sum = WeightsUpdate.sum(sum,
+				// WeightsUpdate.mul(vec_n[ai[i].wnum], ai[i].weight));
 			} else {
 				continue;
 			}
@@ -341,7 +280,7 @@ public class svm_common {
 
 	public static void set_learning_defaults(LEARN_PARM learn_parm,
 			KERNEL_PARM kernel_parm) {
-		learn_parm.type = CLASSIFICATION;
+		learn_parm.type = ModelConstant.CLASSIFICATION;
 		learn_parm.predfile = "trans_predictions";
 		learn_parm.alphafile = "";
 		learn_parm.biased_hyperplane = 1;
@@ -349,14 +288,14 @@ public class svm_common {
 		learn_parm.remove_inconsistent = 0;
 		learn_parm.skip_final_opt_check = 0;
 		learn_parm.svm_maxqpsize = 10;
-		//learn_parm.svm_maxqpsize = 100;
+		// learn_parm.svm_maxqpsize = 100;
 		learn_parm.svm_newvarsinqp = 0;
 		learn_parm.svm_iter_to_shrink = -9999;
-		//learn_parm.maxiter = 100000;
+		// learn_parm.maxiter = 100000;
 		learn_parm.maxiter = 100000;
-		
+
 		learn_parm.kernel_cache_size = 40;
-		//learn_parm.kernel_cache_size = 400;
+		// learn_parm.kernel_cache_size = 400;
 		learn_parm.svm_c = 0.0;
 		learn_parm.eps = 0.1;
 		learn_parm.transduction_posratio = -1.0;
@@ -365,11 +304,11 @@ public class svm_common {
 		learn_parm.svm_unlabbound = 1E-5;
 		learn_parm.epsilon_crit = 0.001;
 		learn_parm.epsilon_a = 1E-15;
-		//learn_parm.epsilon_a = 1E-5;
+		// learn_parm.epsilon_a = 1E-5;
 		learn_parm.compute_loo = 0;
 		learn_parm.rho = 1.0;
 		learn_parm.xa_depth = 0;
-		kernel_parm.kernel_type = LINEAR;
+		kernel_parm.kernel_type = ModelConstant.LINEAR;
 		kernel_parm.poly_degree = 3;
 		kernel_parm.rbf_gamma = 1.0;
 		kernel_parm.coef_lin = 1;
@@ -379,16 +318,13 @@ public class svm_common {
 
 	public static DOC[] read_documents(String docfile, double[] label) {
 		String line, comment;
-		//PrintWriter pw = null;
-		//FileWriter fw = null;
+		// PrintWriter pw = null;
+		// FileWriter fw = null;
 		DOC[] docs;
 		/*
-		try {
-			fw = new FileWriter(new File("log2.txt"));
-			pw = new PrintWriter(fw);
-		} catch (Exception e) {
-		}
-		*/
+		 * try { fw = new FileWriter(new File("log2.txt")); pw = new
+		 * PrintWriter(fw); } catch (Exception e) { }
+		 */
 		int dnum = 0, wpos, dpos = 0, dneg = 0, dunlab = 0, queryid, slackid, max_docs;
 		int max_words_doc, ll;
 		double doc_label, costfactor;
@@ -458,22 +394,21 @@ public class svm_common {
 				docs[dnum] = create_example(dnum, read_queryid, read_slackid,
 						read_costfactor,
 						create_svector(words, read_comment, 1.0));
-				//pw.println("docs dnum[" + dnum + "]"
-				//		+ docs[dnum].fvec.words.length);
+				// pw.println("docs dnum[" + dnum + "]"
+				// + docs[dnum].fvec.words.length);
 				/*
-				for (int k = 0; k < 100; k++) {
-					pw.print(" " + docs[dnum].fvec.words[k].wnum + ":"
-							+ docs[dnum].fvec.words[k].weight);
-				}
-				*/
+				 * for (int k = 0; k < 100; k++) { pw.print(" " +
+				 * docs[dnum].fvec.words[k].wnum + ":" +
+				 * docs[dnum].fvec.words[k].weight); }
+				 */
 				// System.out.println();
 				/* printf("\nNorm=%f\n",((*docs)[dnum]->fvec)->twonorm_sq); */
 				dnum++;
-				//if (verbosity >= 1) {
-				//	if ((dnum % 100) == 0) {
-						// System.out.println(dnum+"..");
-				//	}
-				//}
+				// if (verbosity >= 1) {
+				// if ((dnum % 100) == 0) {
+				// System.out.println(dnum+"..");
+				// }
+				// }
 			}
 
 			fr.close();
@@ -489,42 +424,37 @@ public class svm_common {
 		return docs;
 	}
 
-	public static DOC[] read_documents_from_stream(InputStream is, double[] label) {
+	public static DOC[] read_documents_from_stream(InputStream is,
+			double[] label) {
 		String line, comment;
-		//PrintWriter pw = null;
-		//FileWriter fw = null;
+		// PrintWriter pw = null;
+		// FileWriter fw = null;
 		DOC[] docs;
 		/*
-		try {
-			fw = new FileWriter(new File("log2.txt"));
-			pw = new PrintWriter(fw);
-		} catch (Exception e) {
-		}
-		*/
+		 * try { fw = new FileWriter(new File("log2.txt")); pw = new
+		 * PrintWriter(fw); } catch (Exception e) { }
+		 */
 		int dnum = 0, wpos, dpos = 0, dneg = 0, dunlab = 0, queryid, slackid, max_docs;
 		int max_words_doc, ll;
 		double doc_label, costfactor;
-		//FileReader fr = null;
-		//BufferedReader br = null;
+		// FileReader fr = null;
+		// BufferedReader br = null;
 
 		if (verbosity >= 1) {
 			System.out.println("Scanning examples...");
 		}
 
-		ArrayList<String> list=nol_ll_stream(is); /* scan size of input file */
+		ArrayList<String> list = nol_ll_stream(is); /* scan size of input file */
 		read_max_words_doc += 2;
 		read_max_docs += 2;
 		if (verbosity >= 1) {
 			System.out.println("done\n");
 		}
 		/*
-		try {
-			fr = new FileReader(new File(docfile));
-			br = new BufferedReader(fr);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-		*/
+		 * try { fr = new FileReader(new File(docfile)); br = new
+		 * BufferedReader(fr); } catch (Exception e) {
+		 * System.out.println(e.getMessage()); }
+		 */
 		docs = new DOC[read_max_docs]; /* feature vectors */
 		// for(int k=0;k<read_docs.length;k++)
 		// {
@@ -545,9 +475,8 @@ public class svm_common {
 		dnum = 0;
 		read_totwords = 0;
 		try {
-			//while ((line = br.readLine()) != null) {
-			 for(int j=0;j<list.size();j++)
-			 {
+			// while ((line = br.readLine()) != null) {
+			for (int j = 0; j < list.size(); j++) {
 				line = list.get(j);
 				if (line.charAt(0) == '#')
 					continue; /* line contains comments */
@@ -574,26 +503,25 @@ public class svm_common {
 				docs[dnum] = create_example(dnum, read_queryid, read_slackid,
 						read_costfactor,
 						create_svector(words, read_comment, 1.0));
-				//pw.println("docs dnum[" + dnum + "]"
-				//		+ docs[dnum].fvec.words.length);
+				// pw.println("docs dnum[" + dnum + "]"
+				// + docs[dnum].fvec.words.length);
 				/*
-				for (int k = 0; k < 100; k++) {
-					pw.print(" " + docs[dnum].fvec.words[k].wnum + ":"
-							+ docs[dnum].fvec.words[k].weight);
-				}
-				*/
+				 * for (int k = 0; k < 100; k++) { pw.print(" " +
+				 * docs[dnum].fvec.words[k].wnum + ":" +
+				 * docs[dnum].fvec.words[k].weight); }
+				 */
 				// System.out.println();
 				/* printf("\nNorm=%f\n",((*docs)[dnum]->fvec)->twonorm_sq); */
 				dnum++;
-				//if (verbosity >= 1) {
-				//	if ((dnum % 100) == 0) {
-						// System.out.println(dnum+"..");
-				//	}
-				//}
-			//}
-			 }
-			//fr.close();
-			//br.close();
+				// if (verbosity >= 1) {
+				// if ((dnum % 100) == 0) {
+				// System.out.println(dnum+"..");
+				// }
+				// }
+				// }
+			}
+			// fr.close();
+			// br.close();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -604,8 +532,9 @@ public class svm_common {
 		read_target = label;
 		return docs;
 	}
-	
-	public static DOC[] read_documents_from_arraylist(ArrayList<String> list, double[] label) {
+
+	public static DOC[] read_documents_from_arraylist(ArrayList<String> list,
+			double[] label) {
 		String line, comment;
 		DOC[] docs;
 
@@ -614,17 +543,17 @@ public class svm_common {
 		double doc_label, costfactor;
 
 		if (verbosity >= 1) {
-			//System.out.println("Scanning examples...");
+			// System.out.println("Scanning examples...");
 		}
 
 		logger.info("begin nol ll list");
 		nol_ll_list(list); /* scan size of input file */
 		logger.info("end nol ll list");
-		
+
 		read_max_words_doc += 2;
 		read_max_docs += 2;
 		if (verbosity >= 1) {
-			//System.out.println("done\n");
+			// System.out.println("done\n");
 		}
 
 		docs = new DOC[read_max_docs]; /* feature vectors */
@@ -644,10 +573,9 @@ public class svm_common {
 		dnum = 0;
 		read_totwords = 0;
 		try {
-			 for(int j=0;j<list.size();j++)
-			 {
+			for (int j = 0; j < list.size(); j++) {
 				line = list.get(j);
-				logger.info("document["+j+"]"+" "+line);
+				logger.info("document[" + j + "]" + " " + line);
 				if (line.charAt(0) == '#')
 					continue; /* line contains comments */
 
@@ -672,7 +600,7 @@ public class svm_common {
 						create_svector(words, read_comment, 1.0));
 				dnum++;
 
-			 }
+			}
 
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -684,7 +612,7 @@ public class svm_common {
 		read_target = label;
 		return docs;
 	}
-	
+
 	public static WORD[] parse_document(String line, int max_words_doc) {
 		int wpos = 0, pos;
 		int wnum;
@@ -837,25 +765,24 @@ public class svm_common {
 
 		// logger.info("input_file:"+input_file);
 		// logger.info("in nol ll");
-	
+
 		BufferedReader br = null;
 
+		try {
 
-        try {
+			FileReader fr = null;
+			fr = new FileReader(new File(input_file));
+			br = new BufferedReader(fr);
 
-            FileReader fr = null;
-            fr = new FileReader(new File(input_file));
-            br = new BufferedReader(fr);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			InputStream model_is = svm_common.class.getResourceAsStream("/"
+					+ input_file);
+			InputStreamReader model_isr = new InputStreamReader(model_is);
+			br = new BufferedReader(model_isr);
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            InputStream model_is = svm_common.class.getResourceAsStream(
-                            "/" + input_file);
-            InputStreamReader model_isr = new InputStreamReader(model_is);
-            br = new BufferedReader(model_isr);
+		}
 
-         }
-		
 		// logger.info("in nol ll2");
 		String line = "";
 		int temp_docs = 0;
@@ -864,7 +791,7 @@ public class svm_common {
 		try {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
-			    logger.info("nol_ll line:"+line);
+				logger.info("nol_ll line:" + line);
 				temp_docs++;
 				seg_arr = line.split("\\s+");
 				if (seg_arr.length > temp_words) {
@@ -883,16 +810,15 @@ public class svm_common {
 		}
 
 	}
-	
-	
+
 	public static ArrayList<String> nol_ll_stream(InputStream is) {
 
 		FileReader fr = null;
 		BufferedReader br = null;
-		ArrayList<String> list=new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<String>();
 
 		try {
-			InputStreamReader isr=new InputStreamReader(is);
+			InputStreamReader isr = new InputStreamReader(is);
 			br = new BufferedReader(isr);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -922,29 +848,27 @@ public class svm_common {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		
+
 		return list;
 
 	}
 
 	public static void nol_ll_list(ArrayList<String> list) {
 
-        logger.info("in nol_ll_list");
+		logger.info("in nol_ll_list");
 		String line = "";
 		int temp_docs = 0;
 		int temp_words = 0;
 		String[] seg_arr = null;
 		try {
-	
-			for(int j=0;j<list.size();j++)
-			{
-				line=list.get(j);
-				logger.info("nol doc["+j+"] "+line);
-				if(SSO.tioe(line))
-				{
+
+			for (int j = 0; j < list.size(); j++) {
+				line = list.get(j);
+				logger.info("nol doc[" + j + "] " + line);
+				if (SSO.tioe(line)) {
 					continue;
 				}
-				
+
 				line = line.trim();
 
 				temp_docs++;
@@ -957,14 +881,12 @@ public class svm_common {
 			read_max_docs = temp_docs;
 			read_max_words_doc = temp_words;
 
-			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-	
 
 	}
-	
+
 	public void nol_big_ll(String input_file) {
 
 		// logger.info("input_file:"+input_file);
@@ -989,7 +911,7 @@ public class svm_common {
 		try {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
-				//System.out.println("line:" + line);
+				// System.out.println("line:" + line);
 				temp_docs++;
 
 				Scanner scan = new Scanner(line);
@@ -1073,7 +995,7 @@ public class svm_common {
 		}
 
 		/* Replace SV with single weight vector */
-		if (false && (model.kernel_parm.kernel_type == LINEAR)) {
+		if (false && (model.kernel_parm.kernel_type == ModelConstant.LINEAR)) {
 			if (verbosity >= 1) {
 				System.out.println("(compacting...");
 			}
@@ -1084,7 +1006,7 @@ public class svm_common {
 			}
 		}
 
-		pw.println("SVM-light Version " + VERSION);
+		pw.println("SVM-light Version " + ModelConstant.VERSION);
 		pw.println(model.kernel_parm.kernel_type + " # kernel type");
 		pw.println(model.kernel_parm.poly_degree + " # kernel parameter -d ");
 		pw.println(model.kernel_parm.rbf_gamma + " # kernel parameter -g ");
@@ -1161,7 +1083,7 @@ public class svm_common {
 	{
 		int i;
 		SVECTOR f;
-		//logger.info("model.totwords:" + model.totwords);
+		// logger.info("model.totwords:" + model.totwords);
 		model.lin_weights = create_nvector(model.totwords);
 		clear_nvector(model.lin_weights, model.totwords);
 		for (i = 1; i < model.sv_num; i++) {
@@ -1235,7 +1157,7 @@ public class svm_common {
 			KERNEL_PARM kernel_parm) {
 		System.out.println("check_learning_parms");
 		if ((learn_parm.skip_final_opt_check != 0)
-				&& (kernel_parm.kernel_type == LINEAR)) {
+				&& (kernel_parm.kernel_type == ModelConstant.LINEAR)) {
 			System.out
 					.println("\nIt does not make sense to skip the final optimality check for linear kernels.\n\n");
 			learn_parm.skip_final_opt_check = 0;
@@ -1578,7 +1500,7 @@ public class svm_common {
 		int i;
 		double dist;
 
-		if ((model.kernel_parm.kernel_type == LINEAR)
+		if ((model.kernel_parm.kernel_type == ModelConstant.LINEAR)
 				&& (model.lin_weights != null)) {
 			// printf("model kernel type is LINEAR and lin_weights \n");
 			return (classify_example_linear(model, ex));
@@ -1912,7 +1834,7 @@ public class svm_common {
 		double[] weight_n;
 		SVECTOR weight;
 
-		if (model.kernel_parm.kernel_type != svm_common.LINEAR) {
+		if (model.kernel_parm.kernel_type != ModelConstant.LINEAR) {
 			logger.info("ERROR: model_length_n applies only to linear kernel!\n");
 		}
 		weight_n = create_nvector(totwords);
@@ -2029,6 +1951,47 @@ public class svm_common {
 		int len = 0;
 		len = arr.length;
 		return len;
+	}
+
+	/* create deep copy of matrix */
+	public static MATRIX copy_matrix(MATRIX matrix) {
+		int i, j;
+		MATRIX copy;
+		copy = create_matrix(matrix.n, matrix.m);
+		for (i = 0; i < matrix.n; i++) {
+			for (j = 0; j < matrix.m; j++) {
+				copy.element[i][j] = matrix.element[i][j];
+			}
+		}
+		return (copy);
+	}
+
+	/* Given a lower triangular matrix L, computes inverse L^-1 */
+	public static MATRIX invert_ltriangle_matrix(MATRIX L) {
+		int i, j, k, n;
+		double sum;
+		MATRIX I;
+
+		if (L.m != L.n) {
+			System.out
+					.println("ERROR: Matrix not quadratic. Cannot invert triangular matrix!");
+			System.exit(1);
+		}
+
+		n = L.n;
+		I = copy_matrix(L);
+
+		for (i = 0; i < n; i++) {
+			I.element[i][i] = 1.0 / L.element[i][i];
+			for (j = i + 1; j < n; j++) {
+				sum = 0.0;
+				for (k = i; k < j; k++)
+					sum -= I.element[j][k] * I.element[k][i];
+				I.element[j][i] = sum / L.element[j][j];
+			}
+		}
+
+		return (I);
 	}
 
 }

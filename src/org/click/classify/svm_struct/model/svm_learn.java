@@ -10,6 +10,7 @@ import org.click.classify.svm_struct.data.KERNEL_CACHE;
 import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LEARN_PARM;
 import org.click.classify.svm_struct.data.MODEL;
+import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.QP;
 import org.click.classify.svm_struct.data.SHRINK_STATE;
 import org.click.classify.svm_struct.data.SVECTOR;
@@ -183,7 +184,7 @@ public class svm_learn {
 		}
 
 		/* caching makes no sense for linear kernel */
-		if (kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			/* kernel_cache = NULL; */
 		}
 
@@ -207,7 +208,7 @@ public class svm_learn {
 			}
 
 			if ((kernel_cache != null)
-					&& (kernel_parm.kernel_type != svm_common.LINEAR)) {
+					&& (kernel_parm.kernel_type !=  ModelConstant.LINEAR)) {
 				for (i = 0; i < totdoc; i++)
 					/* fill kernel cache with unbounded SV */
 					if ((alpha[i] > 0) && (alpha[i] < learn_parm.svm_cost[i])
@@ -652,7 +653,7 @@ public class svm_learn {
 
 			index = new int[totdoc];
 			index2dnum = new int[totdoc + 11];
-			if (kernel_parm.kernel_type == svm_common.LINEAR) {
+			if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 				weights = new double[totwords + 1];
 				svm_common.clear_nvector(weights, totwords);
 				aicache = null;
@@ -674,7 +675,7 @@ public class svm_learn {
 			}
 
 			if ((kernel_cache != null)
-					&& (kernel_parm.kernel_type != svm_common.LINEAR)) {
+					&& (kernel_parm.kernel_type !=  ModelConstant.LINEAR)) {
 
 				/*** fill kernel cache with unbounded SV ****/
 				for (i = 0; i < totdoc; i++) {
@@ -725,7 +726,7 @@ public class svm_learn {
 					.println("'remove inconsistent' not available in this mode. Switching option off!");
 		}
 
-		if (kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			/** kernel_cache=NULL; **/
 		}
 
@@ -926,6 +927,8 @@ public class svm_learn {
 		double tec;
 		SVECTOR f;
 
+		System.err.println("kernel_parm.kernel_type:"+kernel_parm.kernel_type);
+		
 		if (kernel_parm.kernel_type == 0) {
 			// System.out.println("working2dnum length:"+working2dnum.length);
 			for (ii = 0; (i = working2dnum[ii]) >= 0; ii++) {
@@ -1356,7 +1359,7 @@ public class svm_learn {
 		qp = new QP();
 
 		epsilon_crit_org = learn_parm.epsilon_crit;
-		if (kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			learn_parm.epsilon_crit = 2.0;
 		}
 		learn_parm.epsilon_shrink = 2;
@@ -1383,7 +1386,7 @@ public class svm_learn {
 		qp.opt_low = new double[learn_parm.svm_maxqpsize];
 		qp.opt_up = new double[learn_parm.svm_maxqpsize];
 
-		if (kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			weights = svm_common.create_nvector(totwords);
 			svm_common.clear_nvector(weights, totwords);
 		} else {
@@ -1524,7 +1527,7 @@ public class svm_learn {
 					// System.out.println("kernel_parm.kernel_type:"+kernel_parm.kernel_type);
 					if ((Math.min(learn_parm.svm_newvarsinqp,
 							learn_parm.svm_maxqpsize - choosenum) >= 4)
-							&& (kernel_parm.kernel_type != svm_common.LINEAR)) {
+							&& (kernel_parm.kernel_type !=  ModelConstant.LINEAR)) {
 						// logger.info("minl");
 						already_chosen = select_next_qp_subproblem_grad(label,
 								unlabeled, a, lin, c, totdoc, (Math.min(
@@ -1667,9 +1670,9 @@ public class svm_learn {
 
 			if ((retrain == 0)
 					&& (inactivenum > 0)
-					&& ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == svm_common.LINEAR))) {
+					&& ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type ==  ModelConstant.LINEAR))) {
 
-				if (((svm_common.verbosity >= 1) && (kernel_parm.kernel_type != svm_common.LINEAR))
+				if (((svm_common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
 						|| (svm_common.verbosity >= 2)) {
 					if (svm_common.verbosity == 1) {
 						logger.info("");
@@ -1699,7 +1702,7 @@ public class svm_learn {
 					retrain = 1;
 				}
 				timing_profile.time_shrink += svm_common.get_runtime() - t1;
-				if (((svm_common.verbosity >= 1) && (kernel_parm.kernel_type != svm_common.LINEAR))
+				if (((svm_common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
 						|| (svm_common.verbosity >= 2)) {
 					logger.info("done.");
 					logger.info(" Number of inactive variables = "
@@ -1746,7 +1749,7 @@ public class svm_learn {
 						selexam, key, transductcycle, kernel_parm, learn_parm);
 			
 				epsilon_crit_org = learn_parm.epsilon_crit;
-				if (kernel_parm.kernel_type == svm_common.LINEAR) {
+				if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 					learn_parm.epsilon_crit = 1;
 				}
 				transductcycle++;
@@ -1797,7 +1800,7 @@ public class svm_learn {
 							totdoc, model, inconsistent);
 				}
 				if (retrain != 0) {
-					if (kernel_parm.kernel_type == svm_common.LINEAR) { /*
+					if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) { /*
 																		 * reinit
 																		 * shrinking
 																		 */
@@ -2316,7 +2319,7 @@ public class svm_learn {
 		int i, ii, retrain;
 		double dist = 0, ex_c, target;
 		// logger.info("in check_optimality");
-		if (kernel_parm.kernel_type == svm_common.LINEAR) { /* be optimistic */
+		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) { /* be optimistic */
 			learn_parm.epsilon_shrink = -learn_parm.epsilon_crit
 					+ epsilon_crit_org;
 		} else { /* be conservative */
@@ -2389,7 +2392,7 @@ public class svm_learn {
 		double ex_c, target;
 		SVECTOR f;
 
-		if (kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			a_old = shrink_state.last_a;
 
 			for (i = 0; i < totdoc; i++) {
@@ -2495,7 +2498,7 @@ public class svm_learn {
 			}
 		}
 
-		if (kernel_parm.kernel_type != svm_common.LINEAR) { /*
+		if (kernel_parm.kernel_type != ModelConstant.LINEAR) { /*
 															 * update history
 															 * for non-linear
 															 */
@@ -2942,7 +2945,7 @@ public class svm_learn {
 			if (svm_common.verbosity >= 2) {
 				System.out.println(" Shrinking...");
 			}
-			if (kernel_parm.kernel_type != svm_common.LINEAR) { /*
+			if (kernel_parm.kernel_type !=  ModelConstant.LINEAR) { /*
 																 * non-linear
 																 * case save
 																 * alphas
@@ -2968,7 +2971,7 @@ public class svm_learn {
 			}
 			activenum = compute_index(shrink_state.active, totdoc, active2dnum);
 			shrink_state.deactnum++;
-			if (kernel_parm.kernel_type == svm_common.LINEAR) {
+			if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 				shrink_state.deactnum = 0;
 			}
 			if (svm_common.verbosity >= 2) {
@@ -3188,7 +3191,7 @@ public class svm_learn {
 						 */
 		svm_common.verbosity = 0;
 		epsilon_crit_org = learn_parm.epsilon_crit; /* save org */
-		if (kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			learn_parm.epsilon_crit = 2.0;
 			/* kernel_cache=NULL; *//* caching makes no sense for linear kernel */
 		}
@@ -3218,7 +3221,7 @@ public class svm_learn {
 		qp.opt_low = new double[learn_parm.svm_maxqpsize];
 		qp.opt_up = new double[learn_parm.svm_maxqpsize];
 
-		if (kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			weights = svm_common.create_nvector(totwords);
 			svm_common.clear_nvector(weights, totwords);
 		} else {
@@ -3335,7 +3338,7 @@ public class svm_learn {
 					already_chosen = 0;
 					if ((Math.min(learn_parm.svm_newvarsinqp,
 							learn_parm.svm_maxqpsize - choosenum) >= 4)
-							&& (kernel_parm.kernel_type != svm_common.LINEAR)) {
+							&& (kernel_parm.kernel_type !=  ModelConstant.LINEAR)) {
 						/* select part of the working set from cache */
 						//logger.info("minl select");
                         /*
@@ -3547,8 +3550,8 @@ public class svm_learn {
 
 			if ((retrain == 0)
 					&& (inactivenum > 0)
-					&& ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == svm_common.LINEAR))) {
-				if (((svm_common.verbosity >= 1) && (kernel_parm.kernel_type != svm_common.LINEAR))
+					&& ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type ==  ModelConstant.LINEAR))) {
+				if (((svm_common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
 						|| (svm_common.verbosity >= 2)) {
 					if (svm_common.verbosity == 1) {
 						// System.out.println();
@@ -3590,7 +3593,7 @@ public class svm_learn {
 					retrain = 1;
 				}
 				timing_profile.time_shrink += svm_common.get_runtime() - t1;
-				if (((svm_common.verbosity >= 1) && (kernel_parm.kernel_type != svm_common.LINEAR))
+				if (((svm_common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
 						|| (svm_common.verbosity >= 2)) {
 					// System.out.println("done.");
 					System.out.println(" Number of inactive variables = "
@@ -3732,7 +3735,7 @@ public class svm_learn {
 		double dist, dist_noslack, ex_c = 0, target;
 
 		// logger.info("in check_optimality_sharedslack");
-		if (kernel_parm.kernel_type == svm_common.LINEAR) { /* be optimistic */
+		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) { /* be optimistic */
 			learn_parm.epsilon_shrink = -learn_parm.epsilon_crit / 2.0;
 		} else { /* be conservative */
 			learn_parm.epsilon_shrink = learn_parm.epsilon_shrink * 0.7

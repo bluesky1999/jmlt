@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.click.classify.svm_struct.data.EXAMPLE;
 import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LEARN_PARM;
+import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.SAMPLE;
 import org.click.classify.svm_struct.data.STRUCTMODEL;
 import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
@@ -205,7 +206,7 @@ public class svm_struct_main {
 		}
 
 		if ((learn_parm.skip_final_opt_check != 0)
-				&& (kernel_parm.kernel_type == svm_common.LINEAR)) {
+				&& (kernel_parm.kernel_type ==  ModelConstant.LINEAR)) {
 			System.out
 					.print("\nIt does not make sense to skip the final optimality check for linear kernels.\n\n");
 			learn_parm.skip_final_opt_check = 0;
@@ -621,8 +622,8 @@ public class svm_struct_main {
 				+ svm_struct_common.STRUCT_VERSION
 				+ " for learning complex outputs, "
 				+ svm_struct_common.STRUCT_VERSION_DATE + "\n");
-		System.out.print("   includes SVM-light " + svm_common.VERSION
-				+ " quadratic optimizer, " + svm_common.VERSION_DATE + "\n");
+		System.out.print("   includes SVM-light " + ModelConstant.VERSION
+				+ " quadratic optimizer, " +  ModelConstant.VERSION_DATE + "\n");
 		svm_common.copyright_notice();
 		System.out
 				.print("   usage: svm_struct_learn [options] example_file model_file\n\n");

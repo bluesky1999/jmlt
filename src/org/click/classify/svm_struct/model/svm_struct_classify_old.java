@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.click.classify.svm_struct.data.LABEL;
+import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.SAMPLE;
 import org.click.classify.svm_struct.data.STRUCTMODEL;
 import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
@@ -53,7 +54,7 @@ public class svm_struct_classify_old {
 		logger.info("predictionsfile:" + predictionsfile);
 		model = svm_struct_api.read_struct_model(modelfile, sparm);
 
-		if (model.svm_model.kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (model.svm_model.kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			logger.info("begin add_weight_vector_to_linear_model");
 			svm_common.add_weight_vector_to_linear_model(model.svm_model);
 			logger.info("after add_weight_vector_to_linear_model");
@@ -101,7 +102,7 @@ public class svm_struct_classify_old {
 		model = svm_struct_api.read_struct_model(modelfile, sparm);
 		logger.info("after read model:");
 
-		if (model.svm_model.kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (model.svm_model.kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			logger.info("begin add_weight_vector_to_linear_model");
 			svm_common.add_weight_vector_to_linear_model(model.svm_model);
 			logger.info("after add_weight_vector_to_linear_model");
@@ -266,7 +267,7 @@ public class svm_struct_classify_old {
 			logger.info("done");
 		}
 
-		if (model.svm_model.kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (model.svm_model.kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			svm_common.add_weight_vector_to_linear_model(model.svm_model);
 			model.w = model.svm_model.lin_weights;
 		}
@@ -419,7 +420,7 @@ public class svm_struct_classify_old {
 			logger.info("done");
 		}
 
-		if (model.svm_model.kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			svm_common.add_weight_vector_to_linear_model(model.svm_model);
 			model.w = model.svm_model.lin_weights;
 		}
@@ -645,8 +646,8 @@ public class svm_struct_classify_old {
 				+ svm_struct_common.STRUCT_VERSION
 				+ " for learning complex outputs, "
 				+ svm_struct_common.STRUCT_VERSION_DATE + "\n");
-		System.out.println("   includes SVM-light " + svm_common.VERSION
-				+ " quadratic optimizer, " + svm_common.VERSION_DATE + "\n");
+		System.out.println("   includes SVM-light " +  ModelConstant.VERSION
+				+ " quadratic optimizer, " +  ModelConstant.VERSION_DATE + "\n");
 		svm_common.copyright_notice();
 		System.out
 				.println("   usage: svm_struct_classify [options] example_file model_file output_file\n\n");

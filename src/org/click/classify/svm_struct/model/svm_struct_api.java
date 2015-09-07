@@ -18,6 +18,7 @@ import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LABEL;
 import org.click.classify.svm_struct.data.LEARN_PARM;
 import org.click.classify.svm_struct.data.MODEL;
+import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.PATTERN;
 import org.click.classify.svm_struct.data.SAMPLE;
 import org.click.classify.svm_struct.data.STRUCTMODEL;
@@ -255,7 +256,7 @@ public abstract class svm_struct_api {
 		 ******************/
 
 		MODEL model = sm.svm_model;
-		if (model.kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (model.kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 
 			sm.svm_model = svm_common.compact_linear_model(model);
 			sm.w = sm.svm_model.lin_weights; /* short cut to weight vector */

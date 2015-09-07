@@ -10,6 +10,7 @@ import org.click.classify.svm_struct.data.KERNEL_CACHE;
 import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LEARN_PARM;
 import org.click.classify.svm_struct.data.MODEL;
+import org.click.classify.svm_struct.data.ModelConstant;
 
 public class svm_learn_main {
 
@@ -164,21 +165,21 @@ public class svm_learn_main {
 		}
 		System.out.println("modelfile:" + modelfile);
 		if (learn_parm.svm_iter_to_shrink == -9999) {
-			if (kernel_parm.kernel_type == svm_common.LINEAR)
+			if (kernel_parm.kernel_type == ModelConstant.LINEAR)
 				learn_parm.svm_iter_to_shrink = 2;
 			else
 				learn_parm.svm_iter_to_shrink = 100;
 		}
 		if (type.equals("c")) {
-			learn_parm.type = svm_common.CLASSIFICATION;
+			learn_parm.type =  ModelConstant.CLASSIFICATION;
 		} else if (type.equals("r")) {
-			learn_parm.type = svm_common.REGRESSION;
+			learn_parm.type =  ModelConstant.REGRESSION;
 		} else if (type.equals("p")) {
-			learn_parm.type = svm_common.RANKING;
+			learn_parm.type =  ModelConstant.RANKING;
 		} else if (type.equals("o")) {
-			learn_parm.type = svm_common.OPTIMIZATION;
+			learn_parm.type =  ModelConstant.OPTIMIZATION;
 		} else if (type.equals("s")) {
-			learn_parm.type = svm_common.OPTIMIZATION;
+			learn_parm.type =  ModelConstant.OPTIMIZATION;
 			learn_parm.sharedslack = 1;
 		} else {
 			System.out
@@ -197,9 +198,9 @@ public class svm_learn_main {
 	}
 
 	public static void print_help() {
-		System.out.println("\nSVM-light " + svm_common.VERSION
+		System.out.println("\nSVM-light " +  ModelConstant.VERSION
 				+ ": Support Vector Machine, learning module  "
-				+ svm_common.VERSION_DATE);
+				+  ModelConstant.VERSION_DATE);
 		svm_common.copyright_notice();
 		System.out
 				.println("   usage: svm_learn [options] example_file model_file\n\n");
@@ -406,7 +407,7 @@ public class svm_learn_main {
 			alpha_in = svm_common.read_alphas(restartfile,
 					svm_common.read_totdocs);
 		}
-		if (kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			kernel_cache = null;
 		} else {
 			/*
@@ -417,11 +418,11 @@ public class svm_learn_main {
 					learn_parm.kernel_cache_size);
 		}
 
-		if (learn_parm.type == svm_common.CLASSIFICATION) {
+		if (learn_parm.type ==  ModelConstant.CLASSIFICATION) {
 			logger.info("call   sl.svm_learn_classification");
 			sl.svm_learn_classification(docs, target, totdoc, totwords,
 					learn_parm, kernel_parm, kernel_cache, model, alpha_in);
-		} else if (learn_parm.type == svm_common.OPTIMIZATION) {
+		} else if (learn_parm.type ==  ModelConstant.OPTIMIZATION) {
 			logger.info("call   sl.svm_learn_optimization");
 			sl.svm_learn_optimization(docs, target, totdoc, totwords,
 					learn_parm, kernel_parm, kernel_cache, model, alpha_in);

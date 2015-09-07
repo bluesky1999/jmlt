@@ -1,7 +1,6 @@
 package org.click.classify.svm_struct.model;
 
 import org.apache.log4j.Logger;
-
 import org.click.classify.svm_struct.data.CONSTSET;
 import org.click.classify.svm_struct.data.DOC;
 import org.click.classify.svm_struct.data.EXAMPLE;
@@ -11,6 +10,7 @@ import org.click.classify.svm_struct.data.LABEL;
 import org.click.classify.svm_struct.data.LEARN_PARM;
 import org.click.classify.svm_struct.data.MATRIX;
 import org.click.classify.svm_struct.data.MODEL;
+import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.SAMPLE;
 import org.click.classify.svm_struct.data.STRUCTMODEL;
 import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
@@ -126,7 +126,7 @@ public class svm_struct_learn {
 											 * reached
 											 */
 			lparm.sharedslack = 0;
-			if (kparm.kernel_type != svm_common.LINEAR) {
+			if (kparm.kernel_type !=  ModelConstant.LINEAR) {
 				logger.error("ERROR: Kernels are not implemented for L2 slack norm!");
 				System.exit(0);
 			}
@@ -155,7 +155,7 @@ public class svm_struct_learn {
 		/* set initial model and slack variables */
 		svmModel = new MODEL();
 		lparm.epsilon_crit = epsilon;
-		if (kparm.kernel_type != svm_common.LINEAR) {
+		if (kparm.kernel_type !=  ModelConstant.LINEAR) {
 			kcache = svm_learn.kernel_cache_init(Math.max(cset.m, 1),
 					lparm.kernel_cache_size);
 		}
@@ -167,12 +167,12 @@ public class svm_struct_learn {
 		sm.svm_model = svmModel;
 		sm.w = svmModel.lin_weights;
 
-		if (svm_common.USE_FYCACHE != 0) {
+		if ( ModelConstant.USE_FYCACHE != 0) {
 			fycache = new SVECTOR[n];
 			for (i = 0; i < n; i++) {
 				fy = ssa.psi(ex[i].x, ex[i].y, sm, sparm);// temp
 																		// point
-				if (kparm.kernel_type == svm_common.LINEAR) {
+				if (kparm.kernel_type ==  ModelConstant.LINEAR) {
 					diff = svm_common.add_list_ss(fy);
 					fy = diff;
 				}
@@ -342,7 +342,7 @@ public class svm_struct_learn {
 								cset.m++;
 								svm_struct_api.realloc(cset);
 
-								if (kparm.kernel_type == svm_common.LINEAR) {
+								if (kparm.kernel_type ==  ModelConstant.LINEAR) {
 									diff = svm_common.add_list_ss(fy);
 									if (sparm.slack_norm == 1)
 										cset.lhs[cset.m - 1] = svm_common.create_example(cset.m - 1,0,i + 1,1,svm_common.copy_svector(diff));
@@ -405,7 +405,7 @@ public class svm_struct_learn {
 							 * runs
 							 */
 
-							if (kparm.kernel_type != svm_common.LINEAR)
+							if (kparm.kernel_type !=  ModelConstant.LINEAR)
 								kcache = sl.kernel_cache_init(
 										Math.max(cset.m, 1),
 										lparm.kernel_cache_size);
@@ -706,10 +706,10 @@ public class svm_struct_learn {
 		/* create a cache of the feature vectors for the correct labels */
 		fycache = new SVECTOR[n];
 		for (i = 0; i < n; i++) {
-			if (svm_common.USE_FYCACHE != 0) {
+			if ( ModelConstant.USE_FYCACHE != 0) {
 				// logger.info("USE THE FYCACHE \n");
 				fy = ssa.psi(ex[i].x, ex[i].y, sm, sparm);
-				if (kparm.kernel_type == svm_common.LINEAR) {
+				if (kparm.kernel_type ==  ModelConstant.LINEAR) {
 					diff = svm_common.add_list_sort_ss_r(fy,
 							svm_struct_common.COMPACT_ROUNDING_THRESH);
 					fy = diff;
@@ -733,7 +733,7 @@ public class svm_struct_learn {
 				}
 		}
 
-		if (kparm.kernel_type == svm_common.LINEAR) {
+		if (kparm.kernel_type ==  ModelConstant.LINEAR) {
 			// logger.info("kernel type is LINEAR \n");
 			lhs_n = svm_common.create_nvector(sm.sizePsi);
 		}
@@ -921,7 +921,7 @@ public class svm_struct_learn {
 				/* do not use constraint from cache */
 				rt1 = svm_common.get_runtime();
 				cached_constraint = 0;
-				if (kparm.kernel_type == svm_common.LINEAR)
+				if (kparm.kernel_type ==  ModelConstant.LINEAR)
 					svm_common.clear_nvector(lhs_n, sm.sizePsi);
 				svm_common.progress_n = 0;
 				rt_total += Math.max(svm_common.get_runtime() - rt1, 0);
@@ -939,7 +939,7 @@ public class svm_struct_learn {
 					find_most_violated_constraint(ex[i], fycache[i], n, sm,
 							sparm);
 					/* add current fy-fybar to lhs of constraint */
-					if (kparm.kernel_type == svm_common.LINEAR) {
+					if (kparm.kernel_type ==  ModelConstant.LINEAR) {
 						svm_common.add_list_n_ns(lhs_n, fydelta_g, 1.0);
 					} else {
 						svm_common.append_svector_list(fydelta_g, lhs_g);
@@ -957,7 +957,7 @@ public class svm_struct_learn {
 				/* create sparse vector from dense sum */
 				// logger.info("kernel type is "+kparm.kernel_type);
 				System.out.println("kernel type is " + kparm.kernel_type);
-				if (kparm.kernel_type == svm_common.LINEAR) {
+				if (kparm.kernel_type ==  ModelConstant.LINEAR) {
 					// logger.info("kernel type is linear and lhs+n="+lhs_n.toString());
 					lhs_g = svm_common.create_svector_n_r(lhs_n, sm.sizePsi,
 							null, 1.0,
@@ -1047,7 +1047,7 @@ public class svm_struct_learn {
 				kernel_type_org = kparm.kernel_type;
 				if ((alg_type == svm_struct_common.ONESLACK_DUAL_ALG)
 						|| (alg_type == svm_struct_common.ONESLACK_DUAL_CACHE_ALG))
-					kparm.kernel_type = svm_common.GRAM; /*
+					kparm.kernel_type =  ModelConstant.GRAM; /*
 														 * use kernel stored in
 														 * kparm
 														 */
@@ -1153,7 +1153,7 @@ public class svm_struct_learn {
 			alphasum = 0;
 			for (i = 0; i < cset.m; i++)
 				alphasum += alpha_g[i] * cset.rhs[i];
-			if (kparm.kernel_type == svm_common.LINEAR)
+			if (kparm.kernel_type ==  ModelConstant.LINEAR)
 				modellength = svm_common.model_length_n(svmModel);
 			else
 				modellength = svm_common.model_length_s(svmModel);

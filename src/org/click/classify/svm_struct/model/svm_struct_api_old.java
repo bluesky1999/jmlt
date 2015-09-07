@@ -15,6 +15,7 @@ import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LABEL;
 import org.click.classify.svm_struct.data.LEARN_PARM;
 import org.click.classify.svm_struct.data.MODEL;
+import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.PATTERN;
 import org.click.classify.svm_struct.data.SAMPLE;
 import org.click.classify.svm_struct.data.STRUCTMODEL;
@@ -381,7 +382,7 @@ public class svm_struct_api_old {
 		 ******************/
 
 		MODEL model = sm.svm_model;
-		if (model.kernel_parm.kernel_type == svm_common.LINEAR) {
+		if (model.kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			if (svm_struct_common.struct_verbosity >= 1) {
 				logger.info("Compacting linear model...");
 			}
