@@ -54,7 +54,7 @@ public class svm_hideo {
 
 	public double[] optimize_qp(QP qp, double epsilon_crit, int nx,
 			double threshold, LEARN_PARM learn_param) {
-		//logger.info("epsilon_crit_trace:" + epsilon_crit);
+
 		int i, j;
 		int result;
 		double eq;
@@ -73,124 +73,29 @@ public class svm_hideo {
 			}
 		}
 
-		// if(svm_common.verbosity>=4){
-		// System.out.println("\n\n");
-		/*
-		eq = qp.opt_ce0[0];
-
-		String qstr = "\n";
-		for (i = 0; i < qp.opt_n; i++) {
-			eq = eq + qp.opt_xinit[i] * qp.opt_ce[i];
-
-			qstr += (qp.opt_g0[i] + " ");
-			for (j = 0; j < qp.opt_n; j++) {
-				qstr += ((qp.opt_g[i * (int) qp.opt_n + j]) + " ");
-			}
-			qstr += (":a=" + qp.opt_xinit[i] + " < " + qp.opt_up[i] + " ");
-			qstr += (":y=" + qp.opt_ce[i] + "\n");
-		}
-
-		qstr += "\n";
-
-		if (qp.opt_m > 0) {
-			
-			qstr += ("EQ:" + qp.opt_ce[0] + "*x0");
-
-			for (i = 1; i < qp.opt_n; i++) {
-				qstr += ("+" + qp.opt_ce[i] + "*x" + i);
-			}
-			qstr += ("=" + (-qp.opt_ce[0]));
-		}
-
-		logger.info("qstr:" + "\n" + qstr);
-		*/
-
-		// }
+	
 
 		result = optimize_hildreth_despo(qp.opt_n, qp.opt_m, opt_precision,
 				epsilon_crit, learn_param.epsilon_a, maxiter, 0, 0,
 				lindep_sensitivity, qp.opt_g, qp.opt_g0, qp.opt_ce, qp.opt_ce0,
 				qp.opt_low, qp.opt_up, primal, qp.opt_xinit, dual, nonoptimal,
 				buffer);
-		/*
-		 * if(verbosity>=3) { System.out.print("return_srd("+result+")..."); }
-		 */
 
 		if (learn_param.totwords < learn_param.svm_maxqpsize) {
-			//logger.info(" learn_param.svm_maxqpsize bb:"
-			//		+ learn_param.svm_maxqpsize);
+
 			learn_param.svm_maxqpsize = SimFunc.maxi(learn_param.totwords, 2);
-		//	logger.info(" learn_param.svm_maxqpsize aa:"
-			//		+ learn_param.svm_maxqpsize);
+
 		}
 
 		if (result == NAN_SOLUTION) {
-			//logger.info("resutl is NAN_SOLUTION");
+
 			lindep_sensitivity *= 2;
 			if (learn_param.svm_maxqpsize > 2) {
 				learn_param.svm_maxqpsize--;
 			}
 			precision_violations++;
 		}
-		/*
-		 * System.out.println(); System.out.println("result:"+result);
-		 * System.out.println("PRIMAL_OPTIMAL:"+PRIMAL_OPTIMAL);
-		 * System.out.println("roundnumber:"+roundnumber);
-		 * System.out.println("progress:"+progress);
-		 */
-		// if(false)
-      /*
-		String q_str = "\n";
-		eq = qp.opt_ce0[0];
-		for (i = 0; i < qp.opt_n; i++) {
-			eq += primal[i] * qp.opt_ce[i];
-			q_str += ("" + qp.opt_g0[i] + ": ");
-
-			for (j = 0; j < qp.opt_n; j++) {
-				q_str += (qp.opt_g[i * qp.opt_n + j] + " ");
-			}
-
-			q_str += (":a=" + primal[i]);
-			q_str += (":nonopti=" + nonoptimal[i]);
-			q_str += (":y=" + qp.opt_ce[i] + "\n");
-		}
-
-		logger.info("q_str1:\n" + q_str);
-		logger.info("eq-constraint1=" + eq);
-		logger.info("b1=" + threshold);
-		logger.info("smallroundcount1=" + smallroundcount);
-
-		logger.info("result=" + result + " PRIMAL_OPTIMAL=" + PRIMAL_OPTIMAL
-				+ " roundnumber=" + roundnumber + " progress=" + progress);
-
-		logger.info("opt_precision:" + opt_precision);
-		logger.info("epsilon_crit:" + epsilon_crit);
-		logger.info("learn_param.epsilon_a:" + learn_param.epsilon_a);
-		logger.info("maxiter:" + maxiter);
-		logger.info("lindep_sensitivity:" + lindep_sensitivity);
-		
-
-		String primal_str = "";
-		for (int p = 0; p < nx; p++) {
-			primal_str += (p + ":" + primal[p] + " ");
-		}
-
-		logger.info("primal_str:" + primal_str);
-
-		String dual_str = "";
-
-		for (int p = 0; p < 2 * (nx + 1); p++) {
-			dual_str += (p + ":" + dual[p] + " ");
-		}
-
-		logger.info("dual_str:" + dual_str);
-
-		String nonoptimal_str = "";
-		for (int p = 0; p < nx; p++) {
-			nonoptimal_str += (p + ":" + nonoptimal[p] + " ");
-		}
-		logger.info("nonoptimal_str:" + nonoptimal_str);
-		*/
+	
 		
 
 		if ((result != PRIMAL_OPTIMAL) || (roundnumber % 31 == 0)
@@ -239,32 +144,6 @@ public class svm_hideo {
 			threshold = 0;
 		}
 
-		// if(svm_common.verbosity>=4)
-		// {
-		/*
-		System.out.println();
-		eq = qp.opt_ce0[0];
-
-		q_str = "\n";
-		for (i = 0; i < qp.opt_n; i++) {
-			eq += primal[i] * qp.opt_ce[i];
-			q_str += ("" + qp.opt_g0[i] + ": ");
-
-			for (j = 0; j < qp.opt_n; j++) {
-				q_str += (qp.opt_g[i * qp.opt_n + j] + " ");
-			}
-
-			q_str += (":a=" + primal[i]);
-			q_str += (":nonopti=" + nonoptimal[i]);
-			q_str += (":y=" + qp.opt_ce[i] + "\n");
-		}
-
-		logger.info("q_str2:\n" + q_str);
-		logger.info("eq-constraint=" + eq);
-		logger.info("b=" + threshold);
-		logger.info("smallroundcount=" + smallroundcount);
-         */
-		// }
 
 		return primal;
 	}
@@ -334,7 +213,7 @@ public class svm_hideo {
 		add = 0;
 		changed = 0;
 		if ((b1 != b2) && (m == 1)) {
-			for (i = 0; i < n; i++) { /* fix other vectors */
+			for (i = 0; i < n; i++) { // fix other vectors
 				if (i == b1)
 					g0_b1 = g0[i];
 				if (i == b2)
@@ -354,10 +233,10 @@ public class svm_hideo {
 			}
 			if ((g[b1 * n + b2] == g[b1 * n + b1])
 					&& (g[b1 * n + b2] == g[b2 * n + b2])) {
-				/* printf("euqal\n"); */
+
 				if (ce[b1] == ce[b2]) {
-					if (g0_b1 <= g0_b2) { /* set b1 to upper bound */
-						/* printf("case +=<\n"); */
+					if (g0_b1 <= g0_b2) { // set b1 to upper bound 
+		
 						changed = 1;
 						t = up[b1] - init[b1];
 						if ((init[b2] - low[b2]) < t) {
@@ -365,8 +244,8 @@ public class svm_hideo {
 						}
 						start[b1] = init[b1] + t;
 						start[b2] = init[b2] - t;
-					} else if (g0_b1 > g0_b2) { /* set b2 to upper bound */
-						/* printf("case +=>\n"); */
+					} else if (g0_b1 > g0_b2) { // set b2 to upper bound 
+					
 						changed = 1;
 						t = up[b2] - init[b2];
 						if ((init[b1] - low[b1]) < t) {
@@ -403,10 +282,10 @@ public class svm_hideo {
 			}
 			if ((-g[b1 * n + b2] == g[b1 * n + b1])
 					&& (-g[b1 * n + b2] == g[b2 * n + b2])) {
-				/* printf("diffeuqal\n"); */
+
 				if (ce[b1] != ce[b2]) {
-					if ((g0_b1 + g0_b2) < 0) { /* set b1 and b2 to upper bound */
-						/* printf("case -!<\n"); */
+					if ((g0_b1 + g0_b2) < 0) { // set b1 and b2 to upper bound 
+					
 						changed = 1;
 						t = up[b1] - init[b1];
 						if ((up[b2] - init[b2]) < t) {
@@ -414,11 +293,7 @@ public class svm_hideo {
 						}
 						start[b1] = init[b1] + t;
 						start[b2] = init[b2] + t;
-					} else if ((g0_b1 + g0_b2) >= 0) { /*
-														 * set b1 and b2 to
-														 * lower bound
-														 */
-						/* printf("case -!>\n"); */
+					} else if ((g0_b1 + g0_b2) >= 0) { 
 						changed = 1;
 						t = init[b1] - low[b1];
 						if ((init[b2] - low[b2]) < t) {
@@ -428,7 +303,7 @@ public class svm_hideo {
 						start[b2] = init[b2] - t;
 					}
 				} else if (((g[b1 * n + b1] > 0) || (g[b2 * n + b2] > 0))) { 
-					/* printf("case -=\n"); */
+			
 					t = ((ce[b2] / ce[b1]) * g0[b1] - g0[b2] + ce0[0]
 							* (g[b1 * n + b1] * ce[b2] / ce[b1] - g[b1 * n + b2]
 									/ ce[b1]))
@@ -454,31 +329,27 @@ public class svm_hideo {
 				}
 			}
 		}
-		/*
-		 * System.out.println("b1:"+b1+" b2:"+b2+" n:"+n);
-		 * System.out.println("b1*n+b1:"+(b1*n+b1));
-		 * System.out.println("b2*n+b2:"+(b2*n+b2));
-		 */
+
 		if ((m > 0)
 				&& ((Math.abs(g[b1 * n + b1]) < lindep_sensitivity) || (Math
 						.abs(g[b2 * n + b2]) < lindep_sensitivity))) {
-			/* printf("Case 0\n"); */
+	
 			add += 0.093274;
 		}
-		/* in case both examples are linear dependent */
+		// in case both examples are linear dependent 
 		else if ((m > 0)
 				&& (g[b1 * n + b2] != 0 && g[b2 * n + b2] != 0)
 				&& (Math.abs(g[b1 * n + b1] / g[b1 * n + b2] - g[b1 * n + b2]
 						/ g[b2 * n + b2]) < lindep_sensitivity)) {
-			/* printf("Case lindep\n"); */
+	
 			add += 0.078274;
 		}
 
-		/* special case for zero diagonal entry on unbiased hyperplane */
+		// special case for zero diagonal entry on unbiased hyperplane
 		if ((m == 0) && (b1 >= 0)) {
 			if (Math.abs(g[b1 * n + b1]) < lindep_sensitivity) {
-				/* printf("Case 0b1\n"); */
-				for (i = 0; i < n; i++) { /* fix other vectors */
+	
+				for (i = 0; i < n; i++) { // fix other vectors 
 					if (i == b1)
 						g0_b1 = g0[i];
 				}
@@ -499,8 +370,8 @@ public class svm_hideo {
 
 		if ((m == 0) && (b2 >= 0)) {
 			if (Math.abs(g[b2 * n + b2]) < lindep_sensitivity) {
-				/* printf("Case 0b2\n"); */
-				for (i = 0; i < n; i++) { /* fix other vectors */
+	
+				for (i = 0; i < n; i++) { // fix other vectors
 					if (i == b2)
 						g0_b2 = g0[i];
 				}
@@ -518,20 +389,9 @@ public class svm_hideo {
 					start[b2] = low[b2];
 			}
 		}
-		/*
-		 * System.out.println("g before copy"); for(int di=0;di<g.length;di++) {
-		 * System.out.print("g["+di+"]="+g[di]+" "); } System.out.println();
-		 */
+
 		lcopy_matrix(g, n, d);
-		/*
-		 * System.out.println("d after copy"); for(int di=0;di<d.length;di++) {
-		 * System.out.print("d["+di+"]="+d[di]+" "); } System.out.println();
-		 */
-		/*
-		 * System.out.println("add:"+add); System.out.println("ce :"); for(int
-		 * di=0;di<ce.length;di++) { System.out.print("ce["+di+"]="+ce[di]+" ");
-		 * } System.out.println();
-		 */
+
 		if ((m == 1) && (add > 0.0)) {
 			for (j = 0; j < n; j++) {
 				for (k = 0; k < n; k++) {
@@ -541,13 +401,10 @@ public class svm_hideo {
 		} else {
 			add = 0.0;
 		}
-		/*
-		 * System.out.println("d after add"); for(int di=0;di<d.length;di++) {
-		 * System.out.print("d["+di+"]="+d[di]+" "); } System.out.println();
-		 */
 
 
-		if (n > 2) { /* switch, so that variables are better mixed */
+
+		if (n > 2) { // switch, so that variables are better mixed 
 			lswitchrk_matrix(d, n, b1, 0);
 			if (b2 == 0) {
 				// System.out.println("switch b2 0");
@@ -557,23 +414,15 @@ public class svm_hideo {
 				lswitchrk_matrix(d, n, b2, 1);
 			}
 		}
-		/*
-		String lin_dependent_str = "";
-		for (int p = 0; p < n; p++) {
-			lin_dependent_str += (p + ":" + lin_dependent[p] + " ");
-		}
-		logger.info("lin_dependent_str1:" + lin_dependent_str);
-		logger.info("m="+m+"  smallroundcount="+smallroundcount);
-		*/
-		
+
 		if (smallround == SMALLROUND) {
 			for (i = 2; i < n; i++) {
 				lin_dependent[i] = 1;
 			}
-			if (m > 0) { /* for biased hyperplane, pick two variables */
+			if (m > 0) { // for biased hyperplane, pick two variables 
 				lin_dependent[0] = 0;
 				lin_dependent[1] = 0;
-			} else { /* for unbiased hyperplane, pick only one variable */
+			} else { // for unbiased hyperplane, pick only one variable
 				lin_dependent[0] = smallroundcount % 2;
 				lin_dependent[1] = (smallroundcount + 1) % 2;
 			}
@@ -583,25 +432,11 @@ public class svm_hideo {
 			}
 		}
 
-		/*
-		 * System.out.println("d first matrix:"); for(int di=0;di<d.length;di++)
-		 * { System.out.print("d["+di+"]="+d[di]+" "); } System.out.println();
-		 */
+
 
 		linvert_matrix(d, n, ig, lindep_sensitivity, lin_dependent);
-		/*
-		lin_dependent_str = "";
-		for (int p = 0; p < n; p++) {
-			lin_dependent_str += (p + ":" + lin_dependent[p] + " ");
-		}
-		logger.info("lin_dependent_str2:" + lin_dependent_str);
-		*/
-		/*
-		 * System.out.println("ig first matrix:"); for(int
-		 * di=0;di<ig.length;di++) { System.out.print("ig["+di+"]="+ig[di]+" ");
-		 * }
-		 */
-		if (n > 2) { /* now switch back */
+		
+		if (n > 2) { // now switch back
 			if (b2 == 0) {
 				lswitchrk_matrix(ig, n, b1, 1);
 				i = lin_dependent[1];
@@ -619,14 +454,8 @@ public class svm_hideo {
 			lin_dependent[b1] = i;
 		}
 		
-		/*
-		lin_dependent_str = "";
-		for (int p = 0; p < n; p++) {
-			lin_dependent_str += (p + ":" + lin_dependent[p] + " ");
-		}
-		logger.info("lin_dependent_str3:" + lin_dependent_str);		
-       */
-		lcopy_matrix(g, n, g_new); /* restore g_new matrix */
+
+		lcopy_matrix(g, n, g_new); // restore g_new matrix
 		if (add > 0)
 			for (j = 0; j < n; j++) {
 				for (k = 0; k < n; k++) {
@@ -634,18 +463,17 @@ public class svm_hideo {
 				}
 			}
 
-		for (i = 0; i < n; i++) { /* fix linear dependent vectors */
+		for (i = 0; i < n; i++) { // fix linear dependent vectors
 
 			g0_new[i] = g0[i] + add * ce0[0] * ce[i];
-			//logger.info("g0_new[" + i + "]=" + g0_new[i]);
 		}
 		if (m > 0)
 			ce0_new[0] = -ce0[0];
-		for (i = 0; i < n; i++) { /* fix linear dependent vectors */
+		for (i = 0; i < n; i++) { // fix linear dependent vectors 
 			if (lin_dependent[i] > 0) {
 				for (j = 0; j < n; j++) {
 					if (lin_dependent[j] == 0) {
-						//logger.info(" lin g0_new[" + j + "]=" + g0_new[j]);
+					
 						g0_new[j] += start[i] * g_new[i * n + j];
 					}
 				}
@@ -654,7 +482,7 @@ public class svm_hideo {
 			}
 		}
 
-		from = 0; /* remove linear dependent vectors */
+		from = 0; // remove linear dependent vectors 
 		to = 0;
 		n_indep = 0;
 		for (i = 0; i < n; i++) {
@@ -675,11 +503,8 @@ public class svm_hideo {
 				from++;
 			}
 		}
-		/*
-		 * if(verbosity>=3) { logger.info("");
-		 * logger.info("real_qp_size("+n_indep+")..."); logger.info(""); }
-		 */
-		/* cannot optimize with only one variable */
+	
+		// cannot optimize with only one variable 
 		if ((n_indep <= 1) && (m > 0) && (changed == 0)) {
 			for (i = n - 1; i >= 0; i--) {
 				primal[i] = init[i];
@@ -689,94 +514,7 @@ public class svm_hideo {
 
 		if ((changed == 0) || (n_indep > 1)) {
 
-			/*
-			logger.info("n_indep:" + n_indep);
-			logger.info("m:" + m);
-			logger.info("precision:" + precision);
-			logger.info("epsilon_crit:" + epsilon_crit);
-			logger.info("maxiter:" + maxiter);
-
-			String g_new_str = "";
-			for (int p = 0; p < n * n; p++) {
-				g_new_str += (p + ":" + g_new[p] + " ");
-			}
-			logger.info("g_new_str:" + g_new_str);
-
-			String g0_new_str = "";
-			for (int p = 0; p < n; p++) {
-				g0_new_str += (p + ":" + g0_new[p] + " ");
-			}
-			logger.info("g0_new_str:" + g0_new_str);
-
-			String ce_new_str = "";
-			for (int p = 0; p < n; p++) {
-				ce_new_str += (p + ":" + ce_new[p] + " ");
-			}
-			logger.info("ce_new_str:" + ce_new_str);
-
-			String ce0_new_str = "";
-			for (int p = 0; p < m; p++) {
-				ce0_new_str += (p + ":" + ce0_new[p] + " ");
-			}
-			logger.info("ce0_new_str:" + ce0_new_str);
-
-			String low_new_str = "";
-			for (int p = 0; p < n; p++) {
-				low_new_str += (p + ":" + low_new[p] + " ");
-			}
-			logger.info("low_new_str:" + low_new_str);
-
-			String up_new_str = "";
-			for (int p = 0; p < n; p++) {
-				up_new_str += (p + ":" + up_new[p] + " ");
-			}
-			logger.info("up_new_str:" + up_new_str);
-
-			String primal_str = "";
-			for (int p = 0; p < n; p++) {
-				primal_str += (p + ":" + primal[p] + " ");
-			}
-			logger.info("primal_str:" + primal_str);
-
-			String d_str = "";
-			for (int p = 0; p < (n + m) * 2 * (n + m) * 2; p++) {
-				d_str += (p + ":" + d[p] + " ");
-			}
-			logger.info("d_str:" + d_str);
-
-			String d0_str = "";
-			for (int p = 0; p < (n + m) * 2; p++) {
-				d_str += (p + ":" + d0[p] + " ");
-			}
-			logger.info("d0_str:" + d0_str);
-
-			String ig_str = "";
-			for (int p = 0; p < n * n; p++) {
-				d_str += (p + ":" + ig[p] + " ");
-			}
-			logger.info("ig_str:" + ig_str);
-
-			String dual_str = "";
-			for (int p = 0; p < (n + m) * 2; p++) {
-				dual_str += (p + ":" + dual[p] + " ");
-			}
-			logger.info("dual_str:" + dual_str);
-
-			String dual_old_str = "";
-			for (int p = 0; p < (n + m) * 2; p++) {
-				dual_old_str += (p + ":" + dual_old[p] + " ");
-			}
-			logger.info("dual_old_str:" + dual_old_str);
-
-			String temp_str = "";
-			for (int p = 0; p < n; p++) {
-				temp_str += (p + ":" + temp[p] + " ");
-			}
-			logger.info("temp_str:" + temp_str);
-			logger.info("goal:" + goal);
-			*/
 			
-
 			result = solve_dual(n_indep, m, precision, epsilon_crit, maxiter,
 					g_new, g0_new, ce_new, ce0_new, low_new, up_new, primal, d,
 					d0, ig, dual, dual_old, temp, goal);
@@ -790,7 +528,7 @@ public class svm_hideo {
 				j--;
 				primal[i] = primal[j];
 			} else {
-				primal[i] = start[i]; /* leave as is */
+				primal[i] = start[i]; // leave as is 
 			}
 			temp[i] = primal[i];
 		}
@@ -832,14 +570,14 @@ public class svm_hideo {
 		}
 
 		for (i = 0; i < n; i++) {
-			for (j = 0; j < n; j++) { /* dual hessian for box constraints */
+			for (j = 0; j < n; j++) { //dual hessian for box constraints
 				d[i * 2 * (n + m) + j] = ig[i * n + j];
 				d[(i + n) * 2 * (n + m) + j] = -ig[i * n + j];
 				d[i * 2 * (n + m) + j + n] = -ig[i * n + j];
 				d[(i + n) * 2 * (n + m) + j + n] = ig[i * n + j];
 			}
 			if (m > 0) {
-				sum = 0; /* dual hessian for eq constraints */
+				sum = 0; // dual hessian for eq constraints 
 				for (j = 0; j < n; j++) {
 					sum += (ce[j] * ig[i * n + j]);
 				}
@@ -864,12 +602,8 @@ public class svm_hideo {
 				d[(n + n + 1) * 2 * (n + m) + 2 * n + 1] = sum;
 			}
 		}
-		/*
-		 * System.out.println("d matrix in solve dual:"); for(int
-		 * di=0;di<d.length;di++) { System.out.print("d["+di+"]="+d[di]+" "); }
-		 * System.out.println();
-		 */
-		for (i = 0; i < n; i++) { /* dual linear component for the box constraints */
+
+		for (i = 0; i < n; i++) { // dual linear component for the box constraints 
 			w = 0;
 			for (j = 0; j < n; j++) {
 				w += (ig[i * n + j] * g0[j]);
@@ -895,7 +629,7 @@ public class svm_hideo {
 		maxfaktor = 1;
 		scalemaxiter = maxiter / 5;
 		
-		/******** main loop ***********/
+		//========= main loop ===================
 		while ((retrain > 0) && (maxviol > 0)
 				&& (iter < (scalemaxiter * maxfaktor))) {
 			iter++;
@@ -919,17 +653,9 @@ public class svm_hideo {
 					dual_old[i] = dual[i];
 				}
 
-				/*
-				 * printf("%d) maxviol=%20f precision=%f\n",iter,maxviol,precision
-				 * );
-				 */
+
 			}
-			/*
-			 * System.out.print("iter "+iter+" "); for(int
-			 * di=0;di<dual.length;di++) {
-			 * System.out.print("dual["+di+"]="+dual[di]+" "); }
-			 * System.out.println();
-			 */
+
 			if (m > 0) {
 				for (i = 0; i < n; i++) {
 					temp[i] = dual[i] - dual[i + n] + ce[i]
@@ -941,12 +667,12 @@ public class svm_hideo {
 				}
 			}
 			for (i = 0; i < n; i++) {
-				primal[i] = 0; /* calc value of primal variables */
+				primal[i] = 0; // calc value of primal variables 
 				for (j = 0; j < n; j++) {
 					primal[i] += ig[i * n + j] * temp[j];
 				}
 				primal[i] *= -1.0;
-				if (primal[i] <= (low[i])) { /* clip conservatively */
+				if (primal[i] <= (low[i])) { // clip conservatively 
 					primal[i] = low[i];
 				} else if (primal[i] >= (up[i])) {
 					primal[i] = up[i];
@@ -959,7 +685,7 @@ public class svm_hideo {
 				model_b = 0;
 
 			epsilon_hideo = EPSILON_HIDEO;
-			for (i = 0; i < n; i++) { /* check precision of alphas */
+			for (i = 0; i < n; i++) { // check precision of alphas
 				dist = -model_b * ce[i];
 				dist += (g0[i] + 1.0);
 				for (j = 0; j < i; j++) {
@@ -976,9 +702,9 @@ public class svm_hideo {
 					epsilon_hideo = (primal[i] - low[i]) * 2.0;
 				}
 			}
-			/* printf("\nEPSILON_HIDEO=%.30f\n",epsilon_hideo); */
+		
 
-			for (i = 0; i < n; i++) { /* clip alphas to bounds */
+			for (i = 0; i < n; i++) { // clip alphas to bounds 
 				if (primal[i] <= (low[i] + epsilon_hideo)) {
 					primal[i] = low[i];
 				} else if (primal[i] >= (up[i] - epsilon_hideo)) {
@@ -989,7 +715,7 @@ public class svm_hideo {
 			retrain = 0;
 			primal_optimal = 1;
 			at_bound = 0;
-			for (i = 0; (i < n); i++) { /* check primal KT-Conditions */
+			for (i = 0; (i < n); i++) { // check primal KT-Conditions 
 				dist = -model_b * ce[i];
 				dist += (g0[i] + 1.0);
 				for (j = 0; j < i; j++) {
@@ -1012,28 +738,19 @@ public class svm_hideo {
 						|| (primal[i] >= (up[i] - epsilon_a))) {
 					at_bound++;
 				}
-				/*
-				 * printf("HIDEOtemp: a[%ld]=%.30f, dist=%.6f, b=%f, at_bound=%ld\n"
-				 * ,i,primal[i],dist,model_b,at_bound);
-				 */
+			
 			}
 			if (m > 0) {
-				eq = -ce0[0]; /* check precision of eq-constraint */
+				eq = -ce0[0]; // check precision of eq-constraint 
 				for (i = 0; i < n; i++) {
 					eq += (ce[i] * primal[i]);
 				}
 				if ((EPSILON_EQ < Math.abs(eq))
-				/*
-				 * && !((goal==PRIMAL_OPTIMAL) && (at_bound==n))
-				 */
 				) {
 					retrain = 1;
 					primal_optimal = 0;
 				}
-				/*
-				 * printf("\n eq=%.30f ce0=%f at-bound=%ld\n",eq,ce0[0],at_bound)
-				 * ;
-				 */
+
 			}
 
 			if (retrain > 0) {
@@ -1047,12 +764,12 @@ public class svm_hideo {
 
 		if (primal_optimal == 0) {
 			for (i = 0; i < n; i++) {
-				primal[i] = 0; /* calc value of primal variables */
+				primal[i] = 0; // calc value of primal variables 
 				for (j = 0; j < n; j++) {
 					primal[i] += ig[i * n + j] * temp[j];
 				}
 				primal[i] *= -1.0;
-				if (primal[i] <= (low[i] + epsilon_a)) { /* clip conservatively */
+				if (primal[i] <= (low[i] + epsilon_a)) { // clip conservatively 
 					primal[i] = low[i];
 				} else if (primal[i] >= (up[i] - epsilon_a)) {
 					primal[i] = up[i];
@@ -1061,13 +778,13 @@ public class svm_hideo {
 		}
 
 		isnantest = 0;
-		for (i = 0; i < n; i++) { /* check for isnan */
+		for (i = 0; i < n; i++) { // check for isnan 
 			isnantest += primal[i];
 		}
 
 		if (m > 0) {
-			temp1 = dual[n + n + 1]; /* copy the dual variables for the eq */
-			temp2 = dual[n + n]; /* constraints to a handier location */
+			temp1 = dual[n + n + 1]; // copy the dual variables for the eq 
+			temp2 = dual[n + n]; // constraints to a handier location 
 			for (i = n + n + 1; i >= 2; i--) {
 				dual[i] = dual[i - 2];
 			}
@@ -1076,20 +793,11 @@ public class svm_hideo {
 			isnantest += temp1 + temp2;
 		}
 
-		/*
-		 * for(int li=0;li<dual.length;li++) {
-		 * System.out.print("dual "+li+":"+dual[li]); }
-		 * 
-		 * 
-		 * System.out.println("isnantest:"+isnantest);
-		 * System.out.println("primal_optimal:"+primal_optimal);
-		 * 
-		 * System.out.println("maxviol:"+maxviol);
-		 */
+
 		if (Double.isNaN(isnantest)) {
 			return ((int) NAN_SOLUTION);
 		} else if (primal_optimal > 0) {
-			// System.out.println("int primal_optimal:"+(int)PRIMAL_OPTIMAL);
+
 			return ((int) PRIMAL_OPTIMAL);
 		} else if (maxviol == 0.0) {
 			return ((int) DUAL_OPTIMAL);
@@ -1127,7 +835,7 @@ public class svm_hideo {
 		int i, j, k;
 		double factor;
 		for (i = 0; i < depth; i++) {
-			/* lin_dependent[i]=0; */
+			// lin_dependent[i]=0; 
 			for (j = 0; j < depth; j++) {
 				inverse[i * depth + j] = 0.0;
 			}
@@ -1175,13 +883,9 @@ public class svm_hideo {
 			double[] opt_g0, double[] alpha) {
 		double obj;
 		int i, j;
-		obj = 0; /* calculate objective */
-		/*
-		 * for(i=0;i<opt_n;i++) { obj+=(opt_g0[i]*alpha[i]);
-		 * obj+=(0.5*alpha[i]*alpha[i]*opt_g[i*opt_n+i]); for(j=0;j<i;j++) {
-		 * obj+=(alpha[j]*alpha[i]*opt_g[j*opt_n+i]); } }
-		 */
-
+		obj = 0; 
+		
+		// calculate objective 
 		for (i = 0; i < opt_n; i++) {
 			obj = WU
 					.sum(obj,WU.mul(opt_g0[i], alpha[i]));
