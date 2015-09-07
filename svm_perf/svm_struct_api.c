@@ -647,7 +647,7 @@ LABEL       find_most_violated_constraint_errorrate(PATTERN x, LABEL y,
 }
    
 
-
+//rewrite this method
 LABEL       find_most_violated_constraint_thresholdmetric(PATTERN x, LABEL y, 
 						     STRUCTMODEL *sm, 
 						     STRUCT_LEARN_PARM *sparm,
