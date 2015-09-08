@@ -37,10 +37,10 @@ public class svm_struct_api_multiclass extends svm_struct_api {
 
 		sparm.num_classes = 1;
 		for (i = 0; i < sample.n; i++)
-			/* find highest class label */
+			// find highest class label 
 			if (sparm.num_classes < ((sample.examples[i].y.class_index) + 0.1))
 				sparm.num_classes = (int) (sample.examples[i].y.class_index + 0.1);
-		for (i = 0; i < sample.n; i++) /* find highest feature number */
+		for (i = 0; i < sample.n; i++) // find highest feature number 
 		{
 			temp_words = sample.examples[i].x.doc.fvec.words;
 			for (int j = 0; j < temp_words.length; j++) {
@@ -86,10 +86,9 @@ public class svm_struct_api_multiclass extends svm_struct_api {
 		int first = 1;
 		double score, score_y, score_ybar, bestscore = -1;
 
-		/*
-		 * NOTE: This function could be made much more efficient by not always
-		 * computing a new PSI vector.
-		 */
+		
+		//NOTE: This function could be made much more efficient by not always
+		// computing a new PSI vector.
 		doc = (x.doc);
 		doc.fvec = psi(x, y, sm, sparm);
 		score_y = svm_common.classify_example(sm.svm_model, doc);
@@ -124,10 +123,9 @@ public class svm_struct_api_multiclass extends svm_struct_api {
 		int first = 1;
 		double score, bestscore = -1;
 
-		/*
-		 * NOTE: This function could be made much more efficient by not always
-		 * computing a new PSI vector.
-		 */
+
+		// NOTE: This function could be made much more efficient by not always
+		// computing a new PSI vector.
 		doc = x.doc.copyDoc();
 
 		ybar.scores = null;
@@ -154,21 +152,21 @@ public class svm_struct_api_multiclass extends svm_struct_api {
 	@Override
 	public double loss(LABEL y, LABEL ybar, STRUCT_LEARN_PARM sparm) {
 
-		if (sparm.loss_function == 0) { /* type 0 loss: 0/1 loss */
+		if (sparm.loss_function == 0) { // type 0 loss: 0/1 loss 
 			// System.err.println("y.class_index:"+y.class_index);
 			if (y.class_index == ybar.class_index)
 				return (0);
 			else
 				return (100);
 		}
-		if (sparm.loss_function == 1) { /* type 1 loss: squared difference */
+		if (sparm.loss_function == 1) { // type 1 loss: squared difference 
 			return ((y.class_index - ybar.class_index) * (y.class_index - ybar.class_index));
 		} else {
-			/*
-			 * Put your code for different loss functions here. But then
-			 * find_most_violated_constraint_???(x, y, sm) has to return the
-			 * highest scoring label with the largest loss.
-			 */
+		
+			// Put your code for different loss functions here. But then
+			 // find_most_violated_constraint_???(x, y, sm) has to return the
+			 // highest scoring label with the largest loss.
+			 
 			System.exit(1);
 		}
 
