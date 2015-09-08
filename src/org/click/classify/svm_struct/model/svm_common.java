@@ -33,24 +33,19 @@ public class svm_common {
 
 	public static int kernel_cache_statistic = 0;
 	public static int verbosity = 0;
-   
+
 	/*
-	public static int read_totdocs;
-	public static int read_totwords;
-	public static int read_max_docs;
-	public static int read_max_words_doc;
+	 * public static int read_totdocs; public static int read_totwords; public
+	 * static int read_max_docs; public static int read_max_words_doc;
+	 * 
+	 * public static double read_doc_label; public static int read_queryid;
+	 * public static int read_slackid; public static double read_costfactor;
+	 * public static int read_wpos; public static String read_comment;
+	 * 
+	 * //public static WORD[] read_words; public static double[] read_target =
+	 * null;
+	 */
 
-	public static double read_doc_label;
-	public static int read_queryid;
-	public static int read_slackid;
-	public static double read_costfactor;
-	public static int read_wpos;
-	public static String read_comment;
-
-	//public static WORD[] read_words;
-	public static double[] read_target = null;
-    */
-	
 	public static int progress_n;
 
 	private static Logger logger = Logger.getLogger(svm_common.class);
@@ -253,8 +248,7 @@ public class svm_common {
 	}
 
 	/** compute length of weight vector */
-	public static double model_length_s(MODEL model)
-	{
+	public static double model_length_s(MODEL model) {
 		int i, j;
 		double sum = 0, alphai;
 		DOC supveci;
@@ -309,7 +303,8 @@ public class svm_common {
 		kernel_parm.custom = "empty";
 	}
 
-	public static DOC[] read_documents(String docfile, double[] label,ReadStruct struct) {
+	public static DOC[] read_documents(String docfile, double[] label,
+			ReadStruct struct) {
 		String line, comment;
 
 		DOC[] docs;
@@ -324,10 +319,9 @@ public class svm_common {
 			System.out.println("Scanning examples...");
 		}
 
-		
-		ReadSummary summary=nol_ll(docfile); // scan size of input file
-		struct.read_max_words_doc = summary.read_max_words_doc+2;
-		struct.read_max_docs =summary.read_max_docs+ 2;
+		ReadSummary summary = nol_ll(docfile); // scan size of input file
+		struct.read_max_words_doc = summary.read_max_words_doc + 2;
+		struct.read_max_docs = summary.read_max_docs + 2;
 		if (verbosity >= 1) {
 			System.out.println("done\n");
 		}
@@ -337,13 +331,13 @@ public class svm_common {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		docs = new DOC[struct.read_max_docs]; //feature vectors 
+		docs = new DOC[struct.read_max_docs]; // feature vectors
 		// for(int k=0;k<read_docs.length;k++)
 		// {
 		// read_docs[k]=ps.getDOC();
 		// }
 		WORD[] words;
-		label = new double[struct.read_max_docs]; // target values 
+		label = new double[struct.read_max_docs]; // target values
 		// System.out.println("docs length:"+docs.length);
 		words = new WORD[struct.read_max_words_doc + 10];
 		for (int j = 0; j < words.length; j++) {
@@ -360,18 +354,18 @@ public class svm_common {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
 				if (line.charAt(0) == '#')
-					continue; // line contains comments 
+					continue; // line contains comments
 				// System.out.println(line);
 
-				ReadStruct rs=new ReadStruct();
-				if ((words = parse_document(line, struct.read_max_words_doc,rs)) == null) {
+				ReadStruct rs = new ReadStruct();
+				if ((words = parse_document(line, struct.read_max_words_doc, rs)) == null) {
 					System.out.println("\nParsing error in line " + dnum
 							+ "!\n" + line);
 					// System.exit(1);
 					continue;
 				}
 				label[dnum] = rs.read_doc_label;
-				// printf("docnum=%ld: Class=%f ",dnum,doc_label); 
+				// printf("docnum=%ld: Class=%f ",dnum,doc_label);
 				if (rs.read_doc_label > 0)
 					dpos++;
 				if (rs.read_doc_label < 0)
@@ -382,8 +376,8 @@ public class svm_common {
 						&& ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
 					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
-				docs[dnum] = create_example(dnum, rs.read_queryid, rs.read_slackid,
-						rs.read_costfactor,
+				docs[dnum] = create_example(dnum, rs.read_queryid,
+						rs.read_slackid, rs.read_costfactor,
 						create_svector(words, rs.read_comment, 1.0));
 				dnum++;
 
@@ -403,7 +397,7 @@ public class svm_common {
 	}
 
 	public static DOC[] read_documents_from_stream(InputStream is,
-			double[] label,ReadStruct struct) {
+			double[] label, ReadStruct struct) {
 		String line, comment;
 
 		DOC[] docs;
@@ -416,10 +410,13 @@ public class svm_common {
 			System.out.println("Scanning examples...");
 		}
 
-		ReadSummary summary=new ReadSummary();
-		ArrayList<String> list = nol_ll_stream(is,summary); /* scan size of input file */
-		struct.read_max_words_doc =summary.read_max_words_doc+ 2;
-		struct.read_max_docs = summary.read_max_docs+2;
+		ReadSummary summary = new ReadSummary();
+		ArrayList<String> list = nol_ll_stream(is, summary); /*
+															 * scan size of
+															 * input file
+															 */
+		struct.read_max_words_doc = summary.read_max_words_doc + 2;
+		struct.read_max_docs = summary.read_max_docs + 2;
 		if (verbosity >= 1) {
 			System.out.println("done\n");
 		}
@@ -448,27 +445,27 @@ public class svm_common {
 					continue; // line contains comments
 				// System.out.println(line);
 
-				ReadStruct rs=new ReadStruct();
-				if ((words = parse_document(line, struct.read_max_words_doc,rs)) == null) {
+				ReadStruct rs = new ReadStruct();
+				if ((words = parse_document(line, struct.read_max_words_doc, rs)) == null) {
 					System.out.println("\nParsing error in line " + dnum
 							+ "!\n" + line);
 					// System.exit(1);
 					continue;
 				}
 				label[dnum] = rs.read_doc_label;
-				if ( rs.read_doc_label > 0)
+				if (rs.read_doc_label > 0)
 					dpos++;
-				if ( rs.read_doc_label < 0)
+				if (rs.read_doc_label < 0)
 					dneg++;
-				if ( rs.read_doc_label == 0)
+				if (rs.read_doc_label == 0)
 					dunlab++;
-				if (( rs.read_wpos > 1)
-						&& ((words[ rs.read_wpos - 2]).wnum >  rs.read_totwords))
-					struct.read_totwords = words[ rs.read_wpos - 2].wnum;
+				if ((rs.read_wpos > 1)
+						&& ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
+					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
-				docs[dnum] = create_example(dnum,  rs.read_queryid,  rs.read_slackid,
-						 rs.read_costfactor,
-						create_svector(words,  rs.read_comment, 1.0));
+				docs[dnum] = create_example(dnum, rs.read_queryid,
+						rs.read_slackid, rs.read_costfactor,
+						create_svector(words, rs.read_comment, 1.0));
 
 				dnum++;
 
@@ -487,7 +484,7 @@ public class svm_common {
 	}
 
 	public static DOC[] read_documents_from_arraylist(ArrayList<String> list,
-			double[] label,ReadStruct struct) {
+			double[] label, ReadStruct struct) {
 		String line, comment;
 		DOC[] docs;
 
@@ -500,21 +497,21 @@ public class svm_common {
 		}
 
 		logger.info("begin nol ll list");
-		ReadSummary summary=nol_ll_list(list); /* scan size of input file */
+		ReadSummary summary = nol_ll_list(list); /* scan size of input file */
 		logger.info("end nol ll list");
 
-		struct.read_max_words_doc = summary.read_max_words_doc+2;
-		struct.read_max_docs = summary.read_max_docs+2;
+		struct.read_max_words_doc = summary.read_max_words_doc + 2;
+		struct.read_max_docs = summary.read_max_docs + 2;
 		if (verbosity >= 1) {
 			// System.out.println("done\n");
 		}
 
-		docs = new DOC[	struct.read_max_docs]; /* feature vectors */
+		docs = new DOC[struct.read_max_docs]; /* feature vectors */
 
 		WORD[] words;
-		label = new double[	struct.read_max_docs]; /* target values */
+		label = new double[struct.read_max_docs]; /* target values */
 
-		words = new WORD[	struct.read_max_words_doc + 10];
+		words = new WORD[struct.read_max_words_doc + 10];
 		for (int j = 0; j < words.length; j++) {
 			words[j] = new WORD();
 			words[j].wnum = 0;
@@ -532,14 +529,14 @@ public class svm_common {
 				if (line.charAt(0) == '#')
 					continue; /* line contains comments */
 
-				ReadStruct rs=new ReadStruct();
-				if ((words = parse_document(line, 	struct.read_max_words_doc,rs)) == null) {
+				ReadStruct rs = new ReadStruct();
+				if ((words = parse_document(line, struct.read_max_words_doc, rs)) == null) {
 					System.out.println("\nParsing error in line " + dnum
 							+ "!\n" + line);
 					continue;
 				}
 				label[dnum] = rs.read_doc_label;
-				if ( rs.read_doc_label > 0)
+				if (rs.read_doc_label > 0)
 					dpos++;
 				if (rs.read_doc_label < 0)
 					dneg++;
@@ -549,8 +546,8 @@ public class svm_common {
 						&& ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
 					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
-				docs[dnum] = create_example(dnum, rs.read_queryid, rs.read_slackid,
-						rs.read_costfactor,
+				docs[dnum] = create_example(dnum, rs.read_queryid,
+						rs.read_slackid, rs.read_costfactor,
 						create_svector(words, rs.read_comment, 1.0));
 				dnum++;
 
@@ -567,7 +564,8 @@ public class svm_common {
 		return docs;
 	}
 
-	public static WORD[] parse_document(String line, int max_words_doc,ReadStruct struct) {
+	public static WORD[] parse_document(String line, int max_words_doc,
+			ReadStruct struct) {
 		int wpos = 0, pos;
 		int wnum;
 		double weight;
@@ -592,7 +590,8 @@ public class svm_common {
 		/* printf("Comment: '%s'\n",(*comment)); */
 		// logger.info("lline:"+line);
 		if (line.indexOf("#") > 0) {
-			struct.read_comment = line.substring(line.indexOf("#") + 1, line.length());
+			struct.read_comment = line.substring(line.indexOf("#") + 1,
+					line.length());
 			dline = line.substring(0, line.indexOf("#"));
 		} else {
 			dline = line;
@@ -636,7 +635,8 @@ public class svm_common {
 		return read_words;
 	}
 
-	public WORD[] parse_big_document(String line, int max_words_doc,ReadStruct struct) {
+	public WORD[] parse_big_document(String line, int max_words_doc,
+			ReadStruct struct) {
 		int wpos = 0, pos = 0;
 		int wnum;
 		double weight;
@@ -682,7 +682,6 @@ public class svm_common {
 		read_words[wpos].wnum = 0;
 		struct.read_wpos = wpos + 1;
 
-
 		return read_words;
 	}
 
@@ -690,7 +689,7 @@ public class svm_common {
 
 		// logger.info("input_file:"+input_file);
 		// logger.info("in nol ll");
-		ReadSummary summary=new ReadSummary();
+		ReadSummary summary = new ReadSummary();
 		BufferedReader br = null;
 
 		try {
@@ -733,12 +732,13 @@ public class svm_common {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		
+
 		return summary;
 
 	}
 
-	public static ArrayList<String> nol_ll_stream(InputStream is,ReadSummary summary) {
+	public static ArrayList<String> nol_ll_stream(InputStream is,
+			ReadSummary summary) {
 
 		FileReader fr = null;
 		BufferedReader br = null;
@@ -782,7 +782,7 @@ public class svm_common {
 
 	public static ReadSummary nol_ll_list(ArrayList<String> list) {
 
-		ReadSummary summary=new ReadSummary();
+		ReadSummary summary = new ReadSummary();
 		logger.info("in nol_ll_list");
 		String line = "";
 		int temp_docs = 0;
@@ -812,8 +812,8 @@ public class svm_common {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		
-		return  summary;
+
+		return summary;
 
 	}
 
@@ -821,8 +821,8 @@ public class svm_common {
 
 		// logger.info("input_file:"+input_file);
 		// logger.info("in nol ll");
-		
-		ReadSummary summary=new ReadSummary();
+
+		ReadSummary summary = new ReadSummary();
 		FileReader fr = null;
 		BufferedReader br = null;
 
@@ -881,8 +881,7 @@ public class svm_common {
 	 * reads the alpha vector from a file as written by the write_alphas
 	 * function
 	 */
-	public static double[] read_alphas(String alphafile, int totdoc)
-	{
+	public static double[] read_alphas(String alphafile, int totdoc) {
 		FileReader fr = null;
 		BufferedReader br = null;
 		double[] alpha = null;
@@ -926,7 +925,7 @@ public class svm_common {
 			System.out.println("Writing model file...");
 		}
 
-		// Replace SV with single weight vector 
+		// Replace SV with single weight vector
 		if (false && (model.kernel_parm.kernel_type == ModelConstant.LINEAR)) {
 			if (verbosity >= 1) {
 				System.out.println("(compacting...");
@@ -977,12 +976,11 @@ public class svm_common {
 	}
 
 	/*
-	 Makes a copy of model where the support vectors are replaced with a
-	 single linear weight vector.
-	 NOTE: It adds the linear weight vector also to newmodel->lin_weights 
-	WARNING: This is correct only for linear models! */
-	public static MODEL compact_linear_model(MODEL model)
-	{
+	 * Makes a copy of model where the support vectors are replaced with a
+	 * single linear weight vector. NOTE: It adds the linear weight vector also
+	 * to newmodel->lin_weights WARNING: This is correct only for linear models!
+	 */
+	public static MODEL compact_linear_model(MODEL model) {
 		MODEL newmodel;
 		newmodel = new MODEL();
 		newmodel = model.copyMODEL();
@@ -1006,8 +1004,7 @@ public class svm_common {
 	}
 
 	/** compute weight vector in linear case and add to model */
-	public static void add_weight_vector_to_linear_model(MODEL model)
-	{
+	public static void add_weight_vector_to_linear_model(MODEL model) {
 		int i;
 		SVECTOR f;
 		// logger.info("model.totwords:" + model.totwords);
@@ -1171,7 +1168,6 @@ public class svm_common {
 		}
 		// ai = a.words;
 
-
 		veclength = ai.length;
 		sumi = new WORD[veclength];
 		for (int i = 0; i < ai.length; i++) {
@@ -1221,8 +1217,7 @@ public class svm_common {
 	 * computes the linear combination of the SVECTOR list weighted by the
 	 * factor of each SVECTOR
 	 */
-	public static SVECTOR add_list_ss_r(SVECTOR a, double min_non_zero)
-	{
+	public static SVECTOR add_list_ss_r(SVECTOR a, double min_non_zero) {
 		SVECTOR oldsum, sum, f;
 		WORD[] empty = new WORD[2];
 		for (int k = 0; k < 2; k++) {
@@ -1247,8 +1242,7 @@ public class svm_common {
 	}
 
 	/** scale sparse vector a by factor */
-	public static SVECTOR smult_s(SVECTOR a, double factor)
-	{
+	public static SVECTOR smult_s(SVECTOR a, double factor) {
 		SVECTOR vec;
 		WORD[] sum, sumi;
 		WORD[] ai;
@@ -1384,10 +1378,10 @@ public class svm_common {
 			i++;
 		}
 
-		if (true) { // potentially this wastes some memory, but saves malloc'ing 
+		if (true) { // potentially this wastes some memory, but saves malloc'ing
 			vec = create_svector_shallow(sumi, null, 1.0);
 			// logger.info("vec ee:"+vec.toLongString());
-		} else { // this is more memory efficient 
+		} else { // this is more memory efficient
 			vec = create_svector(sumi, null, 1.0);
 
 		}
@@ -1395,8 +1389,7 @@ public class svm_common {
 	}
 
 	/** classifies one example */
-	public static double classify_example(MODEL model, DOC ex)
-	{
+	public static double classify_example(MODEL model, DOC ex) {
 		int i;
 		double dist;
 
@@ -1412,15 +1405,16 @@ public class svm_common {
 		return (dist - model.b);
 	}
 
-	/** classifies example for linear kernel 
-
-	important: the model must have the linear weight vector computed
-	 use: add_weight_vector_to_linear_model(&model); 
-
-	 important: the feature numbers in the example to classify must
-	not be larger than the weight vector! */
-	public static double classify_example_linear(MODEL model, DOC ex)
-	{
+	/**
+	 * classifies example for linear kernel
+	 * 
+	 * important: the model must have the linear weight vector computed use:
+	 * add_weight_vector_to_linear_model(&model);
+	 * 
+	 * important: the feature numbers in the example to classify must not be
+	 * larger than the weight vector!
+	 */
+	public static double classify_example_linear(MODEL model, DOC ex) {
 		double sum = 0;
 		SVECTOR f;
 
@@ -1441,19 +1435,19 @@ public class svm_common {
 	}
 
 	/** appends SVECTOR b to the end of SVECTOR a. */
-	public static void append_svector_list(SVECTOR a, SVECTOR b)
-	{
+	public static void append_svector_list(SVECTOR a, SVECTOR b) {
 		SVECTOR f;
 
-		for (f = a; f.next != null; f = f.next); // find end of first vector list 
-		f.next = b; // append the two vector lists 
+		for (f = a; f.next != null; f = f.next)
+			; // find end of first vector list
+		f.next = b; // append the two vector lists
 	}
 
-	/** compute the sum a+b of two sparse vectors 
-	 * Note: SVECTOR lists are not followed, but only the first SVECTOR is used
+	/**
+	 * compute the sum a+b of two sparse vectors Note: SVECTOR lists are not
+	 * followed, but only the first SVECTOR is used
 	 */
-	public static SVECTOR add_ss(SVECTOR a, SVECTOR b)
-	{
+	public static SVECTOR add_ss(SVECTOR a, SVECTOR b) {
 		return (multadd_ss_r(a, b, 1.0, 1.0, 0));
 	}
 
@@ -1465,10 +1459,9 @@ public class svm_common {
 		newmodel.supvec = new DOC[model.sv_num];
 		newmodel.alpha = new double[model.sv_num];
 
-		newmodel.index = null; // index is not copied 
+		newmodel.index = null; // index is not copied
 		newmodel.supvec[0] = null;// 为什么第0个设置为 null?
 		newmodel.alpha[0] = 0;
-
 
 		for (i = 1; i < model.sv_num; i++) {
 
@@ -1477,7 +1470,7 @@ public class svm_common {
 					model.supvec[i].docnum, model.supvec[i].queryid, 0,
 					model.supvec[i].costfactor,
 					svm_common.copy_svector(model.supvec[i].fvec));
-	
+
 		}
 		if (model.lin_weights != null) {
 			newmodel.lin_weights = new double[model.totwords + 1];
@@ -1491,8 +1484,7 @@ public class svm_common {
 	}
 
 	/** create matrix with n rows and m colums */
-	public static MATRIX create_matrix(int n, int m)
-	{
+	public static MATRIX create_matrix(int n, int m) {
 		int i;
 		MATRIX matrix;
 
@@ -1508,8 +1500,7 @@ public class svm_common {
 	 * Like add_list_sort_ss(SVECTOR *a), but rounds values smaller than
 	 * min_non_zero to zero.
 	 */
-	public static SVECTOR add_list_sort_ss_r(SVECTOR a, double min_non_zero)
-	{
+	public static SVECTOR add_list_sort_ss_r(SVECTOR a, double min_non_zero) {
 		SVECTOR sum, f;
 		WORD[] empty = new WORD[2];
 		WORD[] ai, concat, concati, concat_read, concat_write;
@@ -1520,7 +1511,7 @@ public class svm_common {
 		int cri = 0;
 
 		if (a != null) {
-			// count number or entries over all vectors 
+			// count number or entries over all vectors
 			length = 0;
 			for (f = a; f != null; f = f.next) {
 				ai = f.words;
@@ -1529,7 +1520,7 @@ public class svm_common {
 				}
 			}
 
-			// write all entries into one long array and sort by feature number 
+			// write all entries into one long array and sort by feature number
 			concat = new WORD[length + 1];
 			int s = 0;
 			for (f = a; f != null; f = f.next) {
@@ -1576,7 +1567,7 @@ public class svm_common {
 
 			if (true) { // this wastes some memory, but saves malloc'ing
 				sum = create_svector_shallow(concat, null, 1.0);
-			} else { //this is more memory efficient 
+			} else { // this is more memory efficient
 				sum = create_svector(concat, null, 1.0);
 			}
 		} else {
@@ -1600,8 +1591,7 @@ public class svm_common {
 	}
 
 	/** creates an array of the integers [0..n-1] in random order */
-	public static int[] random_order(int n)
-	{
+	public static int[] random_order(int n) {
 		int[] randarray = new int[n];
 		RANDPAIR[] randpair = new RANDPAIR[n];
 		int i;
@@ -1632,8 +1622,7 @@ public class svm_common {
 	 * of calls
 	 */
 	public static void print_percent_progress(int maximum, int percentperdot,
-			String symbol)
-	{
+			String symbol) {
 		if ((percentperdot * ((double) progress_n - 1) / maximum) != (percentperdot
 				* ((double) progress_n) / maximum)) {
 			// logger.info(symbol);
@@ -1642,8 +1631,7 @@ public class svm_common {
 	}
 
 	/** multiplies the factor of each element in vector list with factor */
-	public static void mult_svector_list(SVECTOR a, double factor)
-	{
+	public static void mult_svector_list(SVECTOR a, double factor) {
 		SVECTOR f;
 
 		for (f = a; f != null; f = f.next)
@@ -1655,14 +1643,13 @@ public class svm_common {
 	 * factor of each SVECTOR. assumes that the number of features is small
 	 * compared to the number of elements in the list
 	 */
-	public static SVECTOR add_list_ns_r(SVECTOR a, double min_non_zero)
-	{
+	public static SVECTOR add_list_ns_r(SVECTOR a, double min_non_zero) {
 		SVECTOR vec, f;
 		WORD[] ai;
 		int totwords;
 		double[] sum;
 
-		// find max feature number 
+		// find max feature number
 		totwords = 0;
 		for (f = a; f != null; f = f.next) {
 			ai = f.words;
@@ -1686,8 +1673,7 @@ public class svm_common {
 	 * extends/shrinks matrix to n rows and m colums. Not that added elements
 	 * are not initialized.
 	 */
-	public static MATRIX realloc_matrix(MATRIX matrix, int n, int m)
-	{
+	public static MATRIX realloc_matrix(MATRIX matrix, int n, int m) {
 		int i;
 
 		if (matrix == null)
@@ -1763,7 +1749,7 @@ public class svm_common {
 				logger.info("Reading model...");
 			}
 
-			ReadSummary summary=svm_common.nol_ll(modelfile);
+			ReadSummary summary = svm_common.nol_ll(modelfile);
 			max_words = summary.read_max_words_doc;
 			max_words += 2;
 			line = br.readLine();
@@ -1815,16 +1801,16 @@ public class svm_common {
 			for (i = 1; i < model.sv_num; i++) {
 				line = br.readLine();
 				// logger.info("i:"+i+" "+line);
-				ReadStruct rs=new ReadStruct();
-				read_words=svm_common.parse_document(line, max_words,rs);
+				ReadStruct rs = new ReadStruct();
+				read_words = svm_common.parse_document(line, max_words, rs);
 				model.alpha[i] = rs.read_doc_label;
 				queryid = rs.read_queryid;
 				slackid = rs.read_slackid;
 				costfactor = rs.read_costfactor;
 				wpos = rs.read_wpos;
 				comment = rs.read_comment;
-				//words = svm_common.read_words;
-				words =read_words;
+				// words = svm_common.read_words;
+				words = read_words;
 				model.supvec[i] = svm_common.create_example(-1, 0, 0, 0.0,
 						svm_common.create_svector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
@@ -1891,7 +1877,6 @@ public class svm_common {
 
 		return (I);
 	}
-	
 
 	public static double[] reallocDoubleArr(double[] arr, int nsize) {
 
@@ -2001,7 +1986,6 @@ public class svm_common {
 
 		return ndoc;
 	}
-	
 
 	/**
 	 * 重新分配alpha大小
@@ -2038,7 +2022,7 @@ public class svm_common {
 
 		return alpha_list;
 	}
-	
+
 	/**
 	 * 重新分配lhs的大小
 	 * 
@@ -2064,7 +2048,7 @@ public class svm_common {
 			cset.rhs[i] = orhs[i];
 		}
 	}
-	
+
 	/**
 	 * 重新分配cset的内存大小
 	 * 
@@ -2079,8 +2063,6 @@ public class svm_common {
 		cset.lhs[cset.m - 1] = new DOC();
 	}
 
-	
-
 	/**
 	 * 重新分配rhs的大小
 	 * 
@@ -2094,5 +2076,85 @@ public class svm_common {
 		}
 		cset.rhs[cset.m - 1] = 0;
 	}
+
+	/**
+	 * computes an incomplete cholesky decomposition as describe bei Fine and
+	 * Scheinberg (JMLR01). rank is the desired rank, and epsilon is the cutoff
+	 * on the pivot score. This means it can return a solution with lower rank
+	 * than specified. The cholesky matrix returned is in the lower triangular
+	 * portion. index returns an array with the indices of the vectors in x that
+	 * were selected in the decomposition (terminated by -1).
+	 */
+	public static MATRIX incomplete_cholesky(DOC[] x, int n, int rank,
+			double epsilon, KERNEL_PARM kparm, int[] index) {
+		int i, j, k, pivot, temp2;
+		int[] pindex;
+		int[] swap;
+		double sum, pscore, temp;
+		double[] dG;
+		MATRIX G;
+
+		pindex = new int[rank + 1];
+		swap = new int[n];
+		dG = new double[n];
+		G = create_matrix(n, rank);
+		for (i = 0; i < n; i++) {
+			swap[i] = i;
+			for (j = 0; j < rank; j++) {
+				G.element[i][j] = 0;
+			}
+		}
+		for (i = 0; i < rank; i++) {
+			// compute pivot score
+			for (j = i; j < n; j++) {
+				dG[j] = kernel(kparm, x[swap[j]], x[swap[j]]);
+				for (k = 0; k <= i - 1; k++) {
+					dG[j] -= G.element[j][k] * G.element[j][k];
+				}
+			}
+
+			// find max pivot
+			for (j = i, pivot = i, pscore = 0; j < n; j++) {
+				if (pscore < dG[j]) {
+					pscore = dG[j];
+					pivot = j;
+				}
+			}
+			if (pscore <= epsilon) {
+				pindex[i] = -1;
+				index = pindex;
+				return (realloc_matrix(G, i, i));
+			}
+
+			pindex[i] = swap[pivot];
+			for (j = i; j < n; j++) {
+				G.element[j][i] = kernel(kparm, x[swap[j]], x[swap[pivot]]);
+			}
+			temp2 = swap[pivot];
+			swap[pivot] = swap[i];
+			swap[i] = temp2;
+			for (j = 0; j <= i; j++) {
+				temp = G.element[i][j];
+				G.element[i][j] = G.element[pivot][j];
+				G.element[pivot][j] = temp;
+			}
+			G.element[i][i] = dG[pivot];
+			for (j = 0; j <= i - 1; j++) {
+				for (k = i + 1; k < n; k++) {
+					G.element[k][i] -= G.element[k][j] * G.element[i][j];
+				}
+			}
+			G.element[i][i] = Math.sqrt(G.element[i][i]);
+			for (k = i + 1; k < n; k++) {
+				G.element[k][i] /= G.element[i][i];
+			}
+		}
+
+		pindex[i] = -1;
+		index = pindex;
+		return (realloc_matrix(G, rank, rank));
+	}
+	
+
 
 }

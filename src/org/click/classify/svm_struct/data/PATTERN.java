@@ -8,5 +8,6 @@ package org.click.classify.svm_struct.data;
  */
 public class PATTERN {
 	public DOC doc;
-	
+	public DOC[] docs;
+	public int totdoc;
 }

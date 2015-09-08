@@ -65,4 +65,13 @@ public class ModelConstant {
 	 * COMPACT_CACHED_VECTORS is 1 10E-10 if COMPACT_CACHED_VECTORS is 2 or 3
 	 */
 	public static final double COMPACT_ROUNDING_THRESH = 10E-15;
+	
+	public static final int ZEROONE=  0;
+	public static final int FONE     =    1;
+	public static final int ERRORRATE  =  2;
+	public static final int PRBEP     =   3;
+	public static final int PREC_K    =   4;
+	public static final int REC_K     =   5;
+	public static final int SWAPPEDPAIRS= 10;
+	public static final int AVGPREC    =  11;
 }
