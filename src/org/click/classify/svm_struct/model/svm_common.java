@@ -169,15 +169,11 @@ public class svm_common {
 
 		int i = 0;
 		int j = 0;
-		// logger.info("a:"+a.toString());
-		// logger.info("b:"+b.toString());
-		// logger.info("ai:"+ai.length);
-		// logger.info("bj:"+bj.length);
+
 		while ((i < ai.length) && (j < bj.length)) {
 			if (ai[i] == null || bj[j] == null) {
 				break;
 			}
-			// logger.info("i:"+i+"  j:"+j);
 			if (ai[i].wnum > bj[j].wnum) {
 				j++;
 			} else if (ai[i].wnum < bj[j].wnum) {
@@ -213,8 +209,6 @@ public class svm_common {
 		for (int i = 0; i < ai.length; i++) {
 			if (ai[i] != null) {
 				vec_n[ai[i].wnum] += (faktor * ai[i].weight);
-				// vec_n[ai[i].wnum]=WeightsUpdate.sum(vec_n[ai[i].wnum],
-				// WeightsUpdate.mul(faktor, ai[i].weight));
 			} else {
 				continue;
 			}
@@ -224,17 +218,11 @@ public class svm_common {
 	public static double sprod_ns(double[] vec_n, SVECTOR vec_s) {
 		double sum = 0;
 		WORD[] ai;
-		// logger.info("vec_s:"+vec_s.toString());
 		ai = vec_s.words;
-		// logger.info("ai.length:"+ai.length);
-
 		for (int i = 0; i < ai.length; i++) {
-			// logger.info("i:"+i+" ai[i].wnum:"+ai[i].wnum);
 			if (ai[i] != null) {
 
 				sum += (vec_n[ai[i].wnum] * ai[i].weight);
-				// sum = WeightsUpdate.sum(sum,
-				// WeightsUpdate.mul(vec_n[ai[i].wnum], ai[i].weight));
 			} else {
 				continue;
 			}
@@ -263,8 +251,8 @@ public class svm_common {
 		return hc;
 	}
 
+	/** compute length of weight vector */
 	public static double model_length_s(MODEL model)
-	/* compute length of weight vector */
 	{
 		int i, j;
 		double sum = 0, alphai;
@@ -322,13 +310,9 @@ public class svm_common {
 
 	public static DOC[] read_documents(String docfile, double[] label,ReadStruct struct) {
 		String line, comment;
-		// PrintWriter pw = null;
-		// FileWriter fw = null;
+
 		DOC[] docs;
-		/*
-		 * try { fw = new FileWriter(new File("log2.txt")); pw = new
-		 * PrintWriter(fw); } catch (Exception e) { }
-		 */
+
 		int dnum = 0, wpos, dpos = 0, dneg = 0, dunlab = 0, queryid, slackid, max_docs;
 		int max_words_doc, ll;
 		double doc_label, costfactor;
@@ -340,7 +324,7 @@ public class svm_common {
 		}
 
 		
-		ReadSummary summary=nol_ll(docfile); /* scan size of input file */
+		ReadSummary summary=nol_ll(docfile); // scan size of input file
 		struct.read_max_words_doc = summary.read_max_words_doc+2;
 		struct.read_max_docs =summary.read_max_docs+ 2;
 		if (verbosity >= 1) {
@@ -352,13 +336,13 @@ public class svm_common {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		docs = new DOC[struct.read_max_docs]; /* feature vectors */
+		docs = new DOC[struct.read_max_docs]; //feature vectors 
 		// for(int k=0;k<read_docs.length;k++)
 		// {
 		// read_docs[k]=ps.getDOC();
 		// }
 		WORD[] words;
-		label = new double[struct.read_max_docs]; /* target values */
+		label = new double[struct.read_max_docs]; // target values 
 		// System.out.println("docs length:"+docs.length);
 		words = new WORD[struct.read_max_words_doc + 10];
 		for (int j = 0; j < words.length; j++) {
@@ -375,7 +359,7 @@ public class svm_common {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
 				if (line.charAt(0) == '#')
-					continue; /* line contains comments */
+					continue; // line contains comments 
 				// System.out.println(line);
 
 				ReadStruct rs=new ReadStruct();
@@ -386,7 +370,7 @@ public class svm_common {
 					continue;
 				}
 				label[dnum] = rs.read_doc_label;
-				/* printf("docnum=%ld: Class=%f ",dnum,doc_label); */
+				// printf("docnum=%ld: Class=%f ",dnum,doc_label); 
 				if (rs.read_doc_label > 0)
 					dpos++;
 				if (rs.read_doc_label < 0)
@@ -400,21 +384,8 @@ public class svm_common {
 				docs[dnum] = create_example(dnum, rs.read_queryid, rs.read_slackid,
 						rs.read_costfactor,
 						create_svector(words, rs.read_comment, 1.0));
-				// pw.println("docs dnum[" + dnum + "]"
-				// + docs[dnum].fvec.words.length);
-				/*
-				 * for (int k = 0; k < 100; k++) { pw.print(" " +
-				 * docs[dnum].fvec.words[k].wnum + ":" +
-				 * docs[dnum].fvec.words[k].weight); }
-				 */
-				// System.out.println();
-				/* printf("\nNorm=%f\n",((*docs)[dnum]->fvec)->twonorm_sq); */
 				dnum++;
-				// if (verbosity >= 1) {
-				// if ((dnum % 100) == 0) {
-				// System.out.println(dnum+"..");
-				// }
-				// }
+
 			}
 
 			fr.close();
@@ -433,18 +404,12 @@ public class svm_common {
 	public static DOC[] read_documents_from_stream(InputStream is,
 			double[] label,ReadStruct struct) {
 		String line, comment;
-		// PrintWriter pw = null;
-		// FileWriter fw = null;
+
 		DOC[] docs;
-		/*
-		 * try { fw = new FileWriter(new File("log2.txt")); pw = new
-		 * PrintWriter(fw); } catch (Exception e) { }
-		 */
+
 		int dnum = 0, wpos, dpos = 0, dneg = 0, dunlab = 0, queryid, slackid, max_docs;
 		int max_words_doc, ll;
 		double doc_label, costfactor;
-		// FileReader fr = null;
-		// BufferedReader br = null;
 
 		if (verbosity >= 1) {
 			System.out.println("Scanning examples...");
@@ -457,16 +422,9 @@ public class svm_common {
 		if (verbosity >= 1) {
 			System.out.println("done\n");
 		}
-		/*
-		 * try { fr = new FileReader(new File(docfile)); br = new
-		 * BufferedReader(fr); } catch (Exception e) {
-		 * System.out.println(e.getMessage()); }
-		 */
+
 		docs = new DOC[struct.read_max_docs]; /* feature vectors */
-		// for(int k=0;k<read_docs.length;k++)
-		// {
-		// read_docs[k]=ps.getDOC();
-		// }
+
 		WORD[] words;
 		label = new double[struct.read_max_docs]; /* target values */
 		// System.out.println("docs length:"+docs.length);
@@ -486,7 +444,7 @@ public class svm_common {
 			for (int j = 0; j < list.size(); j++) {
 				line = list.get(j);
 				if (line.charAt(0) == '#')
-					continue; /* line contains comments */
+					continue; // line contains comments
 				// System.out.println(line);
 
 				ReadStruct rs=new ReadStruct();
@@ -497,7 +455,6 @@ public class svm_common {
 					continue;
 				}
 				label[dnum] = rs.read_doc_label;
-				/* printf("docnum=%ld: Class=%f ",dnum,doc_label); */
 				if ( rs.read_doc_label > 0)
 					dpos++;
 				if ( rs.read_doc_label < 0)
@@ -511,22 +468,9 @@ public class svm_common {
 				docs[dnum] = create_example(dnum,  rs.read_queryid,  rs.read_slackid,
 						 rs.read_costfactor,
 						create_svector(words,  rs.read_comment, 1.0));
-				// pw.println("docs dnum[" + dnum + "]"
-				// + docs[dnum].fvec.words.length);
-				/*
-				 * for (int k = 0; k < 100; k++) { pw.print(" " +
-				 * docs[dnum].fvec.words[k].wnum + ":" +
-				 * docs[dnum].fvec.words[k].weight); }
-				 */
-				// System.out.println();
-				/* printf("\nNorm=%f\n",((*docs)[dnum]->fvec)->twonorm_sq); */
+
 				dnum++;
-				// if (verbosity >= 1) {
-				// if ((dnum % 100) == 0) {
-				// System.out.println(dnum+"..");
-				// }
-				// }
-				// }
+
 			}
 			// fr.close();
 			// br.close();
@@ -737,35 +681,6 @@ public class svm_common {
 		read_words[wpos].wnum = 0;
 		struct.read_wpos = wpos + 1;
 
-		/*
-		 * read_queryid = 0; read_slackid = 0; read_costfactor = 1;
-		 * 
-		 * pos = 0; read_comment = ""; String dline = ""; //
-		 * logger.info("lline:"+line); if (line.indexOf("#") > 0) { read_comment
-		 * = line.substring(line.indexOf("#") + 1, line.length()); dline =
-		 * line.substring(0, line.indexOf("#")); } else { dline = line; }
-		 * 
-		 * dline = dline.trim(); wpos = 0; logger.info("dline:"+dline); String[]
-		 * seg_arr = dline.split(" ");
-		 * System.out.println("seg_arr.length:"+seg_arr.length); if
-		 * ((seg_arr.length < 1)||(seg_arr[0].indexOf("#")>-1)) { return null; }
-		 * read_doc_label = Double.parseDouble(seg_arr[0]);
-		 * 
-		 * String wstr = ""; String pstr = ""; String sstr = ""; for (int i = 1;
-		 * i < seg_arr.length; i++) { wstr = seg_arr[i].trim(); if
-		 * (wstr.indexOf(":") < 0) { continue; } pstr = wstr.substring(0,
-		 * wstr.indexOf(":")); sstr = wstr.substring(wstr.indexOf(":") + 1,
-		 * wstr.length()); pstr = pstr.trim(); sstr = sstr.trim(); if
-		 * (pstr.equals("qid")) { read_queryid = Integer.parseInt(sstr); } else
-		 * if (pstr.equals("sid")) { read_slackid = Integer.parseInt(sstr); }
-		 * else if (pstr.equals("cost")) { read_costfactor =
-		 * Double.parseDouble(sstr); } else if (Pattern.matches("[\\d]+", pstr))
-		 * { read_words[wpos].wnum = Integer.parseInt(pstr);
-		 * read_words[wpos].weight = Double.parseDouble(sstr); wpos++; } }
-		 * 
-		 * read_words[wpos].wnum = 0; read_wpos = wpos + 1; //
-		 * System.out.println("wpos:"+read_wpos);
-		 */
 
 		return read_words;
 	}
@@ -961,11 +876,11 @@ public class svm_common {
 		return summary;
 	}
 
-	public static double[] read_alphas(String alphafile, int totdoc)
-	/*
+	/**
 	 * reads the alpha vector from a file as written by the write_alphas
 	 * function
 	 */
+	public static double[] read_alphas(String alphafile, int totdoc)
 	{
 		FileReader fr = null;
 		BufferedReader br = null;
@@ -990,8 +905,7 @@ public class svm_common {
 		return (alpha);
 	}
 
-	/***************************** IO routines ***************************/
-
+	/****************************** IO routines ***************************/
 	public static void write_model(String modelfile, MODEL model) {
 		FileWriter fw = null;
 		PrintWriter pw = null;
@@ -1011,7 +925,7 @@ public class svm_common {
 			System.out.println("Writing model file...");
 		}
 
-		/* Replace SV with single weight vector */
+		// Replace SV with single weight vector 
 		if (false && (model.kernel_parm.kernel_type == ModelConstant.LINEAR)) {
 			if (verbosity >= 1) {
 				System.out.println("(compacting...");
@@ -1053,10 +967,6 @@ public class svm_common {
 					pw.print("#" + v.userdefined + "\n");
 				else
 					pw.print("#\n");
-				/*
-				 * NOTE: this could be made more efficient by summing the
-				 * alpha's of identical vectors before writing them to the file.
-				 */
 			}
 		}
 
@@ -1065,13 +975,12 @@ public class svm_common {
 		}
 	}
 
-	public static MODEL compact_linear_model(MODEL model)
 	/*
-	 * Makes a copy of model where the support vectors are replaced with a
-	 * single linear weight vector.
-	 */
-	/* NOTE: It adds the linear weight vector also to newmodel->lin_weights */
-	/* WARNING: This is correct only for linear models! */
+	 Makes a copy of model where the support vectors are replaced with a
+	 single linear weight vector.
+	 NOTE: It adds the linear weight vector also to newmodel->lin_weights 
+	WARNING: This is correct only for linear models! */
+	public static MODEL compact_linear_model(MODEL model)
 	{
 		MODEL newmodel;
 		newmodel = new MODEL();
@@ -1079,7 +988,7 @@ public class svm_common {
 		add_weight_vector_to_linear_model(newmodel);
 		newmodel.supvec = new DOC[2];
 		newmodel.alpha = new double[2];
-		newmodel.index = null; /* index is not copied */
+		newmodel.index = null; // index is not copied
 		newmodel.supvec[0] = null;
 		newmodel.alpha[0] = 0.0;
 		newmodel.supvec[1] = create_example(
@@ -1095,8 +1004,8 @@ public class svm_common {
 		return (newmodel);
 	}
 
+	/** compute weight vector in linear case and add to model */
 	public static void add_weight_vector_to_linear_model(MODEL model)
-	/* compute weight vector in linear case and add to model */
 	{
 		int i;
 		SVECTOR f;
@@ -1261,11 +1170,7 @@ public class svm_common {
 		}
 		// ai = a.words;
 
-		/*
-		 * String wwinfo=""; for(int k=0;k<a.words.length;k++) {
-		 * wwinfo=wwinfo+a.words[k].wnum+":"+a.words[k].weight+" "; }
-		 * logger.info("wwwinfo:"+wwinfo);
-		 */
+
 		veclength = ai.length;
 		sumi = new WORD[veclength];
 		for (int i = 0; i < ai.length; i++) {
@@ -1277,12 +1182,6 @@ public class svm_common {
 		if (a.userdefined != null) {
 
 		}
-
-		/*
-		 * String wwinfo=""; for(int k=0;k<sumi.length;k++) {
-		 * wwinfo=wwinfo+sumi[k].wnum+":"+sumi[k].weight+" "; }
-		 * logger.info("wwwinfo:"+wwinfo);
-		 */
 
 		vec = svm_common.create_svector_shallow(sumi, userdefined, a.factor);
 		// logger.info("vec in sv:"+vec.toString());
@@ -1317,11 +1216,11 @@ public class svm_common {
 		return (add_list_ss_r(a, 0));
 	}
 
-	public static SVECTOR add_list_ss_r(SVECTOR a, double min_non_zero)
-	/*
+	/**
 	 * computes the linear combination of the SVECTOR list weighted by the
 	 * factor of each SVECTOR
 	 */
+	public static SVECTOR add_list_ss_r(SVECTOR a, double min_non_zero)
 	{
 		SVECTOR oldsum, sum, f;
 		WORD[] empty = new WORD[2];
@@ -1332,29 +1231,22 @@ public class svm_common {
 		if (a == null) {
 			empty[0].wnum = 0;
 			sum = create_svector(empty, null, 1.0);
-			// logger.info("sum a:"+sum.toString());
 		} else if ((a != null) && (a.next == null)) {
 			sum = smult_s(a, a.factor);
-			// logger.info("sum b:"+sum.toString());
 		} else {
-			// logger.info("a.factor:"+a.factor+"a.next.factor:"+a.next.factor);
-			// logger.info("a words:"+a.toString());
-			// logger.info("b words:"+a.next.toString());
 			sum = multadd_ss_r(a, a.next, a.factor, a.next.factor, min_non_zero);
-			// logger.info("sum c:"+sum.toLongString());
 			int ii = 0;
 			for (f = a.next.next; f != null; f = f.next) {
 				oldsum = sum;
 				sum = multadd_ss_r(oldsum, f, 1.0, f.factor, min_non_zero);
-				// logger.info("ii="+ii+"sum d:"+sum.toString());
 				ii++;
 			}
 		}
 		return (sum);
 	}
 
+	/** scale sparse vector a by factor */
 	public static SVECTOR smult_s(SVECTOR a, double factor)
-	/* scale sparse vector a by factor */
 	{
 		SVECTOR vec;
 		WORD[] sum, sumi;
@@ -1454,14 +1346,12 @@ public class svm_common {
 				sumi[s] = bj[j];
 				sumi[s].weight *= fb;
 				if (sumi[s].weight != 0)
-					// logger.info(" add 1 s="+s+" "+sumi[s].wnum+":"+sumi[s].weight);
 					s++;
 				j++;
 			} else if (ai[i].wnum < bj[j].wnum) {
 				sumi[s] = ai[i];
 				sumi[s].weight *= fa;
 				if (sumi[s].weight != 0)
-					// logger.info(" add 2 s="+s+" "+sumi[s].wnum+":"+sumi[s].weight);
 					s++;
 				i++;
 			} else {
@@ -1471,7 +1361,6 @@ public class svm_common {
 					sumi[s].wnum = ai[i].wnum;
 					sumi[s].weight = weight;
 					if (sumi[s].weight != 0)
-						// logger.info("add 3 s="+s+" "+sumi[s].wnum+":"+sumi[s].weight);
 						s++;
 				}
 				i++;
@@ -1490,36 +1379,28 @@ public class svm_common {
 			sumi[s] = ai[i];
 			sumi[s].weight *= fa;
 			if (sumi[s].weight != 0)
-				// logger.info("add 5 s="+s+" "+sumi[s].wnum+":"+sumi[s].weight);
 				s++;
 			i++;
 		}
 
-		if (true) { /* potentially this wastes some memory, but saves malloc'ing */
-			/*
-			 * String winfo=""; for(int wi=0;wi<sumi.length;wi++) {
-			 * if(sumi[wi]==null) { continue; } if(sumi[wi].weight!=0) {
-			 * winfo+=(sumi[wi].wnum+":"+sumi[wi].weight+" "); } }
-			 */
-			// logger.info("sumi dd:"+winfo);
+		if (true) { // potentially this wastes some memory, but saves malloc'ing 
 			vec = create_svector_shallow(sumi, null, 1.0);
 			// logger.info("vec ee:"+vec.toLongString());
-		} else { /* this is more memory efficient */
+		} else { // this is more memory efficient 
 			vec = create_svector(sumi, null, 1.0);
 
 		}
 		return (vec);
 	}
 
+	/** classifies one example */
 	public static double classify_example(MODEL model, DOC ex)
-	/* classifies one example */
 	{
 		int i;
 		double dist;
 
 		if ((model.kernel_parm.kernel_type == ModelConstant.LINEAR)
 				&& (model.lin_weights != null)) {
-			// printf("model kernel type is LINEAR and lin_weights \n");
 			return (classify_example_linear(model, ex));
 		}
 		dist = 0;
@@ -1530,20 +1411,19 @@ public class svm_common {
 		return (dist - model.b);
 	}
 
+	/** classifies example for linear kernel 
+
+	important: the model must have the linear weight vector computed
+	 use: add_weight_vector_to_linear_model(&model); 
+
+	 important: the feature numbers in the example to classify must
+	not be larger than the weight vector! */
 	public static double classify_example_linear(MODEL model, DOC ex)
-	/* classifies example for linear kernel */
-
-	/* important: the model must have the linear weight vector computed */
-	/* use: add_weight_vector_to_linear_model(&model); */
-
-	/* important: the feature numbers in the example to classify must */
-	/* not be larger than the weight vector! */
 	{
 		double sum = 0;
 		SVECTOR f;
 
 		for (f = ex.fvec; f != null; f = f.next) {
-			// logger.info("lin_weights.length:"+size_arr(model.lin_weights)+" f:"+size_svector(f)+" "+f.toString());
 			sum += f.factor * sprod_ns(model.lin_weights, f);
 		}
 		return (sum - model.b);
@@ -1559,21 +1439,19 @@ public class svm_common {
 		return (newvec);
 	}
 
+	/** appends SVECTOR b to the end of SVECTOR a. */
 	public static void append_svector_list(SVECTOR a, SVECTOR b)
-	/* appends SVECTOR b to the end of SVECTOR a. */
 	{
 		SVECTOR f;
 
-		for (f = a; f.next != null; f = f.next)
-			; /* find end of first vector list */
-		f.next = b; /* append the two vector lists */
+		for (f = a; f.next != null; f = f.next); // find end of first vector list 
+		f.next = b; // append the two vector lists 
 	}
 
-	public static SVECTOR add_ss(SVECTOR a, SVECTOR b)
-	/* compute the sum a+b of two sparse vectors */
-	/*
+	/** compute the sum a+b of two sparse vectors 
 	 * Note: SVECTOR lists are not followed, but only the first SVECTOR is used
 	 */
+	public static SVECTOR add_ss(SVECTOR a, SVECTOR b)
 	{
 		return (multadd_ss_r(a, b, 1.0, 1.0, 0));
 	}
@@ -1586,11 +1464,11 @@ public class svm_common {
 		newmodel.supvec = new DOC[model.sv_num];
 		newmodel.alpha = new double[model.sv_num];
 
-		newmodel.index = null; /* index is not copied */
+		newmodel.index = null; // index is not copied 
 		newmodel.supvec[0] = null;// 为什么第0个设置为 null?
 		newmodel.alpha[0] = 0;
 
-		// logger.info("model.sv_num:"+model.sv_num);
+
 		for (i = 1; i < model.sv_num; i++) {
 
 			newmodel.alpha[i] = model.alpha[i];
@@ -1598,7 +1476,7 @@ public class svm_common {
 					model.supvec[i].docnum, model.supvec[i].queryid, 0,
 					model.supvec[i].costfactor,
 					svm_common.copy_svector(model.supvec[i].fvec));
-			// logger.info("newmodel.supvec:"+i+" "+newmodel.supvec[i].fvec.words.length);
+	
 		}
 		if (model.lin_weights != null) {
 			newmodel.lin_weights = new double[model.totwords + 1];
@@ -1611,8 +1489,8 @@ public class svm_common {
 		return (newmodel);
 	}
 
+	/** create matrix with n rows and m colums */
 	public static MATRIX create_matrix(int n, int m)
-	/* create matrix with n rows and m colums */
 	{
 		int i;
 		MATRIX matrix;
@@ -1625,11 +1503,11 @@ public class svm_common {
 		return (matrix);
 	}
 
-	public static SVECTOR add_list_sort_ss_r(SVECTOR a, double min_non_zero)
-	/*
+	/**
 	 * Like add_list_sort_ss(SVECTOR *a), but rounds values smaller than
 	 * min_non_zero to zero.
 	 */
+	public static SVECTOR add_list_sort_ss_r(SVECTOR a, double min_non_zero)
 	{
 		SVECTOR sum, f;
 		WORD[] empty = new WORD[2];
@@ -1641,7 +1519,7 @@ public class svm_common {
 		int cri = 0;
 
 		if (a != null) {
-			/* count number or entries over all vectors */
+			// count number or entries over all vectors 
 			length = 0;
 			for (f = a; f != null; f = f.next) {
 				ai = f.words;
@@ -1650,7 +1528,7 @@ public class svm_common {
 				}
 			}
 
-			/* write all entries into one long array and sort by feature number */
+			// write all entries into one long array and sort by feature number 
 			concat = new WORD[length + 1];
 			int s = 0;
 			for (f = a; f != null; f = f.next) {
@@ -1695,9 +1573,9 @@ public class svm_common {
 				cwi++;
 			}
 
-			if (true) { /* this wastes some memory, but saves malloc'ing */
+			if (true) { // this wastes some memory, but saves malloc'ing
 				sum = create_svector_shallow(concat, null, 1.0);
-			} else { /* this is more memory efficient */
+			} else { //this is more memory efficient 
 				sum = create_svector(concat, null, 1.0);
 			}
 		} else {
@@ -1720,8 +1598,8 @@ public class svm_common {
 		return warr;
 	}
 
+	/** creates an array of the integers [0..n-1] in random order */
 	public static int[] random_order(int n)
-	/* creates an array of the integers [0..n-1] in random order */
 	{
 		int[] randarray = new int[n];
 		RANDPAIR[] randpair = new RANDPAIR[n];
@@ -1747,13 +1625,13 @@ public class svm_common {
 			add_vector_ns(vec_n, f, f.factor * faktor);
 	}
 
-	public static void print_percent_progress(int maximum, int percentperdot,
-			String symbol)
-	/*
+	/**
 	 * every time this function gets called, progress is incremented. It prints
 	 * symbol every percentperdot calls, assuming that maximum is the max number
 	 * of calls
 	 */
+	public static void print_percent_progress(int maximum, int percentperdot,
+			String symbol)
 	{
 		if ((percentperdot * ((double) progress_n - 1) / maximum) != (percentperdot
 				* ((double) progress_n) / maximum)) {
@@ -1762,8 +1640,8 @@ public class svm_common {
 		progress_n++;
 	}
 
+	/** multiplies the factor of each element in vector list with factor */
 	public static void mult_svector_list(SVECTOR a, double factor)
-	/* multiplies the factor of each element in vector list with factor */
 	{
 		SVECTOR f;
 
@@ -1771,19 +1649,19 @@ public class svm_common {
 			f.factor *= factor;
 	}
 
-	public static SVECTOR add_list_ns_r(SVECTOR a, double min_non_zero)
-	/*
+	/**
 	 * computes the linear combination of the SVECTOR list weighted by the
 	 * factor of each SVECTOR. assumes that the number of features is small
 	 * compared to the number of elements in the list
 	 */
+	public static SVECTOR add_list_ns_r(SVECTOR a, double min_non_zero)
 	{
 		SVECTOR vec, f;
 		WORD[] ai;
 		int totwords;
 		double[] sum;
 
-		/* find max feature number */
+		// find max feature number 
 		totwords = 0;
 		for (f = a; f != null; f = f.next) {
 			ai = f.words;
@@ -1803,11 +1681,11 @@ public class svm_common {
 		return (vec);
 	}
 
-	public static MATRIX realloc_matrix(MATRIX matrix, int n, int m)
-	/*
+	/**
 	 * extends/shrinks matrix to n rows and m colums. Not that added elements
 	 * are not initialized.
 	 */
+	public static MATRIX realloc_matrix(MATRIX matrix, int n, int m)
 	{
 		int i;
 
