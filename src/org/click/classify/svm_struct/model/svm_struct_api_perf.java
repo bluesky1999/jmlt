@@ -86,5 +86,19 @@ public class svm_struct_api_perf extends svm_struct_api{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public  STRUCTMODEL read_struct_model(String file,
+			STRUCT_LEARN_PARM sparm) {
+		
+		return null;
+	}
+	
+	@Override
+	public  void write_struct_model(String file, STRUCTMODEL sm,
+			STRUCT_LEARN_PARM sparm){
+		
+	}
+	
 
 }

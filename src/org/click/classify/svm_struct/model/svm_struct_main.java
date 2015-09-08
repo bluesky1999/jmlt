@@ -417,7 +417,7 @@ public class svm_struct_main {
 		if (struct_verbosity >= 1) {
 			logger.info("Writing learned model...");
 		}
-		svm_struct_api.write_struct_model(modelfile, structmodel, struct_parm);
+		ssa.write_struct_model(modelfile, structmodel, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
 		}
@@ -446,7 +446,6 @@ public class svm_struct_main {
 		STRUCTMODEL structmodel = new STRUCTMODEL();
 			
 		svm_struct_api.svm_struct_learn_api_init(args);
-
 		long start_time = TimeOpera.getCurrentTimeLong();
 		
 		read_input_parameters(args.length + 1, args, struct_parm, learn_parm,
@@ -503,7 +502,7 @@ public class svm_struct_main {
 		if (struct_verbosity >= 1) {
 			logger.info("Writing learned model...");
 		}
-		svm_struct_api.write_struct_model(modelfile, structmodel, struct_parm);
+		ssa.write_struct_model(modelfile, structmodel, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
 		}
@@ -586,7 +585,7 @@ public class svm_struct_main {
 		if (struct_verbosity >= 1) {
 			logger.info("Writing learned model...");
 		}
-		svm_struct_api.write_struct_model(modelfile, structmodel, struct_parm);
+		ssa.write_struct_model(modelfile, structmodel, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
 		}

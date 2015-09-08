@@ -40,6 +40,8 @@ public class svm_struct_classify_old {
 		SAMPLE testsample;
 		LABEL y = new LABEL();
 
+		ssa = svm_struct_api_factory.get_svm_struct_api();
+		
 		svm_struct_api.svm_struct_classify_api_init(args.length + 1, args);
 
 		read_input_parameters(args.length + 1, args, sparm,
@@ -52,7 +54,7 @@ public class svm_struct_classify_old {
 		logger.info("testfile:" + testfile);
 		logger.info("modelfile:" + modelfile);
 		logger.info("predictionsfile:" + predictionsfile);
-		model = svm_struct_api.read_struct_model(modelfile, sparm);
+		model = ssa.read_struct_model(modelfile, sparm);
 
 		if (model.svm_model.kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			logger.info("begin add_weight_vector_to_linear_model");
@@ -85,7 +87,7 @@ public class svm_struct_classify_old {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-
+		ssa = svm_struct_api_factory.get_svm_struct_api();
 		svm_struct_api.svm_struct_classify_api_init(args.length + 1, args);
 
 		read_input_parameters(args.length + 1, args, sparm,
@@ -99,7 +101,7 @@ public class svm_struct_classify_old {
 		logger.info("modelfile:" + modelfile);
 		logger.info("predictionsfile:" + predictionsfile);
 		logger.info("begin read model:");
-		model = svm_struct_api.read_struct_model(modelfile, sparm);
+		model = ssa.read_struct_model(modelfile, sparm);
 		logger.info("after read model:");
 
 		if (model.svm_model.kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
@@ -250,7 +252,7 @@ public class svm_struct_classify_old {
 		LABEL y = new LABEL();
 
 		svm_struct_api.svm_struct_classify_api_init(args.length + 1, args);
-
+		ssa = svm_struct_api_factory.get_svm_struct_api();
 		read_input_parameters(args.length + 1, args, sparm,
 				svm_common.verbosity, svm_struct_common.struct_verbosity);
 
@@ -262,7 +264,7 @@ public class svm_struct_classify_old {
 		logger.info("modelfile:" + modelfile);
 		logger.info("predictionsfile:" + predictionsfile);
 
-		model = svm_struct_api.read_struct_model(modelfile, sparm);
+		model = ssa.read_struct_model(modelfile, sparm);
 		if (svm_struct_common.struct_verbosity >= 1) {
 			logger.info("done");
 		}
@@ -414,8 +416,8 @@ public class svm_struct_classify_old {
 		logger.info("testfile:" + testfile);
 		logger.info("modelfile:" + modelfile);
 		logger.info("predictionsfile:" + predictionsfile);
-
-		model = svm_struct_api.read_struct_model(modelfile, sparm);
+		 svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		model = ssa.read_struct_model(modelfile, sparm);
 		if (svm_struct_common.struct_verbosity >= 1) {
 			logger.info("done");
 		}
@@ -430,7 +432,7 @@ public class svm_struct_classify_old {
 			// System.out.println("Reading test examples ...");
 		}
 
-		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		//svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
 
 		testsample = ssa.read_struct_examples(testfile, sparm);
 

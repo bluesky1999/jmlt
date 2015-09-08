@@ -419,7 +419,7 @@ public abstract class svm_struct_api {
 	 * @param sm
 	 * @param sparm
 	 */
-	public static void write_struct_model(String file, STRUCTMODEL sm,
+	public  void write_struct_model(String file, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
 		try {
 			/* Writes structural model sm to file file. */
@@ -603,7 +603,7 @@ public abstract class svm_struct_api {
 	 * @param sparm
 	 * @return
 	 */
-	public static STRUCTMODEL read_struct_model(String file,
+	public  STRUCTMODEL read_struct_model(String file,
 			STRUCT_LEARN_PARM sparm) {
 		
 		File modelfl;
