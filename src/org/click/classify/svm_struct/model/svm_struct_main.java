@@ -14,8 +14,8 @@ import org.jmlp.time.utils.TimeOpera;
 
 public class svm_struct_main {
 
-	public static String trainfile; /* file with training examples */
-	public static String modelfile; /* file for resulting classifier */
+	public static String trainfile; // file with training examples 
+	public static String modelfile; // file for resulting classifier 
 	public static int verbosity;
 	public static int struct_verbosity;
 	public static int alg_type;
@@ -29,7 +29,7 @@ public class svm_struct_main {
 		int i;
 		String type;
 
-		/* set default */
+		// set default 
 		alg_type = svm_struct_common.DEFAULT_ALG_TYPE;
 		struct_parm.C = -0.01;
 		struct_parm.slack_norm = 1;
@@ -44,8 +44,8 @@ public class svm_struct_main {
 		modelfile = "svm_struct_model";
 		learn_parm.predfile = "trans_predictions";
 		learn_parm.alphafile = "";
-		verbosity = 0;/* verbosity for svm_light */
-		struct_verbosity = 1; /* verbosity for struct learning portion */
+		verbosity = 0;// verbosity for svm_light
+		struct_verbosity = 1; // verbosity for struct learning portion
 		learn_parm.biased_hyperplane = 1;
 		learn_parm.remove_inconsistent = 0;
 		learn_parm.skip_final_opt_check = 0;
@@ -54,14 +54,14 @@ public class svm_struct_main {
 		learn_parm.svm_iter_to_shrink = -9999;
 		learn_parm.maxiter = 100000;
 		learn_parm.kernel_cache_size = 40;
-		learn_parm.svm_c = 99999999; /* overridden by struct_parm->C */
-		learn_parm.eps = 0.001; /* overridden by struct_parm->epsilon */
+		learn_parm.svm_c = 99999999; // overridden by struct_parm->C 
+		learn_parm.eps = 0.001; // overridden by struct_parm->epsilon 
 		learn_parm.transduction_posratio = -1.0;
 		learn_parm.svm_costratio = 1.0;
 		learn_parm.svm_costratio_unlab = 1.0;
 		learn_parm.svm_unlabbound = 1E-5;
 		learn_parm.epsilon_crit = 0.001;
-		learn_parm.epsilon_a = 1E-10; /* changed from 1e-15 */
+		learn_parm.epsilon_a = 1E-10; // changed from 1e-15
 		learn_parm.compute_loo = 0;
 		learn_parm.rho = 1.0;
 		learn_parm.xa_depth = 0;
@@ -353,7 +353,7 @@ public class svm_struct_main {
 			System.exit(1);
 		}
 		
-		SAMPLE sample; /* training sample */
+		SAMPLE sample; // training sample 
 		LEARN_PARM learn_parm = new LEARN_PARM();
 		KERNEL_PARM kernel_parm = new KERNEL_PARM();
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
@@ -373,7 +373,7 @@ public class svm_struct_main {
 
 		svm_struct_api ssa=svm_struct_api_factory.get_svm_struct_api();
 		
-		/* read the training examples */
+		// read the training examples
 		sample = ssa.read_struct_examples(trainfile, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
@@ -381,13 +381,8 @@ public class svm_struct_main {
 		logger.info("alg_tye is " + alg_type + " \n");
 
 		EXAMPLE tempex = null;
-		// String winfo="";
-		/*
-		 * for(int k=0;k<sample.examples.length;k++) {
-		 * tempex=sample.examples[k];
-		 * logger.info("tempex k="+k+" "+tempex.x.doc.fvec.toString()); }
-		 */
-		/* Do the learning and return structmodel. */
+
+		// Do the learning and return structmodel. 
 		svm_struct_learn ssl = new svm_struct_learn();
 		if (alg_type == 0) {
 			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm,
@@ -415,11 +410,10 @@ public class svm_struct_main {
 			System.exit(1);
 		}
 		
-		/*
-		 * Warning: The model contains references to the original data 'docs'.
-		 * If you want to free the original data, and only keep the model, you
-		 * have to make a deep copy of 'model'.
-		 */
+
+		// Warning: The model contains references to the original data 'docs'.
+		// If you want to free the original data, and only keep the model, you
+		// have to make a deep copy of 'model'.
 		if (struct_verbosity >= 1) {
 			logger.info("Writing learned model...");
 		}
@@ -445,7 +439,7 @@ public class svm_struct_main {
 			System.exit(1);
 		}
 		
-		SAMPLE sample; /* training sample */
+		SAMPLE sample; // training sample 
 		LEARN_PARM learn_parm = new LEARN_PARM();
 		KERNEL_PARM kernel_parm = new KERNEL_PARM();
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
@@ -465,7 +459,7 @@ public class svm_struct_main {
 
 		svm_struct_api ssa=svm_struct_api_factory.get_svm_struct_api();
 		
-		/* read the training examples */
+		// read the training examples 
 		sample = ssa.read_struct_examples(trainfile, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
@@ -474,7 +468,7 @@ public class svm_struct_main {
 
 		EXAMPLE tempex = null;
 	
-		/* Do the learning and return structmodel. */
+		// Do the learning and return structmodel. 
 		svm_struct_learn ssl = new svm_struct_learn();
 		if (alg_type == 0) {
 			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm,
@@ -502,11 +496,10 @@ public class svm_struct_main {
 			System.exit(1);
 		}
 		
-		/*
-		 * Warning: The model contains references to the original data 'docs'.
-		 * If you want to free the original data, and only keep the model, you
-		 * have to make a deep copy of 'model'.
-		 */
+		
+		// Warning: The model contains references to the original data 'docs'.
+		// If you want to free the original data, and only keep the model, you
+		// have to make a deep copy of 'model'.
 		if (struct_verbosity >= 1) {
 			logger.info("Writing learned model...");
 		}
@@ -548,7 +541,7 @@ public class svm_struct_main {
 
 		svm_struct_api ssa=svm_struct_api_factory.get_svm_struct_api();
 		
-		/* read the training examples */
+		// read the training examples 
 		sample = ssa.read_struct_examples_from_stream(System.in, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
@@ -556,13 +549,8 @@ public class svm_struct_main {
 		logger.info("alg_tye is " + alg_type + " \n");
 
 		EXAMPLE tempex = null;
-		// String winfo="";
-		/*
-		 * for(int k=0;k<sample.examples.length;k++) {
-		 * tempex=sample.examples[k];
-		 * logger.info("tempex k="+k+" "+tempex.x.doc.fvec.toString()); }
-		 */
-		/* Do the learning and return structmodel. */
+
+		// Do the learning and return structmodel.
 		svm_struct_learn ssl = new svm_struct_learn();
 		if (alg_type == 0) {
 			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm,
@@ -590,11 +578,11 @@ public class svm_struct_main {
 			System.exit(1);
 		}
 		
-		/*
-		 * Warning: The model contains references to the original data 'docs'.
-		 * If you want to free the original data, and only keep the model, you
-		 * have to make a deep copy of 'model'.
-		 */
+		
+		 //Warning: The model contains references to the original data 'docs'.
+		 //If you want to free the original data, and only keep the model, you
+		 // have to make a deep copy of 'model'.
+		 
 		if (struct_verbosity >= 1) {
 			logger.info("Writing learned model...");
 		}
