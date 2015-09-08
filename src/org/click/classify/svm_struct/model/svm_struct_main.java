@@ -340,8 +340,8 @@ public class svm_struct_main {
 			print_help();
 			System.exit(0);
 		}
-
-		svm_struct_api.parse_struct_parameters(struct_parm);
+		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa.parse_struct_parameters(struct_parm);
 	}
 
 
@@ -358,8 +358,8 @@ public class svm_struct_main {
 		KERNEL_PARM kernel_parm = new KERNEL_PARM();
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
 		STRUCTMODEL structmodel = new STRUCTMODEL();
-			
-		svm_struct_api.svm_struct_learn_api_init(args);
+		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa.svm_struct_learn_api_init(args);
 
 		long start_time = TimeOpera.getCurrentTimeLong();
 		
@@ -371,7 +371,6 @@ public class svm_struct_main {
 			logger.info("Reading training examples...");
 		}
 
-		svm_struct_api ssa=svm_struct_api_factory.get_svm_struct_api();
 		
 		// read the training examples
 		sample = ssa.read_struct_examples(trainfile, struct_parm);
@@ -428,7 +427,7 @@ public class svm_struct_main {
 		logger.info("tot_time:" + tot_time);
 		System.out.println("tot_time:" + tot_time);
 
-		svm_struct_api.svm_struct_learn_api_exit();
+		ssa.svm_struct_learn_api_exit();
 	}
 	
 	public static void main(String[] args) {
@@ -444,8 +443,8 @@ public class svm_struct_main {
 		KERNEL_PARM kernel_parm = new KERNEL_PARM();
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
 		STRUCTMODEL structmodel = new STRUCTMODEL();
-			
-		svm_struct_api.svm_struct_learn_api_init(args);
+		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa.svm_struct_learn_api_init(args);
 		long start_time = TimeOpera.getCurrentTimeLong();
 		
 		read_input_parameters(args.length + 1, args, struct_parm, learn_parm,
@@ -456,8 +455,7 @@ public class svm_struct_main {
 			logger.info("Reading training examples...");
 		}
 
-		svm_struct_api ssa=svm_struct_api_factory.get_svm_struct_api();
-		
+
 		// read the training examples 
 		sample = ssa.read_struct_examples(trainfile, struct_parm);
 		if (struct_verbosity >= 1) {
@@ -513,7 +511,7 @@ public class svm_struct_main {
 		logger.info("tot_time:" + tot_time);
 		System.out.println("tot_time:" + tot_time);
 
-		svm_struct_api.svm_struct_learn_api_exit();
+		ssa.svm_struct_learn_api_exit();
 	}
 	
 	public void train_from_stream(double c,String model_file)
@@ -525,7 +523,8 @@ public class svm_struct_main {
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
 		STRUCTMODEL structmodel = new STRUCTMODEL();
 		
-		svm_struct_api.svm_struct_learn_api_init(args);
+		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa.svm_struct_learn_api_init(args);
 
 		
 		long start_time = TimeOpera.getCurrentTimeLong();
@@ -538,8 +537,7 @@ public class svm_struct_main {
 			logger.info("Reading training examples...");
 		}
 
-		svm_struct_api ssa=svm_struct_api_factory.get_svm_struct_api();
-		
+	
 		// read the training examples 
 		sample = ssa.read_struct_examples_from_stream(System.in, struct_parm);
 		if (struct_verbosity >= 1) {
@@ -596,7 +594,7 @@ public class svm_struct_main {
 		logger.info("tot_time:" + tot_time);
 		System.out.println("tot_time:" + tot_time);
 
-		svm_struct_api.svm_struct_learn_api_exit();
+		ssa.svm_struct_learn_api_exit();
 			
 	}
 
@@ -726,7 +724,8 @@ public class svm_struct_main {
 		System.out
 				.print("                        (in the same order as in the training set)\n");
 		System.out.print("Application-Specific Options:\n");
-		svm_struct_api.print_struct_help();
+		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa.print_struct_help();
 		wait_any_key();
 		System.out.print("\nMore details in:\n");
 		System.out

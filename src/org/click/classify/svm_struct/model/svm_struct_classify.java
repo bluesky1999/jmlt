@@ -41,9 +41,10 @@ public class svm_struct_classify {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-
-		svm_struct_api.svm_struct_classify_api_init(args.length + 1, args);
+		
 		ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa.svm_struct_classify_api_init(args.length + 1, args);
+	
 		read_input_parameters(args.length + 1, args, sparm,
 				svm_common.verbosity, svm_struct_common.struct_verbosity);
 
@@ -87,9 +88,10 @@ public class svm_struct_classify {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-
-		svm_struct_api.svm_struct_classify_api_init(args.length + 1, args);
+		
 		ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa.svm_struct_classify_api_init(args.length + 1, args);
+
 		read_input_parameters(args.length + 1, args, sparm,
 				svm_common.verbosity, svm_struct_common.struct_verbosity);
 
@@ -197,7 +199,7 @@ public class svm_struct_classify {
 				incorrect++;
 			}
 
-			svm_struct_api.eval_prediction(i, testsample.examples[i], y, model,
+			ssa.eval_prediction(i, testsample.examples[i], y, model,
 					sparm, teststats);
 
 			if (ssa.empty_label(testsample.examples[i].y)) {
@@ -231,7 +233,7 @@ public class svm_struct_classify {
 				+ " incorrect," + testsample.n + ", total");
 		// }
 
-		svm_struct_api.print_struct_testing_stats(testsample, model, sparm,
+		ssa.print_struct_testing_stats(testsample, model, sparm,
 				teststats);
 	}
 		
@@ -253,9 +255,10 @@ public class svm_struct_classify {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-
-		svm_struct_api.svm_struct_classify_api_init(args.length + 1, args);
+		
 		ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa.svm_struct_classify_api_init(args.length + 1, args);
+
 		read_input_parameters(args.length + 1, args, sparm,
 				svm_common.verbosity, svm_struct_common.struct_verbosity);
 
@@ -360,7 +363,7 @@ public class svm_struct_classify {
 				incorrect++;
 			}
 
-			svm_struct_api.eval_prediction(i, testsample.examples[i], y, model,
+			ssa.eval_prediction(i, testsample.examples[i], y, model,
 					sparm, teststats);
 
 			if (ssa.empty_label(testsample.examples[i].y)) {
@@ -390,7 +393,7 @@ public class svm_struct_classify {
 				+ " incorrect," + testsample.n + ", total");
 		// }
 
-		svm_struct_api.print_struct_testing_stats(testsample, model, sparm,
+		ssa.print_struct_testing_stats(testsample, model, sparm,
 				teststats);
 
 	}
@@ -526,8 +529,8 @@ public class svm_struct_classify {
 		if ((i + 2) < argc) {
 			predictionsfile = argv[2];
 		}
-
-		svm_struct_api.parse_struct_parameters_classify(struct_parm);
+		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa.parse_struct_parameters_classify(struct_parm);
 	}
 
 	public static void print_help() {
@@ -547,8 +550,8 @@ public class svm_struct_classify {
 		System.out.println("options: -h         -> this help\n");
 		System.out
 				.println("         -v [0..3]  -> verbosity level (default 2)\n\n");
-
-		svm_struct_api.print_struct_help_classify();
+		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa.print_struct_help_classify();
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -562,9 +565,10 @@ public class svm_struct_classify {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-
-		svm_struct_api.svm_struct_classify_api_init(args.length + 1, args);
+		
 		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa.svm_struct_classify_api_init(args.length + 1, args);
+	
 		read_input_parameters(args.length + 1, args, sparm,
 				svm_common.verbosity, svm_struct_common.struct_verbosity);
 
@@ -632,7 +636,7 @@ public class svm_struct_classify {
 				incorrect++;
 			}
 
-			svm_struct_api.eval_prediction(i, testsample.examples[i], y, model,
+			ssa.eval_prediction(i, testsample.examples[i], y, model,
 					sparm, teststats);
 
 			if (ssa.empty_label(testsample.examples[i].y)) {
@@ -666,7 +670,7 @@ public class svm_struct_classify {
 				+ " incorrect," + testsample.n + ", total");
 		// }
 
-		svm_struct_api.print_struct_testing_stats(testsample, model, sparm,
+		ssa.print_struct_testing_stats(testsample, model, sparm,
 				teststats);
 
 	}

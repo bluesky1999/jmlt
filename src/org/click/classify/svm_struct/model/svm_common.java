@@ -13,6 +13,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.click.classify.svm_struct.data.CONSTSET;
 import org.click.classify.svm_struct.data.DOC;
 import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LEARN_PARM;
@@ -1889,6 +1890,209 @@ public class svm_common {
 		}
 
 		return (I);
+	}
+	
+
+	public static double[] reallocDoubleArr(double[] arr, int nsize) {
+
+		double[] narr = new double[nsize];
+		if (arr == null) {
+			for (int ni = 0; ni < nsize; ni++) {
+				narr[ni] = 0;
+			}
+			return narr;
+		}
+
+		if (nsize <= arr.length) {
+			narr = new double[arr.length];
+			for (int ni = 0; ni < nsize; ni++) {
+				narr[ni] = arr[ni];
+			}
+
+			for (int ni = nsize; ni < arr.length; ni++) {
+				narr[ni] = 0;
+			}
+
+			return narr;
+		}
+
+		for (int ni = 0; ni < arr.length; ni++) {
+			narr[ni] = arr[ni];
+		}
+		for (int ni = arr.length; ni < nsize; ni++) {
+			narr[ni] = 0;
+		}
+
+		return narr;
+	}
+
+	public static int[] reallocIntArr(int[] arr, int nsize) {
+
+		int[] narr = new int[nsize];
+		if (arr == null) {
+			for (int ni = 0; ni < nsize; ni++) {
+				narr[ni] = 0;
+			}
+			return narr;
+		}
+		if (nsize <= arr.length) {
+			narr = new int[arr.length];
+			for (int ni = 0; ni < nsize; ni++) {
+				narr[ni] = arr[ni];
+			}
+			for (int ni = nsize; ni < arr.length; ni++) {
+				narr[ni] = 0;
+			}
+			return narr;
+		}
+		for (int ni = 0; ni < arr.length; ni++) {
+			narr[ni] = arr[ni];
+		}
+		for (int ni = arr.length; ni < nsize; ni++) {
+			narr[ni] = 0;
+		}
+
+		return narr;
+	}
+
+	public static String douarr2str(double[] arr) {
+		String str = "";
+		if (arr == null) {
+			return "";
+		}
+
+		for (int i = 0; i < arr.length; i++) {
+			str += (i + ":" + arr[i] + " ");
+		}
+
+		str = str.trim();
+		return str;
+	}
+
+	public static String intarr2str(int[] arr) {
+		String str = "";
+		if (arr == null) {
+			return "";
+		}
+
+		for (int i = 0; i < arr.length; i++) {
+			str += (i + ":" + arr[i] + " ");
+		}
+
+		str = str.trim();
+		return str;
+	}
+
+	public static DOC[] reallocDOCS(DOC[] ods, int n) {
+
+		DOC[] ndoc = new DOC[n];
+		if (ods == null) {
+			for (int i = 0; i < n; i++) {
+				ndoc[i] = new DOC();
+			}
+			return ndoc;
+		}
+		for (int i = 0; i < ods.length; i++) {
+			ndoc[i] = ods[i].copyDoc();
+		}
+		for (int i = ods.length; i < n; i++) {
+			ndoc[i] = new DOC();
+		}
+
+		return ndoc;
+	}
+	
+
+	/**
+	 * 重新分配alpha大小
+	 * 
+	 * @param alpha
+	 * @param m
+	 * @return
+	 */
+	public static double[] realloc_alpha(double[] alpha, int m) {
+		double[] oalpha = alpha;
+		alpha = new double[m];
+		for (int i = 0; i < (m - 1); i++) {
+			alpha[i] = oalpha[i];
+		}
+		alpha[m - 1] = 0;
+
+		return alpha;
+	}
+
+	/**
+	 * 重新分配alpha_list大小
+	 * 
+	 * @param alpha
+	 * @param m
+	 * @return
+	 */
+	public static int[] realloc_alpha_list(int[] alpha_list, int m) {
+		int[] oalpha_list = alpha_list;
+		alpha_list = new int[m];
+		for (int i = 0; i < (m - 1); i++) {
+			alpha_list[i] = oalpha_list[i];
+		}
+		alpha_list[m - 1] = 0;
+
+		return alpha_list;
+	}
+	
+	/**
+	 * 重新分配lhs的大小
+	 * 
+	 * @param cset
+	 */
+	public static void realsmallloc_lhs(CONSTSET cset) {
+		DOC[] olhs = cset.lhs;
+		cset.lhs = new DOC[cset.m];
+		for (int i = 0; i < (cset.m); i++) {
+			cset.lhs[i] = olhs[i];
+		}
+	}
+
+	/**
+	 * 重新分配rhs的大小
+	 * 
+	 * @param cset
+	 */
+	public static void realsmallloc_rhs(CONSTSET cset) {
+		double[] orhs = cset.rhs;
+		cset.rhs = new double[cset.m];
+		for (int i = 0; i < (cset.m); i++) {
+			cset.rhs[i] = orhs[i];
+		}
+	}
+	
+	/**
+	 * 重新分配cset的内存大小
+	 * 
+	 * @param cset
+	 */
+	public static void realloc(CONSTSET cset) {
+		DOC[] olhs = cset.lhs;
+		cset.lhs = new DOC[cset.m];
+		for (int i = 0; i < (cset.m - 1); i++) {
+			cset.lhs[i] = olhs[i];
+		}
+		cset.lhs[cset.m - 1] = new DOC();
+	}
+
+	
+
+	/**
+	 * 重新分配rhs的大小
+	 * 
+	 * @param cset
+	 */
+	public static void realloc_rhs(CONSTSET cset) {
+		double[] orhs = cset.rhs;
+		cset.rhs = new double[cset.m];
+		for (int i = 0; i < (cset.m - 1); i++) {
+			cset.rhs[i] = orhs[i];
+		}
+		cset.rhs[cset.m - 1] = 0;
 	}
 
 }

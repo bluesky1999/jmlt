@@ -138,7 +138,7 @@ public class svm_struct_learn {
 		tolerance = Math.min(n / 3, Math.max(n / 100, 5));
 		lparm.biased_hyperplane = 0;
 
-		cset = svm_struct_api.init_struct_constraints(sample, sm, sparm);
+		cset = ssa.init_struct_constraints(sample, sm, sparm);
 
 		if (cset.m > 0) {
 			alpha_g = new double[cset.m];
@@ -340,7 +340,7 @@ public class svm_struct_learn {
 								 * constraint
 								 ****/
 								cset.m++;
-								svm_struct_api.realloc(cset);
+								svm_common.realloc(cset);
 
 								if (kparm.kernel_type ==  ModelConstant.LINEAR) {
 									diff = svm_common.add_list_ss(fy);
@@ -369,14 +369,13 @@ public class svm_struct_learn {
 									else if (sparm.slack_norm == 2)
 										System.exit(1);
 								}
-								svm_struct_api.realloc_rhs(cset);
+								svm_common.realloc_rhs(cset);
 								cset.rhs[cset.m - 1] = margin;
 
-								alpha_g = svm_struct_api.realloc_alpha(alpha_g,
+								alpha_g = svm_common.realloc_alpha(alpha_g,
 										cset.m);
 								alpha_g[cset.m - 1] = 0;
-								alphahist_g = svm_struct_api
-										.realloc_alpha_list(alphahist_g, cset.m);
+								alphahist_g = svm_common.realloc_alpha_list(alphahist_g, cset.m);
 								alphahist_g[cset.m - 1] = optcount;
 								newconstraints++;
 								totconstraints++;
@@ -481,7 +480,7 @@ public class svm_struct_learn {
 					|| (dont_stop != 0));
 
 		} while ((epsilon > sparm.epsilon)
-				|| svm_struct_api.finalize_iteration(ceps, 0, sample, sm, cset,
+				|| ssa.finalize_iteration(ceps, 0, sample, sm, cset,
 						alpha_g, sparm)); // main_loop
 
 		if (svm_struct_common.struct_verbosity >= 1) {
@@ -573,7 +572,7 @@ public class svm_struct_learn {
 			logger.info("wstr:" + wstr);
 		}
 
-		svm_struct_api.print_struct_learning_stats(sample, sm, cset, alpha_g,
+		ssa.print_struct_learning_stats(sample, sm, cset, alpha_g,
 				sparm);
 
 		/*
@@ -674,7 +673,7 @@ public class svm_struct_learn {
 								 * cache
 								 */
 
-		cset = svm_struct_api.init_struct_constraints(sample, sm, sparm);
+		cset = ssa.init_struct_constraints(sample, sm, sparm);
 
 		if (cset.m > 0) {
 			alpha_g = new double[cset.m];
@@ -989,7 +988,7 @@ public class svm_struct_learn {
 				// cset.lhs=new DOC[cset.m+1];
 				int ti = 0;
 				ti = cset.m + 1;
-				cset.lhs = svm_struct_api.reallocDOCS(cset.lhs, ti);
+				cset.lhs = svm_common.reallocDOCS(cset.lhs, ti);
 				// logger.info("lhs:" + lhs_g.toString());
 				// logger.info("rhs_g:" + rhs_g);
 				cset.lhs[cset.m] = svm_common.create_example(cset.m, 0, 1, 1,
@@ -997,16 +996,16 @@ public class svm_struct_learn {
 				// logger.info("cset m="+cset.m+"  cset.lhs[cset.m] kernel id:"+cset.lhs[cset.m].kernelid);
 
 				// cset.rhs = new double[cset.m + 1];
-				cset.rhs = svm_struct_api
+				cset.rhs = svm_common
 						.reallocDoubleArr(cset.rhs, cset.m + 1);
 				cset.rhs[cset.m] = rhs_g;
 				// alpha = new double[cset.m + 1];
 				// logger.info("alpha_g:"+svm_struct_api.douarr2str(alpha_g));
-				alpha_g = svm_struct_api.reallocDoubleArr(alpha_g, cset.m + 1);
+				alpha_g = svm_common.reallocDoubleArr(alpha_g, cset.m + 1);
 				alpha_g[cset.m] = 0;
 				// alphahist = new int[cset.m + 1];
 				// logger.info("alphahist_g:"+svm_struct_api.intarr2str(alphahist_g));
-				alphahist_g = svm_struct_api.reallocIntArr(alphahist_g,
+				alphahist_g = svm_common.reallocIntArr(alphahist_g,
 						cset.m + 1);
 				alphahist_g[cset.m] = optcount;
 				// logger.info("optcount here:"+optcount);
@@ -1136,7 +1135,7 @@ public class svm_struct_learn {
 			
 		} while (cached_constraint != 0
 				|| (ceps > sparm.epsilon)
-				|| svm_struct_api.finalize_iteration(ceps, cached_constraint,
+				|| ssa.finalize_iteration(ceps, cached_constraint,
 						sample, sm, cset, alpha_g, sparm));
 
 		if (svm_struct_common.struct_verbosity >= 1) {
@@ -1228,7 +1227,7 @@ public class svm_struct_learn {
 		 * logger.info("the svm model kernel_parm is null"); }
 		 */
 
-		svm_struct_api.print_struct_learning_stats(sample, sm, cset, alpha_g,
+		ssa.print_struct_learning_stats(sample, sm, cset, alpha_g,
 				sparm);
 
 	}
@@ -1273,11 +1272,11 @@ public class svm_struct_learn {
 
 		if (cset.m != m) {
 			cset.m = m;
-			svm_struct_api.realsmallloc_lhs(cset);
-			svm_struct_api.realsmallloc_rhs(cset);
+			svm_common.realsmallloc_lhs(cset);
+			svm_common.realsmallloc_rhs(cset);
 
-			alpha_g = svm_struct_api.reallocDoubleArr(alpha_g, cset.m);
-			alphahist_g = svm_struct_api.reallocIntArr(alphahist_g, cset.m);
+			alpha_g = svm_common.reallocDoubleArr(alpha_g, cset.m);
+			alphahist_g = svm_common.reallocIntArr(alphahist_g, cset.m);
 
 		}
 	}
