@@ -144,7 +144,7 @@ public class Perf extends Struct {
 		if (sparm.preimage_method == 9) {
 			for (i = 0; i < n; i++) {
 				examples[0].x.docs[i].fvec.next = Common
-						.copy_svector(examples[0].x.docs[i].fvec);
+						.copySvector(examples[0].x.docs[i].fvec);
 				examples[0].x.docs[i].fvec.kernel_id = 0;
 				examples[0].x.docs[i].fvec.next.kernel_id = 2;
 			}
@@ -272,7 +272,7 @@ public class Perf extends Struct {
 		// simply classify by sign of inner product between example vector and
 		// weight vector
 		for (i = 0; i < x.totdoc; i++) {
-			y.class_indexs[i] = Common.classify_example(sm.svm_model,
+			y.class_indexs[i] = Common.classifyExample(sm.svm_model,
 					x.docs[i]);
 		}
 		return (y);

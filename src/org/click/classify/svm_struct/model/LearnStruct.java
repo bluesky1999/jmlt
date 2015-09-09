@@ -141,7 +141,7 @@ public class LearnStruct {
 		logger.info("sizePsi:" + sizePsi + "   n:" + n);
 		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n,
 				lparm, kparm, kcache, svmModel, alpha);
-		Common.add_weight_vector_to_linear_model(svmModel);
+		Common.addWeightVectorToLinearModel(svmModel);
 		sm.svm_model = svmModel;
 		sm.w = svmModel.lin_weights;
 
@@ -151,7 +151,7 @@ public class LearnStruct {
 				fy = ssa.psi(ex[i].x, ex[i].y, sm, sparm);// temp
 																		// point
 				if (kparm.kernel_type ==  ModelConstant.LINEAR) {
-					diff = Common.add_list_ss(fy);
+					diff = Common.addListSs(fy);
 					fy = diff;
 				}
 
@@ -232,7 +232,7 @@ public class LearnStruct {
 
 							// get psi(y)-psi(ybar) 
 							if (fycache != null) {
-								fy = Common.copy_svector(fycache[i]);
+								fy = Common.copySvector(fycache[i]);
 							} else {
 								fy = ssa.psi(ex[i].x, ex[i].y, sm,
 										sparm);
@@ -259,7 +259,7 @@ public class LearnStruct {
 							margin = lossval;
 
 							// create constraint for current ybar
-							Common.append_svector_list(fy, fybar);
+							Common.appendSvectorList(fy, fybar);
 							doc = Common.createExample(cset.m, 0, i + 1,
 									1, fy);
 
@@ -268,13 +268,13 @@ public class LearnStruct {
 							for (j = 0; j < cset.m; j++)
 								if (cset.lhs[j].slackid == i + 1) {
 									if (sparm.slack_norm == 2)
-										slack = Math.max(slack,cset.rhs[j]- (Common.classify_example(svmModel,cset.lhs[j]) - sm.w[sizePsi+ i]/ (Math.sqrt(2 * svmCnorm))));
+										slack = Math.max(slack,cset.rhs[j]- (Common.classifyExample(svmModel,cset.lhs[j]) - sm.w[sizePsi+ i]/ (Math.sqrt(2 * svmCnorm))));
 									else
-										slack = Math.max(slack,cset.rhs[j]- Common.classify_example(svmModel,cset.lhs[j]));
+										slack = Math.max(slack,cset.rhs[j]- Common.classifyExample(svmModel,cset.lhs[j]));
 								}
 
 							//if `error' add constraint and recompute 
-							dist = Common.classify_example(svmModel, doc);
+							dist = Common.classifyExample(svmModel, doc);
 							ceps = Math.max(ceps, margin - dist - slack);
 							if (slack > (margin - dist + 0.0001)) {
 								logger.debug("\nWARNING: Slack of most violated constraint is smaller than slack of working\n");
@@ -298,9 +298,9 @@ public class LearnStruct {
 								Common.realloc(cset);
 
 								if (kparm.kernel_type ==  ModelConstant.LINEAR) {
-									diff = Common.add_list_ss(fy);
+									diff = Common.addListSs(fy);
 									if (sparm.slack_norm == 1)
-										cset.lhs[cset.m - 1] = Common.createExample(cset.m - 1,0,i + 1,1,Common.copy_svector(diff));
+										cset.lhs[cset.m - 1] = Common.createExample(cset.m - 1,0,i + 1,1,Common.copySvector(diff));
 									else if (sparm.slack_norm == 2) {
 
 										// add squared slack variable to feature vector
@@ -309,7 +309,7 @@ public class LearnStruct {
 												.sqrt(2 * svmCnorm));
 										slackv[1].wnum = 0; //terminator 
 										slackvec = Common.createSvector(slackv, null, 1.0);
-										cset.lhs[cset.m - 1] = Common.createExample(cset.m - 1, 0,i + 1, 1,Common.add_ss(diff,slackvec));
+										cset.lhs[cset.m - 1] = Common.createExample(cset.m - 1, 0,i + 1, 1,Common.addSs(diff,slackvec));
 									}
 								} else {//kernel is used 
 									if (sparm.slack_norm == 1)
@@ -318,17 +318,17 @@ public class LearnStruct {
 														i + 1,
 														1,
 														Common
-																.copy_svector(fy));
+																.copySvector(fy));
 									else if (sparm.slack_norm == 2)
 										System.exit(1);
 								}
-								Common.realloc_rhs(cset);
+								Common.reallocRhs(cset);
 								cset.rhs[cset.m - 1] = margin;
 
-								alpha = Common.realloc_alpha(alpha,
+								alpha = Common.reallocAlpha(alpha,
 										cset.m);
 								alpha[cset.m - 1] = 0;
-								alphahist = Common.realloc_alpha_list(alphahist, cset.m);
+								alphahist = Common.reallocAlphaList(alphahist, cset.m);
 								alphahist[cset.m - 1] = optcount;
 								newconstraints++;
 								totconstraints++;
@@ -364,7 +364,7 @@ public class LearnStruct {
 							// Always add weight vector, in case part of the
 							//kernel is linear. If not, ignore the weight
 							// vector since its content is bogus.
-							Common.add_weight_vector_to_linear_model(svmModel);
+							Common.addWeightVectorToLinearModel(svmModel);
 							sm.svm_model = svmModel.copyMODEL();
 							sm.w = new double[svmModel.lin_weights.length];
 							for (int k = 0; k < svmModel.lin_weights.length; k++) {
@@ -434,14 +434,14 @@ public class LearnStruct {
 					slacks[cset.lhs[j].slackid] = Math.max(
 							slacks[cset.lhs[j].slackid],
 							cset.rhs[j]
-									- Common.classify_example(svmModel,
+									- Common.classifyExample(svmModel,
 											cset.lhs[j]));
 			} else if (sparm.slack_norm == 2) {
 				for (j = 0; j < cset.m; j++)
 					slacks[cset.lhs[j].slackid] = Math.max(
 							slacks[cset.lhs[j].slackid],
 							cset.rhs[j]
-									- (Common.classify_example(svmModel,
+									- (Common.classifyExample(svmModel,
 											cset.lhs[j]) - sm.w[sizePsi
 											+ cset.lhs[j].slackid - 1]
 											/ (Math.sqrt(2 * svmCnorm))));
@@ -595,7 +595,7 @@ public class LearnStruct {
 				kparm, null, svmModel, alpha);
 
 		// logger.info("sl totwords:"+svmModel.totwords);
-		Common.add_weight_vector_to_linear_model(svmModel);
+		Common.addWeightVectorToLinearModel(svmModel);
 		sm.svm_model = svmModel;
 		sm.w = svmModel.lin_weights; // short cut to weight vector
 
@@ -606,7 +606,7 @@ public class LearnStruct {
 				// logger.info("USE THE FYCACHE \n");
 				fy = ssa.psi(ex[i].x, ex[i].y, sm, sparm);
 				if (kparm.kernel_type ==  ModelConstant.LINEAR) {
-					diff = Common.add_list_sort_ss_r(fy,
+					diff = Common.addListSortSsR(fy,
 							CommonStruct.COMPACT_ROUNDING_THRESH);
 					fy = diff;
 				}
@@ -622,7 +622,7 @@ public class LearnStruct {
 		}
 		// randomize order or training examples 
 		if (batch_size < n)
-			randmapping = Common.random_order(n);
+			randmapping = Common.randomOrder(n);
 
 	
 		//=== main loop=======
@@ -641,7 +641,7 @@ public class LearnStruct {
 			}
 			for (j = 0, slack = -1; (j < cset.m) && (slack == -1); j++) {
 				if (alpha[j] > alphasum / cset.m) {
-					slack = Math.max(0,cset.rhs[j]- Common.classify_example(svmModel,cset.lhs[j]));
+					slack = Math.max(0,cset.rhs[j]- Common.classifyExample(svmModel,cset.lhs[j]));
 				}
 			}
 			slack = Math.max(0, slack);
@@ -683,7 +683,7 @@ public class LearnStruct {
 					for (j = 0; (j < batch_size)
 							|| ((j < n) && (viol - slack < sparm.epsilon)); j++) {
 						if (CommonStruct.struct_verbosity >= 1)
-							Common.print_percent_progress(n, 10, ".");
+							Common.printPercentProgress(n, 10, ".");
 						uptr = uptr % n;
 						if (randmapping != null)
 							i = randmapping[uptr];
@@ -727,7 +727,7 @@ public class LearnStruct {
 				for (i = 0; i < n; i++) {
 
 					if (CommonStruct.struct_verbosity >= 1)
-						Common.print_percent_progress(n, 10, ".");
+						Common.printPercentProgress(n, 10, ".");
 
 
 					// compute most violating fydelta=fy-fybar and rhs for example i
@@ -735,9 +735,9 @@ public class LearnStruct {
 							sparm,violStruct);
 					// add current fy-fybar to lhs of constraint
 					if (kparm.kernel_type ==  ModelConstant.LINEAR) {
-						Common.add_list_n_ns(lhs_n, violStruct.fydelta, 1.0);
+						Common.addListNNS(lhs_n, violStruct.fydelta, 1.0);
 					} else {
-						Common.append_svector_list(violStruct.fydelta, lhs);
+						Common.appendSvectorList(violStruct.fydelta, lhs);
 						lhs=violStruct.fydelta;
 					}
 					rhs +=violStruct.rhs;// add loss to rhs 
@@ -746,12 +746,12 @@ public class LearnStruct {
 				// create sparse vector from dense sum 
 				System.out.println("kernel type is " + kparm.kernel_type);
 				if (kparm.kernel_type ==  ModelConstant.LINEAR) {
-					lhs = Common.create_svector_n_r(lhs_n, sm.sizePsi,
+					lhs = Common.createSvectorNR(lhs_n, sm.sizePsi,
 							null, 1.0,
 							CommonStruct.COMPACT_ROUNDING_THRESH);
 				}
 				doc = Common.createExample(cset.m, 0, 1, 1, lhs);
-				lhsXw = Common.classify_example(svmModel, doc);
+				lhsXw = Common.classifyExample(svmModel, doc);
 
 				viol = rhs - lhsXw;
 
@@ -820,7 +820,7 @@ public class LearnStruct {
 
 				// Always add weight vector, in case part of the kernel is
 				// linear. If not, ignore the weight vector since its content is bogus.
-				Common.add_weight_vector_to_linear_model(svmModel);
+				Common.addWeightVectorToLinearModel(svmModel);
 
 				// sm.svm_model = svmModel.copyMODEL();
 				
@@ -885,13 +885,13 @@ public class LearnStruct {
 				slack = Math.max(
 						slack,
 						cset.rhs[j]
-								- Common.classify_example(svmModel,
+								- Common.classifyExample(svmModel,
 										cset.lhs[j]));
 			alphasum = 0;
 			for (i = 0; i < cset.m; i++)
 				alphasum += alpha[i] * cset.rhs[i];
 			if (kparm.kernel_type ==  ModelConstant.LINEAR)
-				modellength = Common.model_length_n(svmModel);
+				modellength = Common.modelLengthN(svmModel);
 			else
 				modellength = Common.modelLengthS(svmModel);
 			dualitygap = (0.5 * modellength * modellength + sparm.C * viol)
@@ -969,8 +969,8 @@ public class LearnStruct {
 
 		if (cset.m != m) {
 			cset.m = m;
-			Common.realsmallloc_lhs(cset);
-			Common.realsmallloc_rhs(cset);
+			Common.realSmalllocLhs(cset);
+			Common.realSmalllocRhs(cset);
 
 			alpha = Common.reallocDoubleArr(alpha, cset.m);
 			alphahist = Common.reallocIntArr(alphahist, cset.m);
@@ -993,7 +993,7 @@ public class LearnStruct {
 			cset.lhs[i].kernelid = i;
 
 		//allocate kernel matrix as necessary
-		matrix = Common.create_matrix(i + 50, i + 50);
+		matrix = Common.createMatrix(i + 50, i + 50);
 
 		for (j = 0; j < cset.m; j++) {
 			for (i = j; i < cset.m; i++) {
@@ -1035,7 +1035,7 @@ public class LearnStruct {
 
 		// get psi(x,y) and psi(x,ybar)
 		if (fycached != null)
-			fy = Common.copy_svector(fycached);
+			fy = Common.copySvector(fycached);
 		else
 			fy = ssa.psi(ex.x, ex.y, sm, sparm);
 		fybar = ssa.psi(ex.x, ybar, sm, sparm);
@@ -1047,9 +1047,9 @@ public class LearnStruct {
 			factor = lossval / n;
 		else
 			factor = 1.0 / n; // do not rescale vector formargin rescaling loss type 
-		Common.mult_svector_list(fy, factor);
-		Common.mult_svector_list(fybar, -factor);
-		Common.append_svector_list(fybar, fy); // compute fy-fybar 
+		Common.multSvectorList(fy, factor);
+		Common.multSvectorList(fybar, -factor);
+		Common.appendSvectorList(fybar, fy); // compute fy-fybar 
 
         struct.fydelta=fybar;
         struct.rhs=WU.div(lossval, n, 20);
@@ -1084,7 +1084,7 @@ public class LearnStruct {
 		// extend kernel matrix if necessary
 		maxkernelid = Math.max(maxkernelid, newid);
 		if ((matrix == null) || (maxkernelid >= matrix.m))
-			matrix = Common.realloc_matrix(matrix, maxkernelid + 50,
+			matrix = Common.reallocMatrix(matrix, maxkernelid + 50,
 					maxkernelid + 50);
 
 		for (i = 0; i < cset.m; i++) {

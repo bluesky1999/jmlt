@@ -59,7 +59,7 @@ public class ClassifyStruct {
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			logger.info("begin add_weight_vector_to_linear_model");
-			Common.add_weight_vector_to_linear_model(model.svm_model);
+			Common.addWeightVectorToLinearModel(model.svm_model);
 			logger.info("after add_weight_vector_to_linear_model");
 			model.w = model.svm_model.lin_weights;
 		}
@@ -108,7 +108,7 @@ public class ClassifyStruct {
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			logger.info("begin add_weight_vector_to_linear_model");
-			Common.add_weight_vector_to_linear_model(model.svm_model);
+			Common.addWeightVectorToLinearModel(model.svm_model);
 			logger.info("after add_weight_vector_to_linear_model");
 			model.w = model.svm_model.lin_weights;
 
@@ -275,7 +275,7 @@ public class ClassifyStruct {
 		}
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
-			Common.add_weight_vector_to_linear_model(model.svm_model);
+			Common.addWeightVectorToLinearModel(model.svm_model);
 			model.w = model.svm_model.lin_weights;
 		}
 
@@ -508,7 +508,7 @@ public class ClassifyStruct {
 		}
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
-			Common.add_weight_vector_to_linear_model(model.svm_model);
+			Common.addWeightVectorToLinearModel(model.svm_model);
 			model.w = model.svm_model.lin_weights;
 		}
 

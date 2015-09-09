@@ -168,7 +168,7 @@ public abstract class Struct {
 		MODEL model = sm.svm_model;
 		if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 
-			sm.svm_model = Common.compact_linear_model(model);
+			sm.svm_model = Common.compactLinearModel(model);
 			sm.w = sm.svm_model.lin_weights; /* short cut to weight vector */
 
 		}
@@ -466,7 +466,7 @@ public abstract class Struct {
 				// System.err.println("sv:"+i);
 				line = br.readLine();
 				ReadStruct rs = new ReadStruct();
-				read_words = sc.parse_document(line, max_words, rs);
+				read_words = sc.parseDocument(line, max_words, rs);
 				model.alpha[i] = rs.read_doc_label;
 				queryid = rs.read_queryid;
 				slackid = rs.read_slackid;

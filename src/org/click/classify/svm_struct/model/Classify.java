@@ -45,7 +45,7 @@ public class Classify {
 
 		if (model.kernel_parm.kernel_type == 0) { /* linear kernel */
 			/* compute weight vector */
-			Common.add_weight_vector_to_linear_model(model);
+			Common.addWeightVectorToLinearModel(model);
 		}
 
 		String[] test_samples = FileToArray.fileToDimArr(docfile);
@@ -54,7 +54,7 @@ public class Classify {
 			line = test_samples[i];
 			
 			ReadStruct rs=new ReadStruct();
-			read_words=Common.parse_document(line, max_words_doc,rs);
+			read_words=Common.parseDocument(line, max_words_doc,rs);
 			doc_label = rs.read_doc_label;
 			queryid = rs.read_queryid;
 			slackid = rs.read_slackid;
@@ -66,10 +66,10 @@ public class Classify {
 					Common.createSvector(words, comment, 1.0));
 			if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) { 
 			    logger.info("kernel type is linear aa");
-				dist = Common.classify_example_linear(model, doc);
+				dist = Common.classifyExampleLinear(model, doc);
 			} else { /* non-linear kernel */
 				logger.info("kernel type is nonlinear");
-				dist = Common.classify_example(model, doc);
+				dist = Common.classifyExample(model, doc);
 			}
 
 			if (dist > 0) {

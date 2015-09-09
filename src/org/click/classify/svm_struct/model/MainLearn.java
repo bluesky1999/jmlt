@@ -191,7 +191,7 @@ public class MainLearn {
 			print_help();
 			System.exit(0);
 		}
-		if (!Common.check_learning_parms(learn_parm, kernel_parm)) {
+		if (!Common.checkLearningParms(learn_parm, kernel_parm)) {
 			wait_any_key();
 			print_help();
 			System.exit(0);
@@ -395,7 +395,7 @@ public class MainLearn {
 		totdoc = rs.read_totdocs;
 
 		if (restartfile != null) {
-			alpha_in = Common.read_alphas(restartfile,
+			alpha_in = Common.readAlphas(restartfile,
 					rs.read_totdocs);
 		}
 		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
@@ -418,7 +418,7 @@ public class MainLearn {
 			sl.svm_learn_optimization(docs, target, totdoc, totwords,
 					learn_parm, kernel_parm, kernel_cache, model, alpha_in);
 		}
-		Common.write_model(modelfile, model);
+		Common.writeModel(modelfile, model);
 	}
 
 }

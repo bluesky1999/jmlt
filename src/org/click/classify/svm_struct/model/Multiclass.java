@@ -70,7 +70,7 @@ public class Multiclass extends Struct {
 			STRUCT_LEARN_PARM sparm) {
 		SVECTOR fvec;
 
-		fvec = Common.shift_s(x.doc.fvec, (y.class_index - 1)
+		fvec = Common.shiftS(x.doc.fvec, (y.class_index - 1)
 				* sparm.num_features);
 
 		fvec.kernel_id = y.class_index;
@@ -92,7 +92,7 @@ public class Multiclass extends Struct {
 		// computing a new PSI vector.
 		doc = (x.doc);
 		doc.fvec = psi(x, y, sm, sparm);
-		score_y = Common.classify_example(sm.svm_model, doc);
+		score_y = Common.classifyExample(sm.svm_model, doc);
 
 		ybar.scores = null;
 		ybar.num_classes = sparm.num_classes;
@@ -100,7 +100,7 @@ public class Multiclass extends Struct {
 		for (ci = 1; ci <= sparm.num_classes; ci++) {
 			ybar.class_index = ci;
 			doc.fvec = psi(x, ybar, sm, sparm);
-			score_ybar = Common.classify_example(sm.svm_model, doc);
+			score_ybar = Common.classifyExample(sm.svm_model, doc);
 			score = loss(y, ybar, sparm) * (1.0 - score_y + score_ybar);
 			if ((bestscore < score) || (first != 0)) {
 				bestscore = score;
@@ -136,7 +136,7 @@ public class Multiclass extends Struct {
 			ybar.class_index = ci;
 
 			doc.fvec = psi(x, ybar, sm, sparm);
-			score = Common.classify_example(sm.svm_model, doc);
+			score = Common.classifyExample(sm.svm_model, doc);
 			score += loss(y, ybar, sparm);
 			if ((bestscore < score) || (first != 0)) {
 				bestscore = score;
@@ -205,7 +205,7 @@ public class Multiclass extends Struct {
 			y.class_index = class_index;
 			doc.fvec = psi(x, y, sm, sparm);
 
-			score = Common.classify_example(sm.svm_model, doc);
+			score = Common.classifyExample(sm.svm_model, doc);
 			y.scores[class_index] = score;
 			if ((bestscore < score) || first) {
 				bestscore = score;
@@ -332,7 +332,7 @@ public class Multiclass extends Struct {
 
 		logger.info("begin read documents");
 		ReadStruct rs=new ReadStruct();
-		docs = Common.read_documents_from_arraylist(list, target,rs);
+		docs = Common.readDocumentsFromArraylist(list, target,rs);
 		logger.info("end read documents");
 
 		target = rs.read_target;
