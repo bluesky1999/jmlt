@@ -12,6 +12,7 @@ import org.click.classify.svm_struct.data.PATTERN;
 import org.click.classify.svm_struct.data.ReadStruct;
 import org.click.classify.svm_struct.data.SAMPLE;
 import org.click.classify.svm_struct.data.STRUCTMODEL;
+import org.click.classify.svm_struct.data.STRUCT_ID_SCORE;
 import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
 import org.click.classify.svm_struct.data.SVECTOR;
 import org.click.classify.svm_struct.data.WORD;
@@ -46,10 +47,65 @@ public class svm_struct_api_perf extends svm_struct_api {
 		return null;
 	}
 
+	/*
+	 * loss for correct label y and predicted label ybar. The loss for y==ybar
+	 * has to be zero. sparm->loss_function is set with the -l option.
+	 */
 	@Override
 	public double loss(LABEL y, LABEL ybar, STRUCT_LEARN_PARM sparm) {
-		// TODO Auto-generated method stub
-		return 0;
+		int a = 0, b = 0, c = 0, d = 0, i;
+		double loss = 1;
+
+		/* compute contingency table */
+		for (i = 0; i < y.totdoc; i++) {
+			if ((y.class_indexs[i] > 0) && (ybar.class_indexs[i] > 0)) {
+				a++;
+			}
+			if ((y.class_indexs[i] > 0) && (ybar.class_indexs[i] <= 0)) {
+				c++;
+			}
+			if ((y.class_indexs[i] < 0) && (ybar.class_indexs[i] > 0)) {
+				b++;
+			}
+			if ((y.class_indexs[i] < 0) && (ybar.class_indexs[i] <= 0)) {
+				d++;
+			}
+
+		}
+		// Return the loss according to the selected loss function.
+		if (sparm.loss_function == ModelConstant.ZEROONE) { /*
+															 * type 0 loss: 0/1
+															 * loss
+															 */
+			/* return 0, if y==ybar. return 1 else */
+			loss = zeroone_loss(a, b, c, d);
+		} else if (sparm.loss_function == ModelConstant.FONE) {
+			loss = fone_loss(a, b, c, d);
+		} else if (sparm.loss_function == ModelConstant.ERRORRATE) {
+			loss = errorrate_loss(a, b, c, d);
+		} else if (sparm.loss_function == ModelConstant.PRBEP) {
+			// WARNING: only valid if called for a labeling that is at PRBEP
+			loss = prbep_loss(a, b, c, d);
+		} else if (sparm.loss_function == ModelConstant.PREC_K) {
+			// WARNING: only valid if for a labeling that predicts k positives
+			loss = prec_k_loss(a, b, c, d);
+		} else if (sparm.loss_function == ModelConstant.REC_K) {
+			// WARNING: only valid if for a labeling that predicts k positives
+			loss = rec_k_loss(a, b, c, d);
+		} else if (sparm.loss_function == ModelConstant.SWAPPEDPAIRS) {
+			loss = swappedpairs_loss(y, ybar);
+		} else if (sparm.loss_function == ModelConstant.AVGPREC) {
+			loss = avgprec_loss(y, ybar);
+		} else {
+			// Put your code for different loss functions here. But then
+			// find_most_violated_constraint_???(x, y, sm) has to return the
+			// highest scoring label with the largest loss.
+			System.out.printf("Unkown loss function type: %d\n",
+					sparm.loss_function);
+			System.exit(1);
+		}
+
+		return (loss);
 	}
 
 	@Override
@@ -194,11 +250,33 @@ public class svm_struct_api_perf extends svm_struct_api {
 		return null;
 	}
 
+	/**
+	 * Finds the label yhat for pattern x that scores the highest according to
+	 * the linear evaluation function in sm, especially the weights sm.w. The
+	 * returned label is taken as the prediction of sm for the pattern x. The
+	 * weights correspond to the features defined by psi() and range from index
+	 * 1 to index sm->sizePsi. If the function cannot find a label, it shall
+	 * return an empty label as recognized by the function empty_label(y).
+	 */
+
 	@Override
 	public LABEL classify_struct_example(PATTERN x, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
-		// TODO Auto-generated method stub
-		return null;
+		LABEL y = new LABEL();
+		int i;
+
+		y.totdoc = x.totdoc;
+		y.class_indexs = new double[y.totdoc];
+		/*
+		 * simply classify by sign of inner product between example vector and
+		 * weight vector
+		 */
+		for (i = 0; i < x.totdoc; i++) {
+			y.class_indexs[i] = svm_common.classify_example(sm.svm_model,
+					x.docs[i]);
+		}
+		return (y);
+
 	}
 
 	@Override
@@ -207,10 +285,36 @@ public class svm_struct_api_perf extends svm_struct_api {
 		return null;
 	}
 
+	/**
+	 * Reads structural model sm from file file. This function is used only in
+	 * the prediction module, not in the learning module.
+	 */
+
 	@Override
 	public STRUCTMODEL read_struct_model(String file, STRUCT_LEARN_PARM sparm) {
-
-		return null;
+		STRUCTMODEL sm = new STRUCTMODEL();
+		sm.svm_model = svm_common.read_model(file);
+		sparm.loss_function = ModelConstant.ERRORRATE;
+		sparm.bias = 0;
+		sparm.bias_featurenum = 0;
+		sparm.num_features = sm.svm_model.totwords;
+		if (sm.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR)
+			sparm.truncate_fvec = 1;
+		else
+			sparm.truncate_fvec = 0;
+		if (sm.svm_model.kernel_parm.kernel_type == ModelConstant.CUSTOM) // double
+																			// kernel
+			sparm.preimage_method = 9;
+		sm.invL = null;
+		sm.expansion = null;
+		sm.expansion_size = 0;
+		sm.sparse_kernel_type = 0;
+		sm.w = sm.svm_model.lin_weights;
+		sm.sizePsi = sm.svm_model.totwords;
+		// if((sm.svm_model.kernel_parm.kernel_type!= ModelConstant.LINEAR) &&
+		// sparm.classify_dense!=0)
+		// svm_common.add_dense_vectors_to_model(sm.svm_model);
+		return (sm);
 	}
 
 	@Override
@@ -219,4 +323,109 @@ public class svm_struct_api_perf extends svm_struct_api {
 
 	}
 
+	double zeroone(int a, int b, int c, int d) {
+		if ((a + d) == (a + b + c + d))
+			return (0.0);
+		else
+			return (1.0);
+	}
+
+	double fone(int a, int b, int c, int d) {
+		if ((a == 0) || (a + b == 0) || (a + c == 0))
+			return (0.0);
+		double precision = prec(a, b, c, d);
+		double recall = rec(a, b, c, d);
+		return (2.0 * precision * recall / (precision + recall));
+	}
+
+	/** Returns precision as fractional value. */
+	double prec(int a, int b, int c, int d) {
+		if ((a + b) == 0)
+			return (0.0);
+		return ((double) a / (double) (a + b));
+	}
+
+	/** Returns recall as fractional value. */
+	double rec(int a, int b, int c, int d) {
+		if ((a + c) == 0)
+			return (0.0);
+		return ((double) a / (double) (a + c));
+	}
+
+	/** Returns number of errors. */
+	double errorrate(int a, int b, int c, int d) {
+		if ((a + b + c + d) == 0)
+			return (0.0);
+		return (((double) (b + c)) / (double) (a + b + c + d));
+	}
+
+	double swappedpairs(LABEL y, LABEL ybar) {
+		/*
+		 * Returns percentage of swapped pos/neg pairs (i.e. 100 - ROC Area) for
+		 * prediction vectors that encode the number of misranked examples for
+		 * each particular example.
+		 */
+		/* WARNING: Works only for labels in the compressed representation */
+		int i;
+		double sum = 0;
+		for (i = 0; i < y.totdoc; i++)
+			sum += Math.abs(y.class_indexs[i] - ybar.class_indexs[i]);
+		return (sum / 2.0);
+	}
+
+	double zeroone_loss(int a, int b, int c, int d) {
+		return (zeroone(a, b, c, d));
+	}
+
+	double fone_loss(int a, int b, int c, int d) {
+		return (100.0 * (1.0 - fone(a, b, c, d)));
+	}
+
+	double errorrate_loss(int a, int b, int c, int d) {
+		return (100.0 * errorrate(a, b, c, d));
+	}
+
+	/** WARNING: Returns lower bound on PRBEP, if b!=c. */
+	double prbep_loss(int a, int b, int c, int d) {
+		double precision = prec(a, b, c, d);
+		double recall = rec(a, b, c, d);
+		if (precision < recall)
+			return (100.0 * (1.0 - precision));
+		else
+			return (100.0 * (1.0 - recall));
+	}
+
+	/** WARNING: Only valid if called with a+c==k. */
+	double prec_k_loss(int a, int b, int c, int d) {
+		return (100.0 * (1.0 - prec(a, b, c, d)));
+	}
+
+	/** WARNING: Only valid if called with a+c==k. */
+	double rec_k_loss(int a, int b, int c, int d) {
+		return (100.0 * (1.0 - rec(a, b, c, d)));
+	}
+
+	double swappedpairs_loss(LABEL y, LABEL ybar) {
+		double nump = 0, numn = 0;
+		int i;
+		for (i = 0; i < y.totdoc; i++) {
+			if (y.class_indexs[i] > 0)
+				nump++;
+			else
+				numn++;
+		}
+		return (swappedpairs(y, ybar));
+	}
+
+	/**
+	 * to do
+	 * 
+	 * @param y
+	 * @param ybar
+	 * @return
+	 */
+	double avgprec_loss(LABEL y, LABEL ybar) {
+		return 100;
+		// return(100.0-avgprec_compressed(y,ybar));
+	}
 }
