@@ -36,20 +36,6 @@ public class LearnStruct {
 	public static final short ONESLACK_DUAL_ALG = 3;
 	public static final short ONESLACK_DUAL_CACHE_ALG = 4;
 
-	//public double rhs_g = 0;
-	///public SVECTOR lhs_g = null;
-	//public double rt_cachesum_g = 0;
-	////public double rhs_i_g;
-	//public double rt_viol_g;
-	//public double rt_psi_g;
-	//public double[] lhs_n;
-	////public int argmax_count_g;
-	//public CCACHE ccache_g;
-	//public SVECTOR fydelta_g = null;
-
-	//public double[] alpha_g = null;
-	//public int[] alphahist_g = null;
-	//public int[] remove_g = null;
 
 	private Struct ssa=null;
 	
@@ -64,8 +50,6 @@ public class LearnStruct {
 			LEARN_PARM lparm, KERNEL_PARM kparm, STRUCTMODEL sm, int alg_type) {
 		int i, j;
 		int numIt = 0;
-		//alpha_g = null;
-		//alphahist_g = null;
 		int argmax_count = 0;
 		int newconstraints = 0, totconstraints = 0, activenum = 0;
 		int opti_round;
@@ -97,9 +81,7 @@ public class LearnStruct {
 
 		int n = sample.n;
 		EXAMPLE[] ex = sample.examples;
-		//double rt_total = 0, rt_opt = 0, rt_init = 0, rt_psi = 0, rt_viol = 0;
-		//double rt1, rt2;
-		//rt1 = Common.getRuntime();
+
 
 		ssa.initStructModel(sample, sm, sparm, lparm, kparm);
 		sizePsi = sm.sizePsi + 1;
@@ -176,9 +158,6 @@ public class LearnStruct {
 
 		}
 
-		//rt_init += Math.max(Common.getRuntime() - rt1, 0);
-		//rt_total += Math.max(Common.getRuntime() - rt1, 0);
-
 
 		//========== main loop=======
 		do { // iteratively increase precision 
@@ -224,13 +203,11 @@ public class LearnStruct {
 
 					for (i = 0; i < n; i++) {
 						// example loop 
-						//rt1 = Common.getRuntime();
 
 						if ((use_shrinking == 0) || (opti[i] != opti_round)) {
 
 							// if the example is not shrunk away, then see if it
 							// is necessary to add a new constraint					
-							//rt2 = Common.getRuntime();
 							argmax_count++;
 							if (sparm.loss_type == SLACK_RESCALING) {
 								ybar = ssa.findMostViolatedConstraintSlackrescaling(
@@ -239,8 +216,7 @@ public class LearnStruct {
 								ybar = ssa.findMostViolatedConstraintMarginrescaling(
 												ex[i].x, ex[i].y, sm, sparm);
 							}
-							//rt_viol += Math.max(Common.getRuntime() - rt2,
-							//		0);
+
 
 							if (ssa.emptyLabel(ybar)) {
 								if (opti[i] != opti_round) {
@@ -254,7 +230,6 @@ public class LearnStruct {
 							}
 
 							// get psi(y)-psi(ybar) 
-							//rt2 = Common.getRuntime();
 							if (fycache != null) {
 								fy = Common.copy_svector(fycache[i]);
 							} else {
@@ -264,8 +239,6 @@ public class LearnStruct {
 
 							fybar = ssa.psi(ex[i].x, ybar, sm, sparm);
 ;
-							//rt_psi += Math.max(Common.getRuntime() - rt2,
-							//		0);
 
 							// scale feature vector and margin by loss
 							lossval = ssa.loss(ex[i].y, ybar, sparm);
@@ -371,10 +344,6 @@ public class LearnStruct {
 						if ((newconstraints >= sparm.newconstretrain)
 								|| ((newconstraints > 0) && (i == n - 1))
 								|| ((new_precision != 0) && (i == n - 1))) {
-							if (CommonStruct.struct_verbosity >= 1) {
-								// logger.info("*");
-							}
-							//rt2 = Common.getRuntime();
 
 							svmModel = new MODEL();
 
@@ -410,10 +379,7 @@ public class LearnStruct {
 								if ((alphahist[j] > -1) && (alpha[j] != 0)) {
 									alphahist[j] = optcount;
 								}
-								// logger.info("j="+j+"");
 							}
-							//rt_opt += Math.max(Common.getRuntime() - rt2,
-							//		0);
 
 							if ((new_precision != 0)
 									&& (epsilon <= sparm.epsilon))
@@ -423,10 +389,8 @@ public class LearnStruct {
 							newconstraints = 0;
 						}
 
-						//rt_total += Math.max(Common.getRuntime() - rt1, 0);
 					}// exmample loop
 
-					//rt1 = Common.getRuntime();
 
 					//if (svm_struct_common.struct_verbosity >= 1)
 						logger.info("(NumConst=" + cset.m + ", SV="
@@ -446,7 +410,6 @@ public class LearnStruct {
 					if (CommonStruct.struct_verbosity >= 2)
 						logger.info("done. (NumConst=" + cset.m + ")\n");
 
-					//rt_total += Math.max(Common.getRuntime() - rt1, 0);
 
 				} while ((use_shrinking != 0) && (activenum > 0));
 			} while (((totconstraints - old_totconstraints) > tolerance)
@@ -522,11 +485,6 @@ public class LearnStruct {
 			logger.info("Norm of longest difference vector: ||Psi(x,y)-Psi(x,ybar)||="
 					+ sl.length_of_longest_document_vector(cset.lhs, cset.m,
 							kparm) + "\n");
-			//logger.info("Runtime in cpu-seconds: " + rt_total / 100.0 + " ("
-			//		+ (100.0 * rt_opt) / rt_total + " for QP, "
-			//		+ (100.0 * rt_viol) / rt_total + " for Argmax, "
-			//		+ (100.0 * rt_psi) / rt_total + " for Psi, "
-			//		+ (100.0 * rt_init) / rt_total + " for init)\n");
 		}
 
 		if (CommonStruct.struct_verbosity >= 4)
@@ -552,16 +510,11 @@ public class LearnStruct {
 			LEARN_PARM lparm, KERNEL_PARM kparm, STRUCTMODEL sm, int alg_type) {
 		int i, j;
 		int numIt = 0;
-		// int argmax_count=0;
-		//argmax_count_g = 0;
 		int totconstraints = 0;
 		int kernel_type_org;
 		double epsilon, epsilon_cached;
 		double lhsXw;
-		// double rhs_i;
-		//rhs_i_g = 0;
 		MostViolStruct violStruct=new MostViolStruct();
-		///rhs_g = 0;
 		 double rhs=0;
 		double slack, ceps;
 		double dualitygap, modellength, alphasum;
@@ -574,7 +527,6 @@ public class LearnStruct {
 		SVECTOR diff = null;
 		 double[] lhs_n=null;
 		SVECTOR fy;
-		// SVECTOR fydelta=null;
 		SVECTOR[] fycache = null;
 		 SVECTOR lhs;
 		MODEL svmModel = null;
@@ -582,23 +534,9 @@ public class LearnStruct {
 
 		int n = sample.n;
 		EXAMPLE[] ex = sample.examples;
-	//	double rt_total = 0;
-	//	double rt_opt = 0;
-	//	double rt_init = 0;
-		// double rt_psi=0;
-		// double rt_viol=0;
-		//rt_psi_g = 0;
-		//rt_viol_g = 0;
-	//	double rt_kernel = 0;
-
-		//double rt_cacheupdate = 0, rt_cacheconst = 0, rt_cacheadd = 0;
-		// double rt_cachesum=0;
-		//rt_cachesum_g = 0;
-		//double rt1 = 0, rt2 = 0;
 		int progress;
 
-		// CCACHE ccache=null;
-		//ccache_g = null;
+
 		int cached_constraint;
 		double viol=0, viol_est, epsilon_est = 0;
 		int uptr = 0;
@@ -606,16 +544,14 @@ public class LearnStruct {
 		int batch_size = n;
 
 		Learn sl = new Learn();
-	//	rt1 = Common.getRuntime();
+
 		if (sparm.batch_size < 100)
 			batch_size = (int) ((sparm.batch_size * n) / 100.0);
 		ssa.initStructModel(sample, sm, sparm, lparm, kparm);
-		sizePsi = sm.sizePsi + 1; /* sm must contain size of psi on return */
-		// logger.info("the sizePsi is "+sizePsi+" \n");
+		sizePsi = sm.sizePsi + 1; // sm must contain size of psi on return 
 
 		if (sparm.slack_norm == 1) {
-			lparm.svm_c = sparm.C; /* set upper bound C */
-			// logger.info("lparm->svm_c:"+lparm.svm_c+" \n");	
+			lparm.svm_c = sparm.C; // set upper bound C
 			 lparm.sharedslack = 1;
             // logger.info(" lparm.sharedslack is 1");
 		} else if (sparm.slack_norm == 2) {
@@ -678,18 +614,6 @@ public class LearnStruct {
 			fycache[i] = fy;
 		}
 
-		// initialize the constraint cache
-		if (alg_type == ONESLACK_DUAL_CACHE_ALG) {
-			// logger.info("create ONESLACK_DUAL_CACHE");
-			// ccache_g=
-			//create_constraint_cache(sample, sparm, sm);
-
-			for (i = 0; i < n; i++)
-				if (ssa.loss(ex[i].y, ex[i].y, sparm) != 0) {
-					// logger.info("ERROR: Loss function returns non-zero value loss(y_"+i+",y_"+i+")\n");
-					// logger.info("       W4 algorithm assumes that loss(y_i,y_i)=0 for all i.\n");
-				}
-		}
 
 		if (kparm.kernel_type ==  ModelConstant.LINEAR) {
 			// logger.info("kernel type is LINEAR \n");
@@ -699,9 +623,6 @@ public class LearnStruct {
 		if (batch_size < n)
 			randmapping = Common.random_order(n);
 
-		//rt_init += Math.max(Common.getRuntime() - rt1, 0);
-		//rt_total += rt_init;
-
 	
 		//=== main loop=======
 		do { // iteratively find and add constraints to working set 
@@ -710,18 +631,14 @@ public class LearnStruct {
 				logger.info("in loop Iter " + (++numIt) + ": ");
 				System.out.println("in loop Iter " + (numIt) + ": ");
 			}
-
-		//	rt1 = Common.getRuntime();
-
-			// compute current slack 
+			
+        	// compute current slack 
 			alphasum = 0;
 			for (j = 0; (j < cset.m); j++)
 			{
-			    //logger.info("alpha_g["+j+"]="+alpha_g[j]);
 				alphasum += alpha[j];
 			}
 			for (j = 0, slack = -1; (j < cset.m) && (slack == -1); j++) {
-				//logger.info("alpha_g["+j+"]="+alpha_g[j]+" alphasum:"+alphasum+" cset.m:"+cset.m+" cset.rhs[j]:"+cset.rhs[j]+" ce:"+svm_common.classify_example(svmModel,cset.lhs[j]));
 				if (alpha[j] > alphasum / cset.m) {
 					slack = Math.max(0,cset.rhs[j]- Common.classify_example(svmModel,cset.lhs[j]));
 				}
@@ -729,24 +646,13 @@ public class LearnStruct {
 			slack = Math.max(0, slack);
 			//logge.info("slack val is :" + slack);
 
-		//	rt_total += Math.max(Common.getRuntime() - rt1, 0);
-
 			// find a violated joint constraint 
 			lhs = null;
 			rhs = 0;
 			
 		
 			if (alg_type == ONESLACK_DUAL_CACHE_ALG) {
-			//	rt1 = Common.getRuntime();
-				//Compute violation of constraints in cache for current w 
-			//	if (CommonStruct.struct_verbosity >= 2)
-				//	rt2 = Common.getRuntime();
 
-				// logger.info("svm model top weigths"+svmModel.topWeights()) ;
-				//update_constraint_cache_for_model(svmModel);
-				//if (CommonStruct.struct_verbosity >= 2)
-				//	rt_cacheupdate += Math.max(Common.getRuntime() - rt2,
-				//			0);
 				logger.info("epsilon_est is " + epsilon_est + " \n");
 				System.out.println("epsilon_est is " + epsilon_est + " \n");
 
@@ -762,12 +668,6 @@ public class LearnStruct {
 
 					// There is a sufficiently violated constraint in cache, so
 					// use this constraint in this iteration.
-				//	if (CommonStruct.struct_verbosity >= 2)
-				//		rt2 = Common.getRuntime();
-					//viol = find_most_violated_joint_constraint_in_cache(epsilon_est / 2);
-					//if (CommonStruct.struct_verbosity >= 2)
-					//	rt_cacheconst += Math.max(Common.getRuntime()
-					//			- rt2, 0);
 					cached_constraint = 1;
 				} else {
 					logger.info("There is no violated constraint in cache");
@@ -778,7 +678,7 @@ public class LearnStruct {
 					viol_est = 0;
 					progress = 0;
 					Common.progress_n = progress;
-					//viol = compute_violation_of_constraint_in_cache(0);
+
 					for (j = 0; (j < batch_size)
 							|| ((j < n) && (viol - slack < sparm.epsilon)); j++) {
 						if (CommonStruct.struct_verbosity >= 1)
@@ -793,19 +693,7 @@ public class LearnStruct {
 						find_most_violated_constraint(ex[i], fycache[i], n, sm,
 								sparm,violStruct);
 						
-						// add current fy-fybar and loss to cache
-						//if (CommonStruct.struct_verbosity >= 2)
-						//	rt2 = Common.getRuntime();
 
-						//viol += add_constraint_to_constraint_cache(
-						//		sm.svm_model, i, 0.0001 * sparm.epsilon / n,
-						//		sparm.ccache_size);
-
-						//if (CommonStruct.struct_verbosity >= 2)
-							//rt_cacheadd += Math.max(Common.getRuntime()
-							//		- rt2, 0);
-						//viol_est += ccache_g.constlist[i].viol;
-						// logger.info("viol_est:"+viol_est+" i="+i);
 						uptr++;
 					}
 					if (j < n) {
@@ -813,26 +701,7 @@ public class LearnStruct {
 					} else {
 						cached_constraint = 0;
 					}
-					//if (CommonStruct.struct_verbosity >= 2)
-					//	rt2 = Common.getRuntime();
-					
-					//if (cached_constraint != 0) {
-						// logger.info("cached_constraint is not 0");
-						// System.out.println("cached_constraint is not 0");
-						//viol = find_most_violated_joint_constraint_in_cache(epsilon_est / 2);
-						// logger.info(" cached_constraint lhs is :"+lhs.toString()+"  lhs_n is:"+lhs_n.toString());
-					//} else {
-						// logger.info("cached_constraint is  0");
-						// System.out.println("cached_constraint is  0");
-						//viol = find_most_violated_joint_constraint_in_cache(0);
-						// logger.info(" no cached_constraint lhs is :"+lhs_g.toString());
 
-					//}
-					
-					
-					//if (CommonStruct.struct_verbosity >= 2)
-					//	rt_cacheconst += Math.max(Common.getRuntime()
-					//			- rt2, 0);
 					viol_est *= ((double) n / (double) j);
 					logger.info("viol_est=" + viol_est + " slack=" + slack + "");
 					epsilon_est = (1 - (double) j / (double) n) * epsilon_est
@@ -846,18 +715,15 @@ public class LearnStruct {
 
 				lhsXw = rhs - viol;
 
-				//rt_total += Math.max(Common.getRuntime() - rt1, 0);
 			} else {
 				// do not use constraint from cache
-				//rt1 = Common.getRuntime();
+
 				cached_constraint = 0;
 				if (kparm.kernel_type ==  ModelConstant.LINEAR)
 					Common.clearNvector(lhs_n, sm.sizePsi);
 				Common.progress_n = 0;
-				//rt_total += Math.max(Common.getRuntime() - rt1, 0);
 
 				for (i = 0; i < n; i++) {
-				//	rt1 = Common.getRuntime();
 
 					if (CommonStruct.struct_verbosity >= 1)
 						Common.print_percent_progress(n, 10, ".");
@@ -868,21 +734,13 @@ public class LearnStruct {
 							sparm,violStruct);
 					// add current fy-fybar to lhs of constraint
 					if (kparm.kernel_type ==  ModelConstant.LINEAR) {
-						//Common.add_list_n_ns(lhs_n, fydelta_g, 1.0);
 						Common.add_list_n_ns(lhs_n, violStruct.fydelta, 1.0);
 					} else {
-						//Common.append_svector_list(fydelta_g, lhs_g);
 						Common.append_svector_list(violStruct.fydelta, lhs);
-					//	lhs_g = fydelta_g;
 						lhs=violStruct.fydelta;
 					}
-					//rhs_g += rhs_i_g;// add loss to rhs 
 					rhs +=violStruct.rhs;// add loss to rhs 
-				//	rt_total += Math.max(Common.getRuntime() - rt1, 0);
-
 				} // end of example loop 
-
-				//rt1 = Common.getRuntime();
 
 				// create sparse vector from dense sum 
 				System.out.println("kernel type is " + kparm.kernel_type);
@@ -896,11 +754,7 @@ public class LearnStruct {
 
 				viol = rhs - lhsXw;
 
-				//rt_total += Math.max(Common.getRuntime() - rt1, 0);
-
 			} // end of finding most violated joint constraint
-
-			//rt1 = Common.getRuntime();
 
 			// if `error', then add constraint and recompute QP 
 			if (slack > (rhs - lhsXw + 0.000001)) {
@@ -936,21 +790,9 @@ public class LearnStruct {
 				totconstraints++;
 				if ((alg_type == ONESLACK_DUAL_ALG)
 						|| (alg_type == ONESLACK_DUAL_CACHE_ALG)) {
-					//if (CommonStruct.struct_verbosity >= 2)
-					//	rt2 = Common.getRuntime();
 					kparm.gram_matrix = update_kernel_matrix(kparm.gram_matrix,
 							cset.m - 1, cset, kparm);
-					//if (CommonStruct.struct_verbosity >= 2)
-					//	rt_kernel += Math
-					//			.max(Common.getRuntime() - rt2, 0);
 				}
-
-				// get new QP solution
-				//if (CommonStruct.struct_verbosity >= 1) {
-					// logger.info("*");
-				//}
-				//if (CommonStruct.struct_verbosity >= 2)
-				//	rt2 = Common.getRuntime();
 
 				// set svm precision so that higher than eps of most violated constr
 				if (cached_constraint != 0) {
@@ -999,9 +841,6 @@ public class LearnStruct {
 						alphahist[j] = optcount;
 					}
 				}
-				//if (CommonStruct.struct_verbosity >= 2)
-				//	rt_opt += Math.max(Common.getRuntime() - rt2, 0);
-
 
 				//Check if some of the linear constraints have not been active
 				// in a while. Those constraints are then removed to avoid
@@ -1029,8 +868,6 @@ public class LearnStruct {
 						+ (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps="
 						+ svmModel.maxdiff + ")\n");
 			//}
-
-			//rt_total += Math.max(Common.getRuntime() - rt1, 0);
 
 			
 		} while (cached_constraint != 0
@@ -1078,24 +915,6 @@ public class LearnStruct {
 					+ (sl.length_of_longest_document_vector(cset.lhs, cset.m,
 							kparm)) + "\n");
 			
-		//	if (CommonStruct.struct_verbosity >= 2)
-		//		logger.info("Runtime in cpu-seconds: " + (rt_total / 100.0)
-			//			+ " (" + ((100.0 * rt_opt) / rt_total) + " for QP, "
-		//				+ ((100.0 * rt_kernel) / rt_total) + " for kernel, "
-		//				+ ((100.0 * rt_viol_g) / rt_total) + "for Argmax, "
-		//				+ ((100.0 * rt_psi_g) / rt_total) + " for Psi, "
-		//				+ ((100.0 * rt_init) / rt_total) + " for init, "
-		//				+ ((100.0 * rt_cacheupdate) / rt_total)
-		//				+ " for cache update, "
-		//				+ ((100.0 * rt_cacheconst) / rt_total)
-		//				+ " for cache const, "
-		//				+ ((100.0 * rt_cacheadd) / rt_total)
-		//				+ " for cache add (incl. "
-		//				+ ((100.0 * rt_cachesum_g) / rt_total) + " for sum))\n");
-		//	else if (CommonStruct.struct_verbosity == 1)
-		//		logger.info("Runtime in cpu-seconds: " + (rt_total / 100.0)
-		//				+ "\n");
-			
 		}
 
 
@@ -1140,7 +959,6 @@ public class LearnStruct {
 				cset.lhs[m] = cset.lhs[i];
 				cset.lhs[m].docnum = m;
 				cset.rhs[m] = cset.rhs[i];
-				//alpha_g[m] = alpha_g[i];
 				alpha[m] = alpha[i];
 				alphahist[m] = alphahist[i];
 				m++;
@@ -1153,7 +971,6 @@ public class LearnStruct {
 			Common.realsmallloc_lhs(cset);
 			Common.realsmallloc_rhs(cset);
 
-			//alpha_g = Common.reallocDoubleArr(alpha_g, cset.m);
 			alpha = Common.reallocDoubleArr(alpha, cset.m);
 			alphahist = Common.reallocIntArr(alphahist, cset.m);
 
@@ -1197,15 +1014,11 @@ public class LearnStruct {
 	public void find_most_violated_constraint(EXAMPLE ex, SVECTOR fycached,
 			int n, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm,MostViolStruct struct)
 	{
-		//double rt2 = 0;
 		LABEL ybar;
 		SVECTOR fybar, fy;
 		double factor, lossval;
 
 
-		//if (CommonStruct.struct_verbosity >= 2)
-		//	rt2 = Common.getRuntime();
-		//argmax_count_g++;
 		struct.argmaxCount++;
 		if (sparm.loss_type == SLACK_RESCALING) {
 			ybar = ssa.findMostViolatedConstraintSlackrescaling(
@@ -1214,23 +1027,18 @@ public class LearnStruct {
 			ybar =ssa.findMostViolatedConstraintMarginrescaling(ex.x, ex.y,
 							sm, sparm);
 		}
-		//if (CommonStruct.struct_verbosity >= 2)
-		//	rt_viol_g += Math.max(Common.getRuntime() - rt2, 0);
 
 		if (ssa.emptyLabel(ybar)) {
 			logger.info("ERROR: empty label was returned for example\n");
 		}
 
 		// get psi(x,y) and psi(x,ybar)
-		//if (CommonStruct.struct_verbosity >= 2)
-		//	rt2 = Common.getRuntime();
 		if (fycached != null)
 			fy = Common.copy_svector(fycached);
 		else
 			fy = ssa.psi(ex.x, ex.y, sm, sparm);
 		fybar = ssa.psi(ex.x, ybar, sm, sparm);
-		//if (CommonStruct.struct_verbosity >= 2)
-		//	rt_psi_g += Math.max(Common.getRuntime() - rt2, 0);
+
 		lossval = ssa.loss(ex.y, ybar, sparm);
 
 		// scale feature vector and margin by loss 
@@ -1242,10 +1050,7 @@ public class LearnStruct {
 		Common.mult_svector_list(fybar, -factor);
 		Common.append_svector_list(fybar, fy); // compute fy-fybar 
 
-		//fydelta_g = fybar;
         struct.fydelta=fybar;
-		//rhs_i_g = lossval / n;
-		//rhs_i_g=WU.div(lossval, n, 20);
         struct.rhs=WU.div(lossval, n, 20);
 	}
 	
