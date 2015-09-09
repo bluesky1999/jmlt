@@ -1,6 +1,7 @@
 package org.click.classify.svm_struct.model;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
@@ -385,6 +386,12 @@ public class svm_struct_api_multiclass extends svm_struct_api {
 		pat.doc = doc;
 
 		return pat;
+	}
+
+	@Override
+	public void write_label(PrintWriter fp, LABEL y, LABEL ybar) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

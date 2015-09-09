@@ -33,6 +33,8 @@ public class svm_struct_api_factory {
 			return new svm_struct_api_multiclass();
 		else if(api_type==1)
 			return null;
+		else if(api_type==2)
+			return new svm_struct_api_perf();
 
 		return null;
 	}

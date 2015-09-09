@@ -1,6 +1,7 @@
 package org.click.classify.svm_struct.model;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import org.click.classify.svm_struct.data.EXAMPLE;
@@ -132,6 +133,9 @@ public class svm_struct_api_perf extends svm_struct_api {
 
 		examples[0].x.docs = svm_common.read_documents(file,
 				examples[0].y.class_indexs, rs);
+		examples[0].y.class_indexs=rs.read_target;
+		
+		System.err.println("examples[0].y.class_indexs:"+examples[0].y.class_indexs.length);
 		examples[0].x.totdoc = rs.read_totdocs;
 		examples[0].y.totdoc = rs.read_totdocs;
 		sample.n = 1;
@@ -322,6 +326,23 @@ public class svm_struct_api_perf extends svm_struct_api {
 			STRUCT_LEARN_PARM sparm) {
 
 	}
+	
+	/** Writes label y to file handle fp. */
+	public  void write_label(PrintWriter fp, LABEL y) {
+		  int i;
+		  for(i=0;i<y.totdoc;i++) {
+		    fp.printf("%.8f\n",y.class_indexs[i]);
+		  }
+
+	}
+	
+	@Override
+	public void write_label(PrintWriter fp, LABEL y, LABEL ybar) {
+		  int i;
+		  for(i=0;i<y.totdoc;i++) {
+		    fp.printf("%.8f\t%.8f\n",y.class_indexs[i],ybar.class_indexs[i]);
+		  }
+	}
 
 	double zeroone(int a, int b, int c, int d) {
 		if ((a + d) == (a + b + c + d))
@@ -428,4 +449,6 @@ public class svm_struct_api_perf extends svm_struct_api {
 		return 100;
 		// return(100.0-avgprec_compressed(y,ybar));
 	}
+
+
 }

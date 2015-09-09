@@ -337,6 +337,8 @@ public class svm_common {
 		// read_docs[k]=ps.getDOC();
 		// }
 		WORD[] words;
+		
+		System.err.println("struct.read_max_docs:"+struct.read_max_docs);
 		label = new double[struct.read_max_docs]; // target values
 		// System.out.println("docs length:"+docs.length);
 		words = new WORD[struct.read_max_words_doc + 10];
@@ -1760,39 +1762,53 @@ public class svm_common {
 			line = br.readLine();
 			model.kernel_parm.kernel_type = Short.parseShort(SSO.beforeStr(
 					line, "#"));
+			
+			System.err.println("model.kernel_parm.kernel_type:"+model.kernel_parm.kernel_type);
 
 			line = br.readLine();
 			model.kernel_parm.poly_degree = Integer.parseInt(SSO.beforeStr(
 					line, "#"));
-
+			System.err.println("model.kernel_parm.poly_degree:"+model.kernel_parm.poly_degree);
+			
 			line = br.readLine();
 			model.kernel_parm.rbf_gamma = Double.parseDouble(SSO.beforeStr(
 					line, "#"));
-
+			System.err.println("model.kernel_parm.rbf_gamma:"+model.kernel_parm.rbf_gamma);
+			
 			line = br.readLine();
 			model.kernel_parm.coef_lin = Double.parseDouble(SSO.beforeStr(line,
 					"#"));
-
+			System.err.println("model.kernel_parm.coef_lin:"+model.kernel_parm.coef_lin);
+			
 			line = br.readLine();
 			model.kernel_parm.coef_const = Double.parseDouble(SSO.beforeStr(
 					line, "#"));
-
+			System.err.println("model.kernel_parm.kernel_type:"+model.kernel_parm.kernel_type);
+			
 			line = br.readLine();
 			model.kernel_parm.custom = line;
-
+			System.err.println("model.kernel_parm.custom:"+model.kernel_parm.custom);
+			
 			line = br.readLine();
 			model.totwords = Integer.parseInt(SSO.beforeStr(line, "#"));
-
+			System.err.println("model.totwords:"+model.totwords);
+			
+			
 			line = br.readLine();
 			model.totdoc = Integer.parseInt(SSO.beforeStr(line, "#"));
-
+			System.err.println("model.totdoc:"+model.totdoc);
+			
 			line = br.readLine();
 			model.sv_num = Integer.parseInt(SSO.beforeStr(line, "#"));
+			System.err.println("model.sv_num:"+	model.sv_num);
+			
 			line = br.readLine();
-			line = br.readLine();
+			////line = br.readLine();
 			model.b = Double.parseDouble(SSO.beforeStr(line, "#"));
-			line = br.readLine();
-			System.out.println("b:" + model.b);
+			System.err.println("model.b:"+model.b);
+			
+			////line = br.readLine();
+			//System.out.println("b:" + model.b);
 			model.supvec = new DOC[model.sv_num];
 			model.alpha = new double[model.sv_num];
 			model.index = null;
@@ -1800,7 +1816,8 @@ public class svm_common {
 			WORD[] read_words;
 			for (i = 1; i < model.sv_num; i++) {
 				line = br.readLine();
-				// logger.info("i:"+i+" "+line);
+				line=SSO.beforeStr(line, "#");
+				//System.err.println("i:"+i+" "+line);
 				ReadStruct rs = new ReadStruct();
 				read_words = svm_common.parse_document(line, max_words, rs);
 				model.alpha[i] = rs.read_doc_label;

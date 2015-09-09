@@ -1,6 +1,7 @@
 package org.click.classify.svm_struct.model;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import org.click.classify.svm_struct.data.KERNEL_PARM;
@@ -90,6 +91,12 @@ public class svm_struct_api_multilevel extends svm_struct_api{
 	public PATTERN sample2pattern(String words) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void write_label(PrintWriter fp, LABEL y, LABEL ybar) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
