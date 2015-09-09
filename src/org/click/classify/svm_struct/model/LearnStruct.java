@@ -100,7 +100,7 @@ public class LearnStruct {
 		double rt1, rt2;
 		rt1 = Common.get_runtime();
 
-		ssa.init_struct_model(sample, sm, sparm, lparm, kparm);
+		ssa.initStructModel(sample, sm, sparm, lparm, kparm);
 		sizePsi = sm.sizePsi + 1;
 		logger.info("the sizePsi2 is " + sizePsi);
 		if (alg_type == CommonStruct.NSLACK_SHRINK_ALG) {
@@ -135,7 +135,7 @@ public class LearnStruct {
 		tolerance = Math.min(n / 3, Math.max(n / 100, 5));
 		lparm.biased_hyperplane = 0;
 
-		cset = ssa.init_struct_constraints(sample, sm, sparm);
+		cset = ssa.initStructConstraints(sample, sm, sparm);
 
 		if (cset.m > 0) {
 			alpha_g = new double[cset.m];
@@ -232,10 +232,10 @@ public class LearnStruct {
 							rt2 = Common.get_runtime();
 							argmax_count++;
 							if (sparm.loss_type == SLACK_RESCALING) {
-								ybar = ssa.find_most_violated_constraint_slackrescaling(
+								ybar = ssa.findMostViolatedConstraintSlackrescaling(
 												ex[i].x, ex[i].y, sm, sparm);
 							} else {
-								ybar = ssa.find_most_violated_constraint_marginrescaling(
+								ybar = ssa.findMostViolatedConstraintMarginrescaling(
 												ex[i].x, ex[i].y, sm, sparm);
 							}
 							rt_viol += Math.max(Common.get_runtime() - rt2,
@@ -452,7 +452,7 @@ public class LearnStruct {
 					|| (dont_stop != 0));
 
 		} while ((epsilon > sparm.epsilon)
-				|| ssa.finalize_iteration(ceps, 0, sample, sm, cset,
+				|| ssa.finalizeIteration(ceps, 0, sample, sm, cset,
 						alpha_g, sparm)); // main_loop
 
 		if (CommonStruct.struct_verbosity >= 1) {
@@ -607,7 +607,7 @@ public class LearnStruct {
 		rt1 = Common.get_runtime();
 		if (sparm.batch_size < 100)
 			batch_size = (int) ((sparm.batch_size * n) / 100.0);
-		ssa.init_struct_model(sample, sm, sparm, lparm, kparm);
+		ssa.initStructModel(sample, sm, sparm, lparm, kparm);
 		sizePsi = sm.sizePsi + 1; /* sm must contain size of psi on return */
 		// logger.info("the sizePsi is "+sizePsi+" \n");
 
@@ -631,7 +631,7 @@ public class LearnStruct {
 		epsilon_cached = epsilon;  //epsilon to use for iterations using constraints constructed from the constraint cache
 								
 
-		cset = ssa.init_struct_constraints(sample, sm, sparm);
+		cset = ssa.initStructConstraints(sample, sm, sparm);
 
 		if (cset.m > 0) {
 			alpha_g = new double[cset.m];
@@ -1029,7 +1029,7 @@ public class LearnStruct {
 			
 		} while (cached_constraint != 0
 				|| (ceps > sparm.epsilon)
-				|| ssa.finalize_iteration(ceps, cached_constraint,
+				|| ssa.finalizeIteration(ceps, cached_constraint,
 						sample, sm, cset, alpha_g, sparm));
 
 		if (CommonStruct.struct_verbosity >= 1) {
@@ -1197,10 +1197,10 @@ public class LearnStruct {
 			rt2 = Common.get_runtime();
 		argmax_count_g++;
 		if (sparm.loss_type == SLACK_RESCALING) {
-			ybar = ssa.find_most_violated_constraint_slackrescaling(
+			ybar = ssa.findMostViolatedConstraintSlackrescaling(
 					ex.x, ex.y, sm, sparm);
 		} else {
-			ybar =ssa.find_most_violated_constraint_marginrescaling(ex.x, ex.y,
+			ybar =ssa.findMostViolatedConstraintMarginrescaling(ex.x, ex.y,
 							sm, sparm);
 		}
 		if (CommonStruct.struct_verbosity >= 2)

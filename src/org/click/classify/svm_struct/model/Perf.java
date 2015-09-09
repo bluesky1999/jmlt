@@ -21,7 +21,7 @@ import org.click.classify.svm_struct.data.WORD;
 public class Perf extends Struct {
 
 	@Override
-	public void init_struct_model(SAMPLE sample, STRUCTMODEL sm,
+	public void initStructModel(SAMPLE sample, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm) {
 		// TODO Auto-generated method stub
 
@@ -35,14 +35,14 @@ public class Perf extends Struct {
 	}
 
 	@Override
-	public LABEL find_most_violated_constraint_slackrescaling(PATTERN x,
+	public LABEL findMostViolatedConstraintSlackrescaling(PATTERN x,
 			LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public LABEL find_most_violated_constraint_marginrescaling(PATTERN x,
+	public LABEL findMostViolatedConstraintMarginrescaling(PATTERN x,
 			LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;

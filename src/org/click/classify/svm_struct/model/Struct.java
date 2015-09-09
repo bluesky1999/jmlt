@@ -47,7 +47,7 @@ public abstract class Struct {
 	 * @param lparm
 	 * @param kparm
 	 */
-	public abstract void init_struct_model(SAMPLE sample, STRUCTMODEL sm,
+	public abstract void initStructModel(SAMPLE sample, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm);
 
 	/**
@@ -58,7 +58,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public CONSTSET init_struct_constraints(SAMPLE sample, STRUCTMODEL sm,
+	public CONSTSET initStructConstraints(SAMPLE sample, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
 
 		CONSTSET c = new CONSTSET();
@@ -99,7 +99,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public boolean finalize_iteration(double ceps, int cached_constraint,
+	public boolean finalizeIteration(double ceps, int cached_constraint,
 			SAMPLE sample, STRUCTMODEL sm, CONSTSET cset, double[] alpha,
 			STRUCT_LEARN_PARM sparm) {
 
@@ -115,7 +115,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract LABEL find_most_violated_constraint_slackrescaling(
+	public abstract LABEL findMostViolatedConstraintSlackrescaling(
 			PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm);
 
 	/**
@@ -127,7 +127,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract LABEL find_most_violated_constraint_marginrescaling(
+	public abstract LABEL findMostViolatedConstraintMarginrescaling(
 			PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm);
 
 	/**

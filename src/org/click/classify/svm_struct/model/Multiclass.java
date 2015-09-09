@@ -29,7 +29,7 @@ public class Multiclass extends Struct {
 			.getLogger(Multiclass.class);
 
 	@Override
-	public void init_struct_model(SAMPLE sample, STRUCTMODEL sm,
+	public void initStructModel(SAMPLE sample, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm) {
 		// TODO Auto-generated method stub
 		int i, totwords = 0;
@@ -78,7 +78,7 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public LABEL find_most_violated_constraint_slackrescaling(PATTERN x,
+	public LABEL findMostViolatedConstraintSlackrescaling(PATTERN x,
 			LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		LABEL ybar = new LABEL();
 		DOC doc;
@@ -115,7 +115,7 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public LABEL find_most_violated_constraint_marginrescaling(PATTERN x,
+	public LABEL findMostViolatedConstraintMarginrescaling(PATTERN x,
 			LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		LABEL ybar = new LABEL();
 		DOC doc;
