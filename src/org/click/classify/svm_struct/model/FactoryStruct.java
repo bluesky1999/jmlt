@@ -2,22 +2,22 @@ package org.click.classify.svm_struct.model;
 
 import java.util.Properties;
 
-public class FactorySVMStructApi {
+public class FactoryStruct {
 
 	public static int api_type=0;
 	
 	
-	public FactorySVMStructApi()
+	public FactoryStruct()
 	{
 		this.api_type=0;
 	}
 	
-	public FactorySVMStructApi(int api_type)
+	public FactoryStruct(int api_type)
 	{
 		this.api_type=api_type;
 	}
 	
-	public FactorySVMStructApi(Properties prop)
+	public FactoryStruct(Properties prop)
 	{
 	   	String api_type_conf=prop.getProperty("api_type");
 	   	if(api_type_conf!=null)
@@ -27,14 +27,14 @@ public class FactorySVMStructApi {
 	   	
 	}
 	
-	public static SVMStructApi get_svm_struct_api()
+	public static Struct get_svm_struct_api()
 	{
 		if(api_type==0)//多分类
-			return new MulticlassSVMStructApi();
+			return new Multiclass();
 		else if(api_type==1)
 			return null;
 		else if(api_type==2)
-			return new PerfSVMStructApi();
+			return new Perf();
 
 		return null;
 	}

@@ -56,7 +56,7 @@ public class svm_struct_api_old {
 		}
 
 		sparm.num_features = totwords;
-		if (CommonSVMStruct.struct_verbosity >= 0) {
+		if (CommonStruct.struct_verbosity >= 0) {
 			System.out.println("Training set properties: " + sparm.num_features
 					+ " features " + sparm.num_classes + " classes\n");
 		}
@@ -64,7 +64,7 @@ public class svm_struct_api_old {
 
 		sm.sizePsi = sparm.num_features * sparm.num_classes;
 		// logger.info("sm.sizePsi:"+sm.sizePsi);
-		if (CommonSVMStruct.struct_verbosity >= 2) {
+		if (CommonStruct.struct_verbosity >= 2) {
 			System.out.println("Size of Phi: " + sm.sizePsi + "\n");
 		}
 	}
@@ -127,7 +127,7 @@ public class svm_struct_api_old {
 		 * wwinfo+x.doc.fvec.words[k].wnum+":"+x.doc.fvec.words[k].weight+" "; }
 		 * logger.info("wwwwinfo:"+wwinfo);
 		 */
-		fvec = CommonSVM.shift_s(x.doc.fvec, (y.class_index - 1)
+		fvec = Common.shift_s(x.doc.fvec, (y.class_index - 1)
 				* sparm.num_features);
 		// logger.info("fvec psi:"+fvec.toString());
 		fvec.kernel_id = y.class_index;
@@ -177,7 +177,7 @@ public class svm_struct_api_old {
 		 */
 		doc = (x.doc);
 		doc.fvec = psi(x, y, sm, sparm);
-		score_y = CommonSVM.classify_example(sm.svm_model, doc);
+		score_y = Common.classify_example(sm.svm_model, doc);
 
 		ybar.scores = null;
 		ybar.num_classes = sparm.num_classes;
@@ -189,7 +189,7 @@ public class svm_struct_api_old {
 			// logger.info("before psi");
 			doc.fvec = psi(x, ybar, sm, sparm);
 			// logger.info("after psi");
-			score_ybar = CommonSVM.classify_example(sm.svm_model, doc);
+			score_ybar = Common.classify_example(sm.svm_model, doc);
 			// logger.info("after classify_example");
 			score = loss(y, ybar, sparm) * (1.0 - score_y + score_ybar);
 			if ((bestscore < score) || (first != 0)) {
@@ -203,7 +203,7 @@ public class svm_struct_api_old {
 			logger.debug("ERROR: Only one class\n");
 		ybar.class_index = bestclass;
 		// logger.info("ybar.class_index:"+ybar.class_index);
-		if (CommonSVMStruct.struct_verbosity >= 3)
+		if (CommonStruct.struct_verbosity >= 3)
 			logger.debug("[" + bestclass + ":" + bestscore + "] ");
 		return (ybar);
 	}
@@ -251,7 +251,7 @@ public class svm_struct_api_old {
 			// logger.info("before psi");
 			doc.fvec = psi(x, ybar, sm, sparm);
 			//logger.info("doc fvec:"+doc.fvec.toString());
-			score = CommonSVM.classify_example(sm.svm_model, doc);
+			score = Common.classify_example(sm.svm_model, doc);
 			// logger.info("ybar.class_index:"+ybar.class_index+"  score:"+score);
 			score += loss(y, ybar, sparm);
 			if ((bestscore < score) || (first != 0)) {
@@ -264,7 +264,7 @@ public class svm_struct_api_old {
 			logger.debug("ERROR: Only one class\n");
 		ybar.class_index = bestclass;
 		// logger.info("ybar_class_index:"+ybar.class_index);
-		if (CommonSVMStruct.struct_verbosity >= 3) {
+		if (CommonStruct.struct_verbosity >= 3) {
 			logger.info("[%" + bestclass + ":" + bestscore + "] ");
 		}
 		//logger.info("bestscore:"+bestscore);
@@ -385,14 +385,14 @@ public class svm_struct_api_old {
 
 		MODEL model = sm.svm_model;
 		if (model.kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
-			if (CommonSVMStruct.struct_verbosity >= 1) {
+			if (CommonStruct.struct_verbosity >= 1) {
 				logger.info("Compacting linear model...");
 			}
 
-			sm.svm_model = CommonSVM.compact_linear_model(model);
+			sm.svm_model = Common.compact_linear_model(model);
 			sm.w = sm.svm_model.lin_weights; /* short cut to weight vector */
 
-			if (CommonSVMStruct.struct_verbosity >= 1) {
+			if (CommonStruct.struct_verbosity >= 1) {
 				logger.info("done\n");
 			}
 		}
@@ -472,7 +472,7 @@ public class svm_struct_api_old {
 		/* Using the read_documents function from SVM-light */
 		
 		ReadStruct rs=new ReadStruct();
-		docs = CommonSVM.read_documents(file, rs);
+		docs = Common.read_documents(file, rs);
 	
 		// logger.info("in read struct examples: docs.length:"+docs.length);
 		target = rs.read_target;
@@ -522,7 +522,7 @@ public class svm_struct_api_old {
 		sample.n = n;
 		sample.examples = examples;
 
-		if (CommonSVMStruct.struct_verbosity >= 0)
+		if (CommonStruct.struct_verbosity >= 0)
 			logger.info(" (" + sample.n + " examples) ");
 
 		return (sample);
@@ -543,7 +543,7 @@ public class svm_struct_api_old {
 
 		/* Using the read_documents function from SVM-light */
 		ReadStruct rs=new ReadStruct();
-		docs = CommonSVM.read_documents_from_stream(is, target,rs);
+		docs = Common.read_documents_from_stream(is, target,rs);
 	
 		// logger.info("in read struct examples: docs.length:"+docs.length);
 		target = rs.read_target;
@@ -593,7 +593,7 @@ public class svm_struct_api_old {
 		sample.n = n;
 		sample.examples = examples;
 
-		if (CommonSVMStruct.struct_verbosity >= 0)
+		if (CommonStruct.struct_verbosity >= 0)
 			logger.info(" (" + sample.n + " examples) ");
 
 		return (sample);
@@ -610,7 +610,7 @@ public class svm_struct_api_old {
 			SVECTOR v;
 
 			modelfl.print("SVM-multiclass Version "
-					+ CommonSVMStruct.INST_VERSION + "\n");
+					+ CommonStruct.INST_VERSION + "\n");
 			modelfl.print(sparm.num_classes + "# number of classes\n");
 			modelfl.print(sparm.num_features + "# number of base features\n");
 			modelfl.print(sparm.loss_function + " # loss function\n");
@@ -813,7 +813,7 @@ public class svm_struct_api_old {
 		WORD[] words;
 		String version_buffer;
 		MODEL model;
-		CommonSVM sc=new CommonSVM();
+		Common sc=new Common();
 		
 		ReadSummary summary=null;
 		
@@ -839,7 +839,7 @@ public class svm_struct_api_old {
 			version_buffer = SSO.afterStr(line, "SVM-multiclass Version")
 					.trim();
 
-			if (!(version_buffer.equals(CommonSVMStruct.INST_VERSION))) {
+			if (!(version_buffer.equals(CommonStruct.INST_VERSION))) {
 				System.err
 						.println("Version of model-file does not match version of svm_struct_classify!");
 
@@ -953,7 +953,7 @@ public class svm_struct_api_old {
 			fr.close();
 			br.close();
 
-			if (CommonSVM.verbosity >= 1) {
+			if (Common.verbosity >= 1) {
 				System.out.println(" (" + (model.sv_num - 1)
 						+ " support vectors read) ");
 			}
@@ -1004,7 +1004,7 @@ public class svm_struct_api_old {
 			y.class_index = class_index;
 			doc.fvec = psi(x, y, sm, sparm);
 	
-			score = CommonSVM.classify_example(sm.svm_model, doc);	
+			score = Common.classify_example(sm.svm_model, doc);	
 			y.scores[class_index] = score;
 			if ((bestscore < score) || first) {
 				bestscore = score;

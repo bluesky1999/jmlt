@@ -12,7 +12,7 @@ import org.click.classify.svm_struct.data.STRUCTMODEL;
 import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
 import org.jmlp.time.utils.TimeOpera;
 
-public class MainSVMStruct {
+public class MainStruct {
 
 	public static String trainfile; // file with training examples 
 	public static String modelfile; // file for resulting classifier 
@@ -20,7 +20,7 @@ public class MainSVMStruct {
 	public static int struct_verbosity;
 	public static int alg_type;
 
-	private static Logger logger = Logger.getLogger(MainSVMStruct.class);
+	private static Logger logger = Logger.getLogger(MainStruct.class);
 
 	public static void read_input_parameters(int argc, String argv[],
 			STRUCT_LEARN_PARM struct_parm, LEARN_PARM learn_parm,
@@ -30,13 +30,13 @@ public class MainSVMStruct {
 		String type;
 
 		// set default 
-		alg_type = CommonSVMStruct.DEFAULT_ALG_TYPE;
+		alg_type = CommonStruct.DEFAULT_ALG_TYPE;
 		struct_parm.C = -0.01;
 		struct_parm.slack_norm = 1;
-		struct_parm.epsilon = CommonSVMStruct.DEFAULT_EPS;
+		struct_parm.epsilon = CommonStruct.DEFAULT_EPS;
 		struct_parm.custom_argc = 0;
-		struct_parm.loss_function = CommonSVMStruct.DEFAULT_LOSS_FCT;
-		struct_parm.loss_type = CommonSVMStruct.DEFAULT_RESCALING;
+		struct_parm.loss_function = CommonStruct.DEFAULT_LOSS_FCT;
+		struct_parm.loss_type = CommonStruct.DEFAULT_RESCALING;
 		struct_parm.newconstretrain = 100;
 		struct_parm.ccache_size = 5;
 		struct_parm.batch_size = 100;
@@ -310,8 +310,8 @@ public class MainSVMStruct {
 			print_help();
 			System.exit(0);
 		}
-		if ((struct_parm.loss_type != LearnSVMStruct.SLACK_RESCALING)
-				&& (struct_parm.loss_type != LearnSVMStruct.MARGIN_RESCALING)) {
+		if ((struct_parm.loss_type != LearnStruct.SLACK_RESCALING)
+				&& (struct_parm.loss_type != LearnStruct.MARGIN_RESCALING)) {
 			System.out
 					.print("\nThe loss type must be either 1 (slack rescaling) or 2 (margin rescaling)!\n\n");
 			wait_any_key();
@@ -340,7 +340,7 @@ public class MainSVMStruct {
 			print_help();
 			System.exit(0);
 		}
-		SVMStructApi ssa = FactorySVMStructApi.get_svm_struct_api();
+		Struct ssa = FactoryStruct.get_svm_struct_api();
 		ssa.parse_struct_parameters(struct_parm);
 	}
 
@@ -358,7 +358,7 @@ public class MainSVMStruct {
 		KERNEL_PARM kernel_parm = new KERNEL_PARM();
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
 		STRUCTMODEL structmodel = new STRUCTMODEL();
-		SVMStructApi ssa = FactorySVMStructApi.get_svm_struct_api();
+		Struct ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svm_struct_learn_api_init(args);
 
 		long start_time = TimeOpera.getCurrentTimeLong();
@@ -382,26 +382,26 @@ public class MainSVMStruct {
 		EXAMPLE tempex = null;
 
 		// Do the learning and return structmodel. 
-		LearnSVMStruct ssl = new LearnSVMStruct();
+		LearnStruct ssl = new LearnStruct();
 		if (alg_type == 0) {
 			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm,
-					structmodel, CommonSVMStruct.NSLACK_ALG);
+					structmodel, CommonStruct.NSLACK_ALG);
 		} else if (alg_type == 1) {
 			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm,
-					structmodel, CommonSVMStruct.NSLACK_SHRINK_ALG);
+					structmodel, CommonStruct.NSLACK_SHRINK_ALG);
 		} else if (alg_type == 2) {
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel,
-					CommonSVMStruct.ONESLACK_PRIMAL_ALG);
+					CommonStruct.ONESLACK_PRIMAL_ALG);
 		} else if (alg_type == 3) {
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel,
-					CommonSVMStruct.ONESLACK_DUAL_ALG);
+					CommonStruct.ONESLACK_DUAL_ALG);
 		} else if (alg_type == 4) {
 			logger.info("learn_parm.sharedslack:" + learn_parm.sharedslack);
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel,
-					CommonSVMStruct.ONESLACK_DUAL_CACHE_ALG);
+					CommonStruct.ONESLACK_DUAL_CACHE_ALG);
 		} else if (alg_type == 9) {
 			ssl.svm_learn_struct_joint_custom(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel);
@@ -443,7 +443,7 @@ public class MainSVMStruct {
 		KERNEL_PARM kernel_parm = new KERNEL_PARM();
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
 		STRUCTMODEL structmodel = new STRUCTMODEL();
-		SVMStructApi ssa = FactorySVMStructApi.get_svm_struct_api();
+		Struct ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svm_struct_learn_api_init(args);
 		long start_time = TimeOpera.getCurrentTimeLong();
 		
@@ -466,26 +466,26 @@ public class MainSVMStruct {
 		EXAMPLE tempex = null;
 	
 		// Do the learning and return structmodel. 
-		LearnSVMStruct ssl = new LearnSVMStruct();
+		LearnStruct ssl = new LearnStruct();
 		if (alg_type == 0) {
 			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm,
-					structmodel, CommonSVMStruct.NSLACK_ALG);
+					structmodel, CommonStruct.NSLACK_ALG);
 		} else if (alg_type == 1) {
 			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm,
-					structmodel, CommonSVMStruct.NSLACK_SHRINK_ALG);
+					structmodel, CommonStruct.NSLACK_SHRINK_ALG);
 		} else if (alg_type == 2) {
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel,
-					CommonSVMStruct.ONESLACK_PRIMAL_ALG);
+					CommonStruct.ONESLACK_PRIMAL_ALG);
 		} else if (alg_type == 3) {
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel,
-					CommonSVMStruct.ONESLACK_DUAL_ALG);
+					CommonStruct.ONESLACK_DUAL_ALG);
 		} else if (alg_type == 4) {
 			logger.info("learn_parm.sharedslack:" + learn_parm.sharedslack);
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel,
-					CommonSVMStruct.ONESLACK_DUAL_CACHE_ALG);
+					CommonStruct.ONESLACK_DUAL_CACHE_ALG);
 		} else if (alg_type == 9) {
 			ssl.svm_learn_struct_joint_custom(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel);
@@ -523,7 +523,7 @@ public class MainSVMStruct {
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
 		STRUCTMODEL structmodel = new STRUCTMODEL();
 		
-		SVMStructApi ssa = FactorySVMStructApi.get_svm_struct_api();
+		Struct ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svm_struct_learn_api_init(args);
 
 		
@@ -548,26 +548,26 @@ public class MainSVMStruct {
 		EXAMPLE tempex = null;
 
 		// Do the learning and return structmodel.
-		LearnSVMStruct ssl = new LearnSVMStruct();
+		LearnStruct ssl = new LearnStruct();
 		if (alg_type == 0) {
 			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm,
-					structmodel, CommonSVMStruct.NSLACK_ALG);
+					structmodel, CommonStruct.NSLACK_ALG);
 		} else if (alg_type == 1) {
 			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm,
-					structmodel, CommonSVMStruct.NSLACK_SHRINK_ALG);
+					structmodel, CommonStruct.NSLACK_SHRINK_ALG);
 		} else if (alg_type == 2) {
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel,
-					CommonSVMStruct.ONESLACK_PRIMAL_ALG);
+					CommonStruct.ONESLACK_PRIMAL_ALG);
 		} else if (alg_type == 3) {
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel,
-					CommonSVMStruct.ONESLACK_DUAL_ALG);
+					CommonStruct.ONESLACK_DUAL_ALG);
 		} else if (alg_type == 4) {
 			logger.info("learn_parm.sharedslack:" + learn_parm.sharedslack);
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel,
-					CommonSVMStruct.ONESLACK_DUAL_CACHE_ALG);
+					CommonStruct.ONESLACK_DUAL_CACHE_ALG);
 		} else if (alg_type == 9) {
 			ssl.svm_learn_struct_joint_custom(sample, struct_parm, learn_parm,
 					kernel_parm, structmodel);
@@ -600,16 +600,16 @@ public class MainSVMStruct {
 
 	public static void print_help() {
 		System.out.print("\nSVM-struct learning module: "
-				+ CommonSVMStruct.INST_NAME + ", "
-				+ CommonSVMStruct.INST_VERSION + ", "
-				+ CommonSVMStruct.INST_VERSION_DATE + "\n");
+				+ CommonStruct.INST_NAME + ", "
+				+ CommonStruct.INST_VERSION + ", "
+				+ CommonStruct.INST_VERSION_DATE + "\n");
 		System.out.print("   includes SVM-struct "
-				+ CommonSVMStruct.STRUCT_VERSION
+				+ CommonStruct.STRUCT_VERSION
 				+ " for learning complex outputs, "
-				+ CommonSVMStruct.STRUCT_VERSION_DATE + "\n");
+				+ CommonStruct.STRUCT_VERSION_DATE + "\n");
 		System.out.print("   includes SVM-light " + ModelConstant.VERSION
 				+ " quadratic optimizer, " +  ModelConstant.VERSION_DATE + "\n");
-		CommonSVM.copyright_notice();
+		Common.copyright_notice();
 		System.out
 				.print("   usage: svm_struct_learn [options] example_file model_file\n\n");
 		System.out.print("Arguments:\n");
@@ -636,17 +636,17 @@ public class MainSVMStruct {
 		System.out.print("                        1: slack rescaling\n");
 		System.out.print("                        2: margin rescaling\n");
 		System.out.print("                        (default "
-				+ CommonSVMStruct.DEFAULT_RESCALING + ")\n");
+				+ CommonStruct.DEFAULT_RESCALING + ")\n");
 		System.out.print("         -l [0..]    -> Loss function to use.\n");
 		System.out.print("                        0: zero/one loss\n");
 		System.out
 				.print("                        ?: see below in application specific options\n");
 		System.out.print("                        (default "
-				+ CommonSVMStruct.DEFAULT_LOSS_FCT + ")\n");
+				+ CommonStruct.DEFAULT_LOSS_FCT + ")\n");
 		System.out.print("Optimization Options (see [2][5]):\n");
 		System.out
 				.print("         -w [0,..,9] -> choice of structural learning algorithm (default "
-						+ ((int) CommonSVMStruct.DEFAULT_ALG_TYPE) + "):\n");
+						+ ((int) CommonStruct.DEFAULT_ALG_TYPE) + "):\n");
 		System.out
 				.print("                        0: n-slack algorithm described in [2]\n");
 		System.out
@@ -662,7 +662,7 @@ public class MainSVMStruct {
 		System.out
 				.print("         -e float    -> epsilon: allow that tolerance for termination\n");
 		System.out.print("                        criterion (default "
-				+ CommonSVMStruct.DEFAULT_EPS + ")\n");
+				+ CommonStruct.DEFAULT_EPS + ")\n");
 		System.out
 				.print("         -k [1..]    -> number of new constraints to accumulate before\n");
 		System.out
@@ -724,7 +724,7 @@ public class MainSVMStruct {
 		System.out
 				.print("                        (in the same order as in the training set)\n");
 		System.out.print("Application-Specific Options:\n");
-		SVMStructApi ssa = FactorySVMStructApi.get_svm_struct_api();
+		Struct ssa = FactoryStruct.get_svm_struct_api();
 		ssa.print_struct_help();
 		wait_any_key();
 		System.out.print("\nMore details in:\n");

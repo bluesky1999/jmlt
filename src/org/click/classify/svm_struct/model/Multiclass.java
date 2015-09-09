@@ -23,10 +23,10 @@ import org.click.classify.svm_struct.data.WORD;
  * 
  * @author zkyz
  */
-public class MulticlassSVMStructApi extends SVMStructApi {
+public class Multiclass extends Struct {
 
 	private static Logger logger = Logger
-			.getLogger(MulticlassSVMStructApi.class);
+			.getLogger(Multiclass.class);
 
 	@Override
 	public void init_struct_model(SAMPLE sample, STRUCTMODEL sm,
@@ -54,13 +54,13 @@ public class MulticlassSVMStructApi extends SVMStructApi {
 		}
 
 		sparm.num_features = totwords;
-		if (CommonSVMStruct.struct_verbosity >= 0) {
+		if (CommonStruct.struct_verbosity >= 0) {
 			System.out.println("Training set properties: " + sparm.num_features
 					+ " features " + sparm.num_classes + " classes\n");
 		}
 
 		sm.sizePsi = sparm.num_features * sparm.num_classes;
-		if (CommonSVMStruct.struct_verbosity >= 2) {
+		if (CommonStruct.struct_verbosity >= 2) {
 			System.out.println("Size of Phi: " + sm.sizePsi + "\n");
 		}
 	}
@@ -70,7 +70,7 @@ public class MulticlassSVMStructApi extends SVMStructApi {
 			STRUCT_LEARN_PARM sparm) {
 		SVECTOR fvec;
 
-		fvec = CommonSVM.shift_s(x.doc.fvec, (y.class_index - 1)
+		fvec = Common.shift_s(x.doc.fvec, (y.class_index - 1)
 				* sparm.num_features);
 
 		fvec.kernel_id = y.class_index;
@@ -92,7 +92,7 @@ public class MulticlassSVMStructApi extends SVMStructApi {
 		// computing a new PSI vector.
 		doc = (x.doc);
 		doc.fvec = psi(x, y, sm, sparm);
-		score_y = CommonSVM.classify_example(sm.svm_model, doc);
+		score_y = Common.classify_example(sm.svm_model, doc);
 
 		ybar.scores = null;
 		ybar.num_classes = sparm.num_classes;
@@ -100,7 +100,7 @@ public class MulticlassSVMStructApi extends SVMStructApi {
 		for (ci = 1; ci <= sparm.num_classes; ci++) {
 			ybar.class_index = ci;
 			doc.fvec = psi(x, ybar, sm, sparm);
-			score_ybar = CommonSVM.classify_example(sm.svm_model, doc);
+			score_ybar = Common.classify_example(sm.svm_model, doc);
 			score = loss(y, ybar, sparm) * (1.0 - score_y + score_ybar);
 			if ((bestscore < score) || (first != 0)) {
 				bestscore = score;
@@ -136,7 +136,7 @@ public class MulticlassSVMStructApi extends SVMStructApi {
 			ybar.class_index = ci;
 
 			doc.fvec = psi(x, ybar, sm, sparm);
-			score = CommonSVM.classify_example(sm.svm_model, doc);
+			score = Common.classify_example(sm.svm_model, doc);
 			score += loss(y, ybar, sparm);
 			if ((bestscore < score) || (first != 0)) {
 				bestscore = score;
@@ -205,7 +205,7 @@ public class MulticlassSVMStructApi extends SVMStructApi {
 			y.class_index = class_index;
 			doc.fvec = psi(x, y, sm, sparm);
 
-			score = CommonSVM.classify_example(sm.svm_model, doc);
+			score = Common.classify_example(sm.svm_model, doc);
 			y.scores[class_index] = score;
 			if ((bestscore < score) || first) {
 				bestscore = score;
@@ -230,7 +230,7 @@ public class MulticlassSVMStructApi extends SVMStructApi {
 		int totwords, i, num_classes = 0;
 
 		ReadStruct rs=new ReadStruct();
-		docs = CommonSVM.read_documents(file,rs);
+		docs = Common.read_documents(file,rs);
 
 		target = rs.read_target;
 		totwords = rs.read_totwords;
@@ -280,7 +280,7 @@ public class MulticlassSVMStructApi extends SVMStructApi {
 		int totwords, i, num_classes = 0;
 		
 		ReadStruct rs=new ReadStruct();
-		docs = CommonSVM.read_documents_from_stream(is, target,rs);
+		docs = Common.read_documents_from_stream(is, target,rs);
 
 		target = rs.read_target;
 		totwords = rs.read_totwords;
@@ -332,7 +332,7 @@ public class MulticlassSVMStructApi extends SVMStructApi {
 
 		logger.info("begin read documents");
 		ReadStruct rs=new ReadStruct();
-		docs = CommonSVM.read_documents_from_arraylist(list, target,rs);
+		docs = Common.read_documents_from_arraylist(list, target,rs);
 		logger.info("end read documents");
 
 		target = rs.read_target;
@@ -380,8 +380,8 @@ public class MulticlassSVMStructApi extends SVMStructApi {
 		String read_comment = "";
 		WORD[] words = null;
 		words = string2words(wordString);
-		DOC doc = CommonSVM.create_example(dnum, queryid, slackid, costfactor,
-				CommonSVM.create_svector(words, read_comment, 1.0));
+		DOC doc = Common.create_example(dnum, queryid, slackid, costfactor,
+				Common.create_svector(words, read_comment, 1.0));
 		PATTERN pat = new PATTERN();
 		pat.doc = doc;
 

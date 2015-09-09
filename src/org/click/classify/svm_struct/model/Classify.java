@@ -10,14 +10,14 @@ import org.click.classify.svm_struct.data.WORD;
 import org.jmlp.file.utils.FileToArray;
 import org.jmlp.str.basic.SSO;
 
-public class ClassifySVM {
+public class Classify {
 
 	public static String docfile;
 	public static String modelfile;
 	public static String predictionsfile;
 	public static int verbosity;
 	public static int pred_format;
-	private static Logger logger = Logger.getLogger(ClassifySVM.class);  
+	private static Logger logger = Logger.getLogger(Classify.class);  
 
 	public static void main(String[] args) throws Exception {
 		DOC doc;
@@ -36,16 +36,16 @@ public class ClassifySVM {
 		read_input_parameters(args.length + 1, args);
 		
 		ReadSummary summary=null;
-		summary=CommonSVM.nol_ll(docfile);
+		summary=Common.nol_ll(docfile);
 		
 		max_docs = summary.read_max_docs;
 		max_words_doc = summary.read_max_words_doc;
 		max_words_doc += 2;
-		model = CommonSVM.read_model(modelfile);
+		model = Common.read_model(modelfile);
 
 		if (model.kernel_parm.kernel_type == 0) { /* linear kernel */
 			/* compute weight vector */
-			CommonSVM.add_weight_vector_to_linear_model(model);
+			Common.add_weight_vector_to_linear_model(model);
 		}
 
 		String[] test_samples = FileToArray.fileToDimArr(docfile);
@@ -54,7 +54,7 @@ public class ClassifySVM {
 			line = test_samples[i];
 			
 			ReadStruct rs=new ReadStruct();
-			read_words=CommonSVM.parse_document(line, max_words_doc,rs);
+			read_words=Common.parse_document(line, max_words_doc,rs);
 			doc_label = rs.read_doc_label;
 			queryid = rs.read_queryid;
 			slackid = rs.read_slackid;
@@ -62,14 +62,14 @@ public class ClassifySVM {
 			comment = rs.read_comment;
 			//words = svm_common.read_words;
 			words = read_words;
-			doc = CommonSVM.create_example(-1, 0, 0, 0.0,
-					CommonSVM.create_svector(words, comment, 1.0));
+			doc = Common.create_example(-1, 0, 0, 0.0,
+					Common.create_svector(words, comment, 1.0));
 			if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) { 
 			    logger.info("kernel type is linear aa");
-				dist = CommonSVM.classify_example_linear(model, doc);
+				dist = Common.classify_example_linear(model, doc);
 			} else { /* non-linear kernel */
 				logger.info("kernel type is nonlinear");
-				dist = CommonSVM.classify_example(model, doc);
+				dist = Common.classify_example(model, doc);
 			}
 
 			if (dist > 0) {

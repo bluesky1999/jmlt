@@ -13,13 +13,13 @@ import org.click.classify.svm_struct.data.MODEL;
 import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.ReadStruct;
 
-public class MainLearnSVM {
+public class MainLearn {
 
 	public static String docfile;
 	public static String modelfile;
 	public static String restartfile;
 
-	private static Logger logger = Logger.getLogger(MainLearnSVM.class);
+	private static Logger logger = Logger.getLogger(MainLearn.class);
 
 	public static void read_input_parameters(int argc, String argv[],
 			short verbosity, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm) {
@@ -27,10 +27,10 @@ public class MainLearnSVM {
 		String type;
 
 		/* set default */
-		CommonSVM.set_learning_defaults(learn_parm, kernel_parm);
+		Common.set_learning_defaults(learn_parm, kernel_parm);
 		modelfile = "svm_model";
 		restartfile = "";
-		CommonSVM.verbosity = 5;
+		Common.verbosity = 5;
 		type = "c";
 
 		for (i = 1; (i < argc) && ((argv[i].charAt(0)) == '-'); i++) {
@@ -45,7 +45,7 @@ public class MainLearnSVM {
 				break;
 			case 'v':
 				i++;
-				CommonSVM.verbosity = Integer.parseInt(argv[i]);
+				Common.verbosity = Integer.parseInt(argv[i]);
 				break;
 			case 'b':
 				i++;
@@ -191,7 +191,7 @@ public class MainLearnSVM {
 			print_help();
 			System.exit(0);
 		}
-		if (!CommonSVM.check_learning_parms(learn_parm, kernel_parm)) {
+		if (!Common.check_learning_parms(learn_parm, kernel_parm)) {
 			wait_any_key();
 			print_help();
 			System.exit(0);
@@ -202,7 +202,7 @@ public class MainLearnSVM {
 		System.out.println("\nSVM-light " +  ModelConstant.VERSION
 				+ ": Support Vector Machine, learning module  "
 				+  ModelConstant.VERSION_DATE);
-		CommonSVM.copyright_notice();
+		Common.copyright_notice();
 		System.out
 				.println("   usage: svm_learn [options] example_file model_file\n\n");
 		System.out.println("Arguments:\n");
@@ -362,7 +362,7 @@ public class MainLearnSVM {
 	}
 
 	public static void main(String[] args) {
-		LearnSVM sl = new LearnSVM();
+		Learn sl = new Learn();
 		DOC[] docs = null; /* training examples */
 		int totwords = 0, totdoc = 0, i = 0;
 		double[] target = null;
@@ -375,7 +375,7 @@ public class MainLearnSVM {
 		learn_parm = new LEARN_PARM();
 		kernel_parm = new KERNEL_PARM();
 		read_input_parameters(args.length + 1, args,
-				(short) CommonSVM.verbosity, learn_parm, kernel_parm);
+				(short) Common.verbosity, learn_parm, kernel_parm);
 		PrintWriter pw = null;
 		FileWriter fw = null;
 
@@ -387,7 +387,7 @@ public class MainLearnSVM {
 		}
 
 		ReadStruct rs=new ReadStruct();
-		docs = CommonSVM.read_documents(docfile, rs);
+		docs = Common.read_documents(docfile, rs);
 
 		target = rs.read_target;
 		System.out.println("docs length in main:" + docs.length);
@@ -406,7 +406,7 @@ public class MainLearnSVM {
 		// System.out.println("docs di["+di+"]="+docs[di].fvec.words.length);
 		// }
 		if (restartfile != null) {
-			alpha_in = CommonSVM.read_alphas(restartfile,
+			alpha_in = Common.read_alphas(restartfile,
 					rs.read_totdocs);
 		}
 		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
@@ -416,7 +416,7 @@ public class MainLearnSVM {
 			 * Always get a new kernel cache. It is not possible to use the same
 			 * cache for two different training runs
 			 */
-			kernel_cache = LearnSVM.kernel_cache_init(totdoc,
+			kernel_cache = Learn.kernel_cache_init(totdoc,
 					learn_parm.kernel_cache_size);
 		}
 
@@ -429,7 +429,7 @@ public class MainLearnSVM {
 			sl.svm_learn_optimization(docs, target, totdoc, totwords,
 					learn_parm, kernel_parm, kernel_cache, model, alpha_in);
 		}
-		CommonSVM.write_model(modelfile, model);
+		Common.write_model(modelfile, model);
 	}
 
 }

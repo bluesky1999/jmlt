@@ -17,7 +17,7 @@ import org.click.classify.svm_struct.data.SVECTOR;
 import org.click.classify.svm_struct.data.TIMING;
 import org.click.classify.svm_struct.data.WORD;
 import org.click.classify.svm_struct.data.WU;
-import org.click.classify.svm_struct.model.CommonSVM;
+import org.click.classify.svm_struct.model.Common;
 import org.jmlp.time.utils.TimeOpera;
 
 /**
@@ -26,9 +26,9 @@ import org.jmlp.time.utils.TimeOpera;
  * @author lq
  * 
  */
-public class LearnSVM {
+public class Learn {
 
-	private static Logger logger = Logger.getLogger(LearnSVM.class);
+	private static Logger logger = Logger.getLogger(Learn.class);
 	public int kernel_cache_statistic;
 	public static final int MAXSHRINK = 50000;
 	public double maxdiff;
@@ -39,7 +39,7 @@ public class LearnSVM {
 	//public double maxviol = 0;
 	public double[] alpha_g;
 
-	public LearnSVM() {
+	public Learn() {
 
 	}
 
@@ -74,7 +74,7 @@ public class LearnSVM {
 		TIMING timing_profile = new TIMING();
 		SHRINK_STATE shrink_state = new SHRINK_STATE();
 
-		runtime_start = CommonSVM.get_runtime();
+		runtime_start = Common.get_runtime();
 		timing_profile.time_kernel = 0;
 		timing_profile.time_opti = 0;
 		timing_profile.time_shrink = 0;
@@ -133,7 +133,7 @@ public class LearnSVM {
 		r_delta_avg = estimate_r_delta_average(docs, totdoc, kernel_parm);
 		if (learn_parm.svm_c == 0.0) { // default value for C 
 			learn_parm.svm_c = 1.0 / (r_delta_avg * r_delta_avg);
-			if (CommonSVM.verbosity >= 1)
+			if (Common.verbosity >= 1)
 				System.out
 						.println("Setting default regularization parameter C="
 								+ learn_parm.svm_c);
@@ -168,7 +168,7 @@ public class LearnSVM {
 			}
 		}
 
-		if (CommonSVM.verbosity >= 2) {
+		if (Common.verbosity >= 2) {
 			System.out.println(trainpos + " positive, " + trainneg
 					+ " negative, and " + (totdoc - trainpos - trainneg)
 					+ " unlabeled examples.\n");
@@ -181,7 +181,7 @@ public class LearnSVM {
 
 		// compute starting state for initial alpha values 
 		if (alpha != null) {
-			if (CommonSVM.verbosity >= 1) {
+			if (Common.verbosity >= 1) {
 				System.out.println("Computing starting state...");
 			}
 			index = new int[totdoc];
@@ -211,7 +211,7 @@ public class LearnSVM {
 							&& (kernel_cache_space_available(kernel_cache)))
 						cache_kernel_row(kernel_cache, docs, i, kernel_parm);
 			}
-			CommonSVM.clear_nvector(weights, totwords);// set weights to zero
+			Common.clear_nvector(weights, totwords);// set weights to zero
 			compute_index(index, totdoc, index2dnum);
 			update_linear_component(docs, label, index2dnum, alpha, a,
 					index2dnum, totdoc, totwords, kernel_parm, kernel_cache,
@@ -222,7 +222,7 @@ public class LearnSVM {
 				a[i] = alpha[i];
 			}
 
-			if (CommonSVM.verbosity >= 1) {
+			if (Common.verbosity >= 1) {
 
 				// System.out.println("done.");
 			}
@@ -230,14 +230,14 @@ public class LearnSVM {
 
 		if (transduction != 0) {
 			learn_parm.svm_iter_to_shrink = 99999999;
-			if (CommonSVM.verbosity >= 1)
+			if (Common.verbosity >= 1)
 				System.out
 						.println("\nDeactivating Shrinking due to an incompatibility with the transductive \nlearner in the current version.");
 		}
 
 		if ((transduction != 0) && (learn_parm.compute_loo != 0)) {
 			learn_parm.compute_loo = 0;
-			if (CommonSVM.verbosity >= 1)
+			if (Common.verbosity >= 1)
 				System.out
 						.println("\nCannot compute leave-one-out estimates for transductive learner.");
 		}
@@ -256,7 +256,7 @@ public class LearnSVM {
 					.println("\nCannot compute leave-one-out with only one example in one class.");
 		}
 
-		if (CommonSVM.verbosity == 1) {
+		if (Common.verbosity == 1) {
 			System.out.println("Optimizing");
 		}
 
@@ -265,8 +265,8 @@ public class LearnSVM {
 				learn_parm, kernel_parm, kernel_cache, shrink_state, model,
 				inconsistent, unlabeled, a, lin, c, timing_profile, -1, 1);
 
-		if (CommonSVM.verbosity >= 1) {
-			if (CommonSVM.verbosity == 1) {
+		if (Common.verbosity >= 1) {
+			if (Common.verbosity == 1) {
 				System.out.println("done. (" + iterations + " iterations)");
 			}
 
@@ -279,8 +279,8 @@ public class LearnSVM {
 			System.out.println("Optimization finished (" + misclassified
 					+ " misclassified, maxdiff=" + maxdiff + ").");
 
-			runtime_end = CommonSVM.get_runtime();
-			if (CommonSVM.verbosity >= 2) {
+			runtime_end = Common.get_runtime();
+			if (Common.verbosity >= 2) {
 				System.out.println("Runtime in cpu-seconds:"
 						+ (runtime_end - runtime_start) / 100.0 + " ("
 						+ (100.0 * timing_profile.time_kernel)
@@ -320,7 +320,7 @@ public class LearnSVM {
 						+ " (including " + upsupvecnum + " at upper bound)");
 			}
 
-			if ((CommonSVM.verbosity >= 1)
+			if ((Common.verbosity >= 1)
 					&& (learn_parm.skip_final_opt_check == 0)) {
 				loss = 0;
 				xisum = 0;
@@ -355,18 +355,18 @@ public class LearnSVM {
 
 				if ((learn_parm.remove_inconsistent == 0)
 						&& (transduction == 0)) {
-					runtime_start_xa = CommonSVM.get_runtime();
-					if (CommonSVM.verbosity >= 1) {
+					runtime_start_xa = Common.get_runtime();
+					if (Common.verbosity >= 1) {
 						System.out.println("Computing XiAlpha-estimates...");
 					}
 					compute_xa_estimates(model, label, unlabeled, totdoc, docs,
 							lin, a, kernel_parm, learn_parm);
-					if (CommonSVM.verbosity >= 1) {
+					if (Common.verbosity >= 1) {
 						// System.out.println("done");
 					}
 					System.out
 							.println("Runtime for XiAlpha-estimates in cpu-seconds: "
-									+ (CommonSVM.get_runtime() - runtime_start_xa)
+									+ (Common.get_runtime() - runtime_start_xa)
 									/ 100.0);
 
 					System.out.println("XiAlpha-estimate of the error: error<="
@@ -389,7 +389,7 @@ public class LearnSVM {
 							totdoc, docs, lin);
 				}
 			}
-			if (CommonSVM.verbosity >= 1) {
+			if (Common.verbosity >= 1) {
 				System.out.println("Number of kernel evaluations:"
 						+ kernel_cache_statistic);
 			}
@@ -398,14 +398,14 @@ public class LearnSVM {
 		// leave-one-out testing starts now
 		if (learn_parm.compute_loo != 0) {
 			// save results of training on full dataset for leave-one-out
-			runtime_start_loo = CommonSVM.get_runtime();
+			runtime_start_loo = Common.get_runtime();
 			for (i = 0; i < totdoc; i++) {
 				xi_fullset[i] = 1.0 - ((lin[i] - model.b) * (double) label[i]);
 				if (xi_fullset[i] < 0)
 					xi_fullset[i] = 0;
 				a_fullset[i] = a[i];
 			}
-			if (CommonSVM.verbosity >= 1) {
+			if (Common.verbosity >= 1) {
 				System.out.println("Computing leave-one-out");
 			}
 
@@ -414,7 +414,7 @@ public class LearnSVM {
 				if (learn_parm.rho * a_fullset[heldout] * r_delta_sq
 						+ xi_fullset[heldout] < 1.0) {
 					// guaranteed to not produce a leave-one-out error
-					if (CommonSVM.verbosity == 1) {
+					if (Common.verbosity == 1) {
 						System.out.print("+");
 					}
 				} else if (xi_fullset[heldout] > 1.0) {
@@ -424,7 +424,7 @@ public class LearnSVM {
 						loo_count_pos++;
 					else
 						loo_count_neg++;
-					if (CommonSVM.verbosity == 1) {
+					if (Common.verbosity == 1) {
 						System.out.print("-");
 					}
 				} else {
@@ -434,10 +434,10 @@ public class LearnSVM {
 					// make sure heldout example is not currently 
 					// shrunk away. Assumes that lin is up to date! 
 					shrink_state.active[heldout] = 1;
-					if (CommonSVM.verbosity >= 2)
+					if (Common.verbosity >= 2)
 						System.out.println("\nLeave-One-Out test on example "
 								+ heldout);
-					if (CommonSVM.verbosity >= 1) {
+					if (Common.verbosity >= 1) {
 						System.out.println("(?[" + heldout + "]");
 					}
 
@@ -452,11 +452,11 @@ public class LearnSVM {
 							loo_count_pos++;
 						else
 							loo_count_neg++;
-						if (CommonSVM.verbosity >= 1) {
+						if (Common.verbosity >= 1) {
 							System.out.print("-)");
 						}
 					} else {
-						if (CommonSVM.verbosity >= 1) {
+						if (Common.verbosity >= 1) {
 							System.out.print("+)");
 						}
 					}
@@ -465,7 +465,7 @@ public class LearnSVM {
 				}
 			} // end of leave-one-out loop 
 
-			if (CommonSVM.verbosity >= 1) {
+			if (Common.verbosity >= 1) {
 				System.out.print("\nRetrain on full problem");
 			}
 			optimize_to_convergence(docs, label, totdoc, totwords, learn_parm,
@@ -479,7 +479,7 @@ public class LearnSVM {
 			model.loo_precision = (trainpos - loo_count_pos)
 					/ (double) (trainpos - loo_count_pos + loo_count_neg)
 					* 100.0;
-			if (CommonSVM.verbosity >= 1) {
+			if (Common.verbosity >= 1) {
 				System.out
 						.println("Leave-one-out estimate of the error: error="
 								+ model.loo_error);
@@ -492,7 +492,7 @@ public class LearnSVM {
 				System.out.println("Actual leave-one-outs computed:  "
 						+ loocomputed + " (rho=" + learn_parm.rho + ")");
 				System.out.println("Runtime for leave-one-out in cpu-seconds: "
-						+ (CommonSVM.get_runtime() - runtime_start_loo)
+						+ (Common.get_runtime() - runtime_start_loo)
 						/ 100.0);
 			}
 		}
@@ -584,7 +584,7 @@ public class LearnSVM {
 		if (learn_parm.svm_c == 0) {
 
 			learn_parm.svm_c = 1.0 / (r_delta_avg * r_delta_avg);
-			if (CommonSVM.verbosity >= 1) {
+			if (Common.verbosity >= 1) {
 				System.out
 						.println("Setting default regularization parameter C="
 								+ learn_parm.svm_c);
@@ -624,7 +624,7 @@ public class LearnSVM {
 			index2dnum = new int[totdoc + 11];
 			if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 				weights = new double[totwords + 1];
-				CommonSVM.clear_nvector(weights, totwords);
+				Common.clear_nvector(weights, totwords);
 				aicache = null;
 			} else {
 				weights = null;
@@ -685,7 +685,7 @@ public class LearnSVM {
 			// kernel_cache=NULL; 
 		}
 
-		if (CommonSVM.verbosity == 1) {
+		if (Common.verbosity == 1) {
 			System.out.println("Optimizing");
 		}
 		// // learn_parm.sharedslack=0;
@@ -701,8 +701,8 @@ public class LearnSVM {
 
 		}
 
-		if (CommonSVM.verbosity >= 1) {
-			if (CommonSVM.verbosity == 1) {
+		if (Common.verbosity >= 1) {
+			if (Common.verbosity == 1) {
 				System.out.println("done. (" + iterations + " iterations)\n");
 			}
 			misclassified = 0;
@@ -714,8 +714,8 @@ public class LearnSVM {
 			System.out.println("Optimization finished (maxdiff=" + maxdiff
 					+ ").");
 
-			runtime_end = CommonSVM.get_runtime();
-			if (CommonSVM.verbosity >= 2) {
+			runtime_end = Common.get_runtime();
+			if (Common.verbosity >= 2) {
 				System.out.println("Runtime in cpu-seconds:"
 						+ (runtime_end - runtime_start) / 100.0 + " ("
 						+ (100.0 * timing_profile.time_kernel)
@@ -738,7 +738,7 @@ public class LearnSVM {
 			}
 		}
 
-		if ((CommonSVM.verbosity >= 1)
+		if ((Common.verbosity >= 1)
 				&& (learn_parm.skip_final_opt_check == 0)) {
 			loss = 0;
 			model_length = 0;
@@ -792,7 +792,7 @@ public class LearnSVM {
 			}
 		}
 
-		if ((CommonSVM.verbosity >= 1)
+		if ((Common.verbosity >= 1)
 				&& (learn_parm.skip_final_opt_check == 0)) {
 			if (learn_parm.sharedslack != 0) {
 				System.out.println("Number of SV: " + (model.sv_num - 1));
@@ -816,7 +816,7 @@ public class LearnSVM {
 							kernel_parm));
 		}
 
-		if (CommonSVM.verbosity >= 1) {
+		if (Common.verbosity >= 1) {
 			System.out.println("Number of kernel evaluations: "
 					+ kernel_cache_statistic);
 		}
@@ -879,7 +879,7 @@ public class LearnSVM {
 			for (ii = 0; (i = working2dnum[ii]) >= 0; ii++) {
 				if (a[i] != a_old[i]) {
 					for (f = docs[i].fvec; f != null; f = f.next) {
-						CommonSVM.add_vector_ns(weights, f, f.factor
+						Common.add_vector_ns(weights, f, f.factor
 								* ((a[i] - a_old[i]) * label[i]));
 
 					}
@@ -888,14 +888,14 @@ public class LearnSVM {
 
 			for (jj = 0; (j = active2dnum[jj]) >= 0; jj++) {
 				for (f = docs[j].fvec; f != null; f = f.next) {
-					lin[j] += f.factor * CommonSVM.sprod_ns(weights, f);
+					lin[j] += f.factor * Common.sprod_ns(weights, f);
 				}
 			}
 
 			for (ii = 0; (i = working2dnum[ii]) >= 0; ii++) {
 				if (a[i] != a_old[i]) {
 					for (f = docs[i].fvec; f != null; f = f.next) {
-						CommonSVM.mult_vector_ns(weights, f, 0.0);
+						Common.mult_vector_ns(weights, f, 0.0);
 					}
 				}
 			}
@@ -924,16 +924,16 @@ public class LearnSVM {
 		WORD[] nullword = new WORD[1];
 		nullword[0] = new WORD();
 		nullword[0].wnum = 0;
-		nulldoc = CommonSVM.create_example(-2, 0, 0, 0.0,
-				CommonSVM.create_svector(nullword, "", 1.0));
+		nulldoc = Common.create_example(-2, 0, 0, 0.0,
+				Common.create_svector(nullword, "", 1.0));
 		avgxlen = 0;
 
 		for (i = 0; i < totdoc; i++) {
-			avgxlen += Math.sqrt(CommonSVM.kernel(kernel_parm, docs[i],
+			avgxlen += Math.sqrt(Common.kernel(kernel_parm, docs[i],
 					docs[i])
 					- 2
-					* CommonSVM.kernel(kernel_parm, docs[i], nulldoc)
-					+ CommonSVM.kernel(kernel_parm, nulldoc, nulldoc));
+					* Common.kernel(kernel_parm, docs[i], nulldoc)
+					+ Common.kernel(kernel_parm, nulldoc, nulldoc));
 		}
 
 		return (avgxlen / totdoc);
@@ -964,7 +964,7 @@ public class LearnSVM {
 						cache[j] = kernel_cache.buffer[kernel_cache.activenum
 								* kernel_cache.index[k] + l];
 					} else {
-						cache[j] = CommonSVM.kernel(kernel_parm, ex, docs[k]);
+						cache[j] = Common.kernel(kernel_parm, ex, docs[k]);
 					}
 
 				}
@@ -1078,12 +1078,12 @@ public class LearnSVM {
 					buffer[j] = kernel_cache.buffer[start
 							+ kernel_cache.totdoc2active[j]];
 				} else {
-					buffer[j] = CommonSVM.kernel(kernel_parm, ex, docs[j]);
+					buffer[j] = Common.kernel(kernel_parm, ex, docs[j]);
 				}
 			}
 		} else {
 			for (i = 0; (j = active2dnum[i]) >= 0; i++) {
-				buffer[j] = CommonSVM.kernel(kernel_parm, ex, docs[j]);
+				buffer[j] = Common.kernel(kernel_parm, ex, docs[j]);
 			}
 		}
 
@@ -1227,7 +1227,7 @@ public class LearnSVM {
 		int i, j, jj;
 		int[] last_suboptimal_at;
 		double noshrink;
-		CommonSVM.verbosity = 0;
+		Common.verbosity = 0;
 		int inconsistentnum, choosenum, already_chosen = 0, iteration;
 		int misclassified, supvecnum = 0;
 		int[] active2dnum;
@@ -1281,8 +1281,8 @@ public class LearnSVM {
 		qp.opt_up = new double[learn_parm.svm_maxqpsize];
 
 		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
-			weights = CommonSVM.create_nvector(totwords);
-			CommonSVM.clear_nvector(weights, totwords);
+			weights = Common.create_nvector(totwords);
+			Common.clear_nvector(weights, totwords);
 		} else {
 			weights = null;
 		}
@@ -1330,17 +1330,17 @@ public class LearnSVM {
 				kernel_cache.time = iteration;
 			}
 
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				logger.info("Iteration " + iteration);
-			} else if (CommonSVM.verbosity == 1) {
+			} else if (Common.verbosity == 1) {
 				logger.info(".");
 			}
 
-			if (CommonSVM.verbosity >= 2) {
-				t0 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t0 = Common.get_runtime();
 			}
 
-			if (CommonSVM.verbosity >= 3) {
+			if (Common.verbosity >= 3) {
 				logger.info("Selecting working set... ");
 			}
 
@@ -1457,9 +1457,9 @@ public class LearnSVM {
 				}
 			}
 
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				// System.out.println(choosenum+" vectors chosen");
-				t1 = CommonSVM.get_runtime();
+				t1 = Common.get_runtime();
 			}
 
 			if (kernel_cache != null) {
@@ -1467,8 +1467,8 @@ public class LearnSVM {
 						choosenum, kernel_parm);
 			}
 
-			if (CommonSVM.verbosity >= 2) {
-				t2 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t2 = Common.get_runtime();
 			}
 
 			if (retrain != 2) {
@@ -1480,8 +1480,8 @@ public class LearnSVM {
 		
 			}
 
-			if (CommonSVM.verbosity >= 2) {
-				t3 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t3 = Common.get_runtime();
 			}
 
 
@@ -1489,18 +1489,18 @@ public class LearnSVM {
 					working2dnum, totdoc, totwords, kernel_parm, kernel_cache,
 					lin, aicache, weights);
 
-			if (CommonSVM.verbosity >= 2) {
-				t4 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t4 = Common.get_runtime();
 			}
 
 			supvecnum = calculate_svm_model(docs, label, unlabeled, lin, a,
 					a_old, c, learn_parm, working2dnum, active2dnum, model);
 
-			if (CommonSVM.verbosity >= 2) {
-				t5 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t5 = Common.get_runtime();
 			}
 
-			if (CommonSVM.verbosity >= 3) {
+			if (Common.verbosity >= 3) {
 
 				criterion = compute_objective_function(a, lin, c,
 						learn_parm.eps, label, active2dnum);
@@ -1523,8 +1523,8 @@ public class LearnSVM {
 					totdoc, learn_parm, epsilon_crit_org, inconsistent,
 					active2dnum, last_suboptimal_at, iteration, kernel_parm);
 		
-			if (CommonSVM.verbosity >= 2) {
-				t6 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t6 = Common.get_runtime();
 				timing_profile.time_select += t1 - t0;
 				timing_profile.time_kernel += t2 - t1;
 				timing_profile.time_opti += t3 - t2;
@@ -1543,7 +1543,7 @@ public class LearnSVM {
 				// long time no progress? 
 				terminate = 1;
 				retrain = 0;
-				if (CommonSVM.verbosity >= 1) {
+				if (Common.verbosity >= 1) {
 					logger.info("\nWARNING: Relaxing KT-Conditions due to slow progress! Terminating!");
 				}
 			}
@@ -1554,15 +1554,15 @@ public class LearnSVM {
 					&& (inactivenum > 0)
 					&& ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type ==  ModelConstant.LINEAR))) {
 
-				if (((CommonSVM.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
-						|| (CommonSVM.verbosity >= 2)) {
-					if (CommonSVM.verbosity == 1) {
+				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
+						|| (Common.verbosity >= 2)) {
+					if (Common.verbosity == 1) {
 						logger.info("");
 					}
 					logger.info(" Checking optimality of inactive variables...");
 				}
 
-				t1 = CommonSVM.get_runtime();
+				t1 = Common.get_runtime();
 
 		
 				reactivate_inactive_examples(label, unlabeled, a, shrink_state,
@@ -1583,9 +1583,9 @@ public class LearnSVM {
 				if (maxdiff > learn_parm.epsilon_crit) {
 					retrain = 1;
 				}
-				timing_profile.time_shrink += CommonSVM.get_runtime() - t1;
-				if (((CommonSVM.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
-						|| (CommonSVM.verbosity >= 2)) {
+				timing_profile.time_shrink += Common.get_runtime() - t1;
+				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
+						|| (Common.verbosity >= 2)) {
 					logger.info("done.");
 					logger.info(" Number of inactive variables = "
 							+ inactivenum);
@@ -1605,13 +1605,13 @@ public class LearnSVM {
 				learn_parm.epsilon_crit = epsilon_crit_org;
 			}
 
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				logger.info(" => (" + supvecnum + model.at_upper_bound
 						+ "SV (incl. " + maxdiff
 						+ " SV at u-bound), max violation=%.5f)");
 
 			}
-			if (CommonSVM.verbosity >= 3) {
+			if (Common.verbosity >= 3) {
 				logger.info("");
 			}
 
@@ -1622,7 +1622,7 @@ public class LearnSVM {
 				activenum = compute_index(shrink_state.active, totdoc,
 						active2dnum);
 				inactivenum = 0;
-				if (CommonSVM.verbosity == 1) {
+				if (Common.verbosity == 1) {
 					// logger.info("done");
 				}
 			
@@ -1665,7 +1665,7 @@ public class LearnSVM {
 			}
 
 			if ((retrain == 0) && (learn_parm.remove_inconsistent != 0)) {
-				if (CommonSVM.verbosity >= 1) {
+				if (Common.verbosity >= 1) {
 					logger.info(" Moving training errors to inconsistent examples...");
 				}
 				if (learn_parm.remove_inconsistent == 1) {
@@ -1687,7 +1687,7 @@ public class LearnSVM {
 						learn_parm.epsilon_crit = 2.0;
 					}
 				}
-				if (CommonSVM.verbosity >= 1) {
+				if (Common.verbosity >= 1) {
 					logger.info("done.");
 					if (retrain != 0) {
 						logger.info(" Now " + inconsistentnum
@@ -2049,7 +2049,7 @@ public class LearnSVM {
 		// logger.info("Running optimizer...");
 
 		/* call the qp-subsolver */
-		HideoSVM shid = new HideoSVM();
+		Hideo shid = new Hideo();
 
 		a_v = shid.optimize_qp(qp, epsilon_crit_target,
 				learn_parm.svm_maxqpsize, (model.b), learn_parm);
@@ -2077,7 +2077,7 @@ public class LearnSVM {
 		int ki, kj, i, j;
 		double kernel_temp;
 
-		if (CommonSVM.verbosity >= 3) {
+		if (Common.verbosity >= 3) {
 			logger.info("Computing qp-matrices (type "
 					+ kernel_parm.kernel_type + " kernel [degree "
 					+ kernel_parm.poly_degree + ", rbf_gamma "
@@ -2127,14 +2127,14 @@ public class LearnSVM {
 			qp.opt_low[i] = 0;
 			qp.opt_up[i] = learn_parm.svm_cost[ki];
 			// System.out.println("docs[ki]:"+ki);
-			kernel_temp = CommonSVM.kernel(kernel_parm, docs[ki], docs[ki]);
+			kernel_temp = Common.kernel(kernel_parm, docs[ki], docs[ki]);
 			// //logger.info("kernel_temp:" + kernel_temp);
 			qp.opt_g0[i] -= (kernel_temp * a[ki] * (double) label[ki]);
 			qp.opt_g[varnum * i + i] = kernel_temp;
 
 			for (j = i + 1; j < varnum; j++) {
 				kj = key[j];
-				kernel_temp = CommonSVM
+				kernel_temp = Common
 						.kernel(kernel_parm, docs[ki], docs[kj]);
 
 				qp.opt_g0[i] -= (kernel_temp * a[kj] * (double) label[kj]);
@@ -2168,7 +2168,7 @@ public class LearnSVM {
 					+ qp.opt_g0[i] * (double) label[key[i]];
 		}
 
-		if (CommonSVM.verbosity >= 3) {
+		if (Common.verbosity >= 3) {
 			logger.info("done");
 		}
 
@@ -2278,7 +2278,7 @@ public class LearnSVM {
 			for (i = 0; i < totdoc; i++) {
 				if (a[i] != a_old[i]) {
 					for (f = docs[i].fvec; (f != null); f = f.next) {
-						CommonSVM.add_vector_ns(weights, f, f.factor
+						Common.add_vector_ns(weights, f, f.factor
 								* ((a[i] - a_old[i]) * (double) label[i]));
 					}
 					a_old[i] = a[i];
@@ -2288,14 +2288,14 @@ public class LearnSVM {
 				if (shrink_state.active[i] == 0) {
 					for (f = docs[i].fvec; f != null; f = f.next) {
 						lin[i] = shrink_state.last_lin[i] + f.factor
-								* CommonSVM.sprod_ns(weights, f);
+								* Common.sprod_ns(weights, f);
 					}
 				}
 				shrink_state.last_lin[i] = lin[i];
 			}
 			for (i = 0; i < totdoc; i++) {
 				for (f = docs[i].fvec; f != null; f = f.next) {
-					CommonSVM.mult_vector_ns(weights, f, 0.0); /*
+					Common.mult_vector_ns(weights, f, 0.0); /*
 																 * set weights
 																 * back to zero
 																 */
@@ -2309,7 +2309,7 @@ public class LearnSVM {
 
 			for (t = shrink_state.deactnum - 1; (t >= 0)
 					&& ((shrink_state.a_history[t] != null)); t--) {
-				if (CommonSVM.verbosity >= 2) {
+				if (Common.verbosity >= 2) {
 					System.out.println(t + "..");
 				}
 				a_old = shrink_state.a_history[t];
@@ -2483,7 +2483,7 @@ public class LearnSVM {
 				 */
 			}
 		}
-		if (CommonSVM.verbosity >= 2) {
+		if (Common.verbosity >= 2) {
 			System.out.println("POS=" + pos + ", ORGPOS=" + orgpos
 					+ ", ORGNEG=" + orgneg);
 			System.out.println("POS=" + pos + ", NEWPOS=" + newpos
@@ -2534,25 +2534,25 @@ public class LearnSVM {
 					}
 				}
 			}
-			if (CommonSVM.verbosity >= 1) {
+			if (Common.verbosity >= 1) {
 				System.out.println("Classifying unlabeled data as "
 						+ unsupaddnum1 + " POS / " + unsupaddnum2 + " NEG.");
 
 			}
-			if (CommonSVM.verbosity >= 1) {
+			if (Common.verbosity >= 1) {
 				System.out.println("Retraining.");
 			}
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				// System.out.println();
 			}
 			return 3;
 		}
 
 		if ((transductcycle % check_every) == 0) {
-			if (CommonSVM.verbosity >= 1) {
+			if (Common.verbosity >= 1) {
 				System.out.println("Retraining.");
 			}
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				// System.out.println();
 			}
 
@@ -2586,7 +2586,7 @@ public class LearnSVM {
 				}
 			}
 
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				System.out.println(upos + " positive -> Added " + unsupaddnum1
 						+ " POS / " + unsupaddnum2
 						+ " NEG unlabeled examples.\n");
@@ -2615,7 +2615,7 @@ public class LearnSVM {
 				}
 			}
 			model_length = Math.sqrt(model_length);
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				System.out.println("Model-length = " + model_length + " ("
 						+ sumalpha + "), loss = " + loss + ", objective = "
 						+ loss + 0.5 * model_length * model_length);
@@ -2689,7 +2689,7 @@ public class LearnSVM {
 					}
 					write_prediction(learn_parm.predfile, model, lin, a,
 							unlabeled, label, totdoc, learn_parm);
-					if (CommonSVM.verbosity >= 1) {
+					if (Common.verbosity >= 1) {
 						System.out.println("Number of switches:" + switchnum);
 					}
 					return 0;
@@ -2700,17 +2700,17 @@ public class LearnSVM {
 					learn_parm.svm_unlabbound = 1;
 				}
 				model.at_upper_bound = 0; /* since upper bound increased */
-				if (CommonSVM.verbosity >= 1)
+				if (Common.verbosity >= 1)
 					System.out
 							.println("Increasing influence of unlabeled examples to "
 									+ learn_parm.svm_unlabbound * 100.0 + " .");
-			} else if (CommonSVM.verbosity >= 1) {
+			} else if (Common.verbosity >= 1) {
 				System.out.println(upos + " positive -> Switching labels of "
 						+ unsupaddnum1 + " POS / " + unsupaddnum2
 						+ " NEG unlabeled examples.");
 			}
 
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				// System.out.println();
 			}
 			learn_parm.epsilon_crit = 0.5; /* don't need to be so picky */
@@ -2749,7 +2749,7 @@ public class LearnSVM {
 		int i;
 		double dist, a_max;
 
-		if (CommonSVM.verbosity >= 1) {
+		if (Common.verbosity >= 1) {
 			System.out.println("Writing prediction file...");
 		}
 
@@ -2781,7 +2781,7 @@ public class LearnSVM {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		if (CommonSVM.verbosity >= 1) {
+		if (Common.verbosity >= 1) {
 			// System.out.println("done");
 		}
 
@@ -2822,7 +2822,7 @@ public class LearnSVM {
 																		 */
 			/* Shrink problem by removing those variables which are */
 			/* optimal at a bound for a minimum number of iterations */
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				System.out.println(" Shrinking...");
 			}
 			if (kernel_parm.kernel_type !=  ModelConstant.LINEAR) { /*
@@ -2854,7 +2854,7 @@ public class LearnSVM {
 			if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 				shrink_state.deactnum = 0;
 			}
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				System.out.println("done.\n");
 				System.out.println(" Number of inactive variables = "
 						+ (totdoc - activenum));
@@ -2873,7 +2873,7 @@ public class LearnSVM {
 		int i, j, jj, from = 0, to = 0, scount;
 		int[] keep;
 
-		if (CommonSVM.verbosity >= 2) {
+		if (Common.verbosity >= 2) {
 			System.out.println(" Reorganizing cache...");
 		}
 
@@ -2919,7 +2919,7 @@ public class LearnSVM {
 			kernel_cache.max_elems = totdoc;
 		}
 
-		if (CommonSVM.verbosity >= 2) {
+		if (Common.verbosity >= 2) {
 			System.out.println("done.");
 			System.out.println(" Cache-size in rows = "
 					+ kernel_cache.max_elems);
@@ -2943,7 +2943,7 @@ public class LearnSVM {
 				inconsistentnum++;
 				inconsistent[i] = 1; /* never choose again */
 				retrain = 2; /* start over */
-				if (CommonSVM.verbosity >= 3) {
+				if (Common.verbosity >= 3) {
 					System.out.println("inconsistent(" + i + ")..");
 				}
 			}
@@ -2971,7 +2971,7 @@ public class LearnSVM {
 				inconsistentnum++;
 				inconsistent[i] = 1; /* never choose again */
 				retrain = 2; /* start over */
-				if (CommonSVM.verbosity >= 3) {
+				if (Common.verbosity >= 3) {
 					System.out.println("inconsistent(" + i + ")..");
 				}
 			}
@@ -3006,7 +3006,7 @@ public class LearnSVM {
 			inconsistentnum++;
 			inconsistent[maxex] = 1; /* never choose again */
 			retrain = 2; /* start over */
-			if (CommonSVM.verbosity >= 3) {
+			if (Common.verbosity >= 3) {
 				System.out.println("inconsistent(" + i + ")..");
 			}
 		}
@@ -3069,7 +3069,7 @@ public class LearnSVM {
 						 * vector of slack variables for optimization with
 						 * shared slacks
 						 */
-		CommonSVM.verbosity = 0;
+		Common.verbosity = 0;
 		epsilon_crit_org = learn_parm.epsilon_crit; /* save org */
 		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			learn_parm.epsilon_crit = 2.0;
@@ -3102,8 +3102,8 @@ public class LearnSVM {
 		qp.opt_up = new double[learn_parm.svm_maxqpsize];
 
 		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
-			weights = CommonSVM.create_nvector(totwords);
-			CommonSVM.clear_nvector(weights, totwords);
+			weights = Common.create_nvector(totwords);
+			Common.clear_nvector(weights, totwords);
 		} else {
 			weights = null;
 		}
@@ -3165,20 +3165,20 @@ public class LearnSVM {
 				kernel_cache.time = iteration; /* for lru cache */
 			}
 
-			if (CommonSVM.verbosity >= 0) {
+			if (Common.verbosity >= 0) {
 				//if (iteration % 51 == 0) {
 					System.out.println("Iteration " + iteration + ": ");
 					logger.info("Iteration " + iteration + ": ");
 				//}
-			} else if (CommonSVM.verbosity == 1) {
+			} else if (Common.verbosity == 1) {
 				System.out.println(".");
 			}
 
-			if (CommonSVM.verbosity >= 2) {
-				t0 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t0 = Common.get_runtime();
 			}
 
-			if (CommonSVM.verbosity >= 3) {
+			if (Common.verbosity >= 3) {
 				System.out.println("\nSelecting working set... ");
 			}
 
@@ -3197,7 +3197,7 @@ public class LearnSVM {
 				if (((iteration % 100) == 0) || (slackset == 0)
 						|| (maxsharedviol < learn_parm.epsilon_crit)) {
 					/* do a step with examples from different slack sets */
-					if (CommonSVM.verbosity >= 2) {
+					if (Common.verbosity >= 2) {
 						System.out.println("(i-step)");
 					}
 					i = 0;
@@ -3255,7 +3255,7 @@ public class LearnSVM {
 							key, chosen);
 				} else { /* do a step with all examples from same slack set */
 					// logger.info("do a step with all examples from same slack set");
-					if (CommonSVM.verbosity >= 2) {
+					if (Common.verbosity >= 2) {
 						System.out.println("(j-step on " + slackset + ")");
 					}
 					jointstep = 1;
@@ -3297,12 +3297,12 @@ public class LearnSVM {
 						selcrit, selexam, kernel_cache, key, chosen, iteration);
 			}
 
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				System.out.println(choosenum + " vectors chosen");
 			}
 
-			if (CommonSVM.verbosity >= 2) {
-				t1 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t1 = Common.get_runtime();
 			}
 
 			if (kernel_cache != null) {
@@ -3310,8 +3310,8 @@ public class LearnSVM {
 						choosenum, kernel_parm);
 			}
 
-			if (CommonSVM.verbosity >= 2) {
-				t2 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t2 = Common.get_runtime();
 			}
 
 			if (jointstep != 0) {
@@ -3359,8 +3359,8 @@ public class LearnSVM {
 				}
 			}
 
-			if (CommonSVM.verbosity >= 2) {
-				t3 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t3 = Common.get_runtime();
 			}
 
 			update_linear_component(docs, label, active2dnum, a, a_old,
@@ -3369,20 +3369,20 @@ public class LearnSVM {
 			compute_shared_slacks(docs, label, a, lin, c, active2dnum,
 					learn_parm, slack, alphaslack);
 
-			if (CommonSVM.verbosity >= 2) {
-				t4 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t4 = Common.get_runtime();
 			}
 
 			supvecnum = calculate_svm_model(docs, label, unlabeled, lin, a,
 					a_old, c, learn_parm, working2dnum, active2dnum, model);
 
-			if (CommonSVM.verbosity >= 2) {
-				t5 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t5 = Common.get_runtime();
 			}
 
 			/* The following computation of the objective function works only */
 			/* relative to the active variables */
-			if (CommonSVM.verbosity >= 3) {
+			if (Common.verbosity >= 3) {
 				criterion = compute_objective_function(a, lin, c,
 						learn_parm.eps, label, active2dnum);
 				System.out
@@ -3401,8 +3401,8 @@ public class LearnSVM {
 					active2dnum, last_suboptimal_at, iteration, kernel_parm);
 			// maxdiff?传值 or 传地址?
 
-			if (CommonSVM.verbosity >= 2) {
-				t6 = CommonSVM.get_runtime();
+			if (Common.verbosity >= 2) {
+				t6 = Common.get_runtime();
 				timing_profile.time_select += t1 - t0;
 				timing_profile.time_kernel += t2 - t1;
 				timing_profile.time_opti += t3 - t2;
@@ -3421,7 +3421,7 @@ public class LearnSVM {
 				/* long time no progress? */
 				terminate = 1;
 				retrain = 0;
-				if (CommonSVM.verbosity >= 1) {
+				if (Common.verbosity >= 1) {
 					System.out
 							.println("\nWARNING: Relaxing KT-Conditions due to slow progress! Terminating!");
 				}
@@ -3431,9 +3431,9 @@ public class LearnSVM {
 			if ((retrain == 0)
 					&& (inactivenum > 0)
 					&& ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type ==  ModelConstant.LINEAR))) {
-				if (((CommonSVM.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
-						|| (CommonSVM.verbosity >= 2)) {
-					if (CommonSVM.verbosity == 1) {
+				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
+						|| (Common.verbosity >= 2)) {
+					if (Common.verbosity == 1) {
 						// System.out.println();
 					}
 					System.out
@@ -3441,7 +3441,7 @@ public class LearnSVM {
 
 				}
 
-				t1 = CommonSVM.get_runtime();
+				t1 = Common.get_runtime();
 				reactivate_inactive_examples(label, unlabeled, a, shrink_state,
 						lin, c, totdoc, totwords, iteration, learn_parm,
 						inconsistent, docs, kernel_parm, kernel_cache, model,
@@ -3472,9 +3472,9 @@ public class LearnSVM {
 				if (maxdiff > learn_parm.epsilon_crit) {
 					retrain = 1;
 				}
-				timing_profile.time_shrink += CommonSVM.get_runtime() - t1;
-				if (((CommonSVM.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
-						|| (CommonSVM.verbosity >= 2)) {
+				timing_profile.time_shrink += Common.get_runtime() - t1;
+				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
+						|| (Common.verbosity >= 2)) {
 					// System.out.println("done.");
 					System.out.println(" Number of inactive variables = "
 							+ inactivenum);
@@ -3492,12 +3492,12 @@ public class LearnSVM {
 			if (learn_parm.epsilon_crit < epsilon_crit_org) {
 				learn_parm.epsilon_crit = epsilon_crit_org;
 			}
-			if (CommonSVM.verbosity >= 2) {
+			if (Common.verbosity >= 2) {
 				System.out.println(" => (" + supvecnum + " SV (incl. "
 						+ model.at_upper_bound
 						+ " SV at u-bound), max violation=" + maxdiff + ")");
 			}
-			if (CommonSVM.verbosity >= 3) {
+			if (Common.verbosity >= 3) {
 				System.out.println();
 			}
 
@@ -3705,15 +3705,15 @@ public class LearnSVM {
 		KERNEL_PARM kernel_parm = model.kernel_parm;
 		nullword[0] = new WORD();
 		nullword[0].wnum = 0;
-		nulldoc = CommonSVM.create_example(-2, 0, 0, 0.0,
-				CommonSVM.create_svector(nullword, "", 1.0));
+		nulldoc = Common.create_example(-2, 0, 0, 0.0,
+				Common.create_svector(nullword, "", 1.0));
 
 		for (j = 1; j < model.sv_num; j++) {
-			xlen = Math.sqrt(CommonSVM.kernel(kernel_parm, model.supvec[j],
+			xlen = Math.sqrt(Common.kernel(kernel_parm, model.supvec[j],
 					model.supvec[j])
 					- 2
-					* CommonSVM.kernel(kernel_parm, model.supvec[j], nulldoc)
-					+ CommonSVM.kernel(kernel_parm, nulldoc, nulldoc));
+					* Common.kernel(kernel_parm, model.supvec[j], nulldoc)
+					+ Common.kernel(kernel_parm, nulldoc, nulldoc));
 			if (xlen > maxxlen) {
 				maxxlen = xlen;
 			}
@@ -3729,7 +3729,7 @@ public class LearnSVM {
 
 		maxxlen = 0;
 		for (i = 0; i < totdoc; i++) {
-			xlen = Math.sqrt(CommonSVM.kernel(kernel_parm, docs[i], docs[i]));
+			xlen = Math.sqrt(Common.kernel(kernel_parm, docs[i], docs[i]));
 			if (xlen > maxxlen) {
 				maxxlen = xlen;
 			}
@@ -3765,7 +3765,7 @@ public class LearnSVM {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		if (CommonSVM.verbosity >= 1) {
+		if (Common.verbosity >= 1) {
 			// System.out.println("done");
 		}
 	}
@@ -3779,8 +3779,8 @@ public class LearnSVM {
 
 		nullword[0] = new WORD();
 		nullword[0].wnum = 0;
-		nulldoc = CommonSVM.create_example(-2, 0, 0, 0.0,
-				CommonSVM.create_svector(nullword, "", 1.0));
+		nulldoc = Common.create_example(-2, 0, 0, 0.0,
+				Common.create_svector(nullword, "", 1.0));
 
 		maxxlen = 0;
 		for (i = 0; i < totdoc; i++) {
@@ -3794,9 +3794,9 @@ public class LearnSVM {
 			 * (k+":"+docs[i].fvec.words[k].wnum+":"+docs[i].fvec.words[k
 			 * ].weight+" "); } System.out.println(); pw.flush();
 			 */
-			xlen = Math.sqrt(CommonSVM.kernel(kernel_parm, docs[i], docs[i])
-					- 2 * CommonSVM.kernel(kernel_parm, docs[i], nulldoc)
-					+ CommonSVM.kernel(kernel_parm, nulldoc, nulldoc));
+			xlen = Math.sqrt(Common.kernel(kernel_parm, docs[i], docs[i])
+					- 2 * Common.kernel(kernel_parm, docs[i], nulldoc)
+					+ Common.kernel(kernel_parm, nulldoc, nulldoc));
 			if (xlen > maxxlen) {
 				maxxlen = xlen;
 			}
@@ -3814,7 +3814,7 @@ public class LearnSVM {
 		/* follows chapter 5.6.4 in [Vapnik/95] */
 
 		if (w < 0) {
-			w = CommonSVM.model_length_s(model);
+			w = Common.model_length_s(model);
 		}
 		if (R < 0) {
 			R = estimate_sphere(model);
@@ -3889,7 +3889,7 @@ public class LearnSVM {
 					}
 					if ((learn_parm.xa_depth == 0)
 							|| ((a[i]
-									* CommonSVM.kernel(kernel_parm, docs[i],
+									* Common.kernel(kernel_parm, docs[i],
 											docs[i]) + a[i] * 2.0 * sim + xi) >= 1.0)) {
 						looerror++;
 						if (label[i] > 0) {
@@ -3933,7 +3933,7 @@ public class LearnSVM {
 		trow = new double[svnum];
 
 		for (k = 0; k < svnum; k++) {
-			trow[k] = CommonSVM.kernel(kernel_parm, docs[docnum],
+			trow[k] = Common.kernel(kernel_parm, docs[docnum],
 					docs[sv2dnum[k]]);
 		}
 
@@ -3961,7 +3961,7 @@ public class LearnSVM {
 
 				if (skip == 0) {
 					val = init_val_sq;
-					val += CommonSVM.kernel(kernel_parm, docs[sv2dnum[i]],
+					val += Common.kernel(kernel_parm, docs[sv2dnum[i]],
 							docs[sv2dnum[i]]);
 					for (j = 0; j < d; j++) {
 						val += 2.0 * cache[i + j * svnum];
@@ -3982,7 +3982,7 @@ public class LearnSVM {
 			}
 			if (allskip == 0) {
 				for (k = 0; k < svnum; k++) {
-					cache[d * svnum + k] = CommonSVM.kernel(kernel_parm,
+					cache[d * svnum + k] = Common.kernel(kernel_parm,
 							docs[sv2dnum[best_ex[d]]], docs[sv2dnum[k]]);
 				}
 			}
@@ -4095,11 +4095,11 @@ public class LearnSVM {
 			kernel_cache.max_elems = totdoc;
 		}
 
-		if (CommonSVM.verbosity >= 2) {
+		if (Common.verbosity >= 2) {
 			System.out.println(" Cache-size in rows = "
 					+ kernel_cache.max_elems);
 			System.out.println(" Kernel evals so far: "
-					+ CommonSVM.kernel_cache_statistic);
+					+ Common.kernel_cache_statistic);
 		}
 
 		kernel_cache.elems = 0; /* initialize cache */
