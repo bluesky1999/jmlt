@@ -139,6 +139,8 @@ public class Perf extends Struct {
 		sample.n = 1;
 		sample.examples = examples;
 
+		System.err.println("totwords in perf:"+totwords);
+		
 		if (sparm.preimage_method == 9) {
 			for (i = 0; i < n; i++) {
 				examples[0].x.docs[i].fvec.next = Common

@@ -34,18 +34,6 @@ public class Common {
 	public static int kernel_cache_statistic = 0;
 	public static int verbosity = 0;
 
-	/*
-	 * public static int read_totdocs; public static int read_totwords; public
-	 * static int read_max_docs; public static int read_max_words_doc;
-	 * 
-	 * public static double read_doc_label; public static int read_queryid;
-	 * public static int read_slackid; public static double read_costfactor;
-	 * public static int read_wpos; public static String read_comment;
-	 * 
-	 * //public static WORD[] read_words; public static double[] read_target =
-	 * null;
-	 */
-
 	public static int progress_n;
 
 	private static Logger logger = Logger.getLogger(Common.class);
@@ -321,34 +309,37 @@ public class Common {
 		ReadSummary summary = nol_ll(docfile); // scan size of input file
 		struct.read_max_words_doc = summary.read_max_words_doc + 2;
 		struct.read_max_docs = summary.read_max_docs + 2;
+		
+		System.err.println("struct.read_max_words_doc:"+struct.read_max_words_doc);
+		System.err.println("struct.read_max_docs:"+struct.read_max_docs);	
 		if (verbosity >= 1) {
 			System.out.println("done\n");
 		}
+		
 		try {
 			fr = new FileReader(new File(docfile));
 			br = new BufferedReader(fr);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		docs = new DOC[struct.read_max_docs]; // feature vectors
-		// for(int k=0;k<read_docs.length;k++)
-		// {
-		// read_docs[k]=ps.getDOC();
-		// }
+		
+		docs = new DOC[struct.read_max_docs]; 
+
 		WORD[] words;
 		
-		System.err.println("struct.read_max_docs:"+struct.read_max_docs);
 		double[] label = new double[struct.read_max_docs]; // target values
-		// System.out.println("docs length:"+docs.length);
+
 		words = new WORD[struct.read_max_words_doc + 10];
 		for (int j = 0; j < words.length; j++) {
 			words[j] = new WORD();
 			words[j].wnum = 0;
 			words[j].weight = 0;
 		}
+		
 		if (verbosity >= 1) {
 			System.out.println("Reading examples into memory...");
 		}
+		
 		dnum = 0;
 		struct.read_totwords = 0;
 		try {
@@ -356,7 +347,6 @@ public class Common {
 				line = line.trim();
 				if (line.charAt(0) == '#')
 					continue; // line contains comments
-				// System.out.println(line);
 
 				ReadStruct rs = new ReadStruct();
 				if ((words = parse_document(line, struct.read_max_words_doc, rs)) == null) {
@@ -366,7 +356,6 @@ public class Common {
 					continue;
 				}
 				label[dnum] = rs.read_doc_label;
-				// printf("docnum=%ld: Class=%f ",dnum,doc_label);
 				if (rs.read_doc_label > 0)
 					dpos++;
 				if (rs.read_doc_label < 0)
@@ -493,24 +482,17 @@ public class Common {
 		int max_words_doc, ll;
 		double doc_label, costfactor;
 
-		if (verbosity >= 1) {
-			// System.out.println("Scanning examples...");
-		}
 
-		logger.info("begin nol ll list");
-		ReadSummary summary = nol_ll_list(list); /* scan size of input file */
-		logger.info("end nol ll list");
+		ReadSummary summary = nol_ll_list(list);// scan size of input file
 
 		struct.read_max_words_doc = summary.read_max_words_doc + 2;
 		struct.read_max_docs = summary.read_max_docs + 2;
-		if (verbosity >= 1) {
-			// System.out.println("done\n");
-		}
 
-		docs = new DOC[struct.read_max_docs]; /* feature vectors */
+
+		docs = new DOC[struct.read_max_docs]; // feature vectors
 
 		WORD[] words;
-		label = new double[struct.read_max_docs]; /* target values */
+		label = new double[struct.read_max_docs]; // target values 
 
 		words = new WORD[struct.read_max_words_doc + 10];
 		for (int j = 0; j < words.length; j++) {
@@ -528,7 +510,7 @@ public class Common {
 				line = list.get(j);
 				logger.info("document[" + j + "]" + " " + line);
 				if (line.charAt(0) == '#')
-					continue; /* line contains comments */
+					continue; // line contains comments
 
 				ReadStruct rs = new ReadStruct();
 				if ((words = parse_document(line, struct.read_max_words_doc, rs)) == null) {
@@ -588,8 +570,7 @@ public class Common {
 		pos = 0;
 		struct.read_comment = "";
 		String dline = "";
-		/* printf("Comment: '%s'\n",(*comment)); */
-		// logger.info("lline:"+line);
+
 		if (line.indexOf("#") > 0) {
 			struct.read_comment = line.substring(line.indexOf("#") + 1,
 					line.length());
@@ -708,7 +689,6 @@ public class Common {
 
 		}
 
-		// logger.info("in nol ll2");
 		String line = "";
 		int temp_docs = 0;
 		int temp_words = 0;
@@ -716,7 +696,7 @@ public class Common {
 		try {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
-				logger.info("nol_ll line:" + line);
+	
 				temp_docs++;
 				seg_arr = line.split("\\s+");
 				if (seg_arr.length > temp_words) {
@@ -726,8 +706,6 @@ public class Common {
 
 			summary.read_max_docs = temp_docs;
 			summary.read_max_words_doc = temp_words;
-			// System.out.println("read_max_docs:" + read_max_docs);
-			// System.out.println("read_max_words_doc:" + read_max_words_doc);
 
 			br.close();
 		} catch (Exception e) {

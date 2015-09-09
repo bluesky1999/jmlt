@@ -127,7 +127,7 @@ public class ClassifyStruct {
 		String docwords = "";
 		logger.info("reading samples to arraylist");
 		try {
-			// while ((linestd = brstd.readLine())!=null) {
+
 			for (int k = 0; k < input_list.size(); k++) {
 				linestd = input_list.get(k);
 				if (SSO.tioe(linestd)) {
@@ -152,7 +152,7 @@ public class ClassifyStruct {
 				logger.info("docid:" + docid + " sample:" + doclabel + " "
 						+ docwords);
 			}
-			// }
+
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -560,7 +560,7 @@ public class ClassifyStruct {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-		FactoryStruct.api_type = 0;
+		FactoryStruct.api_type = 2;
 		Struct ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svm_struct_classify_api_init(args.length + 1, args);
 
