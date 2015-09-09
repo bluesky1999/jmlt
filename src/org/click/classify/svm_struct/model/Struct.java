@@ -146,7 +146,7 @@ public abstract class Struct {
 	 * @param y
 	 * @return
 	 */
-	public abstract boolean empty_label(LABEL y);
+	public abstract boolean emptyLabel(LABEL y);
 
 	/**
 	 * 压缩支持向量
@@ -157,7 +157,7 @@ public abstract class Struct {
 	 * @param alpha
 	 * @param sparm
 	 */
-	public void print_struct_learning_stats(SAMPLE sample, STRUCTMODEL sm,
+	public void printStructLearningStats(SAMPLE sample, STRUCTMODEL sm,
 			CONSTSET cset, double[] alpha, STRUCT_LEARN_PARM sparm) {
 
 		/* Replace SV with single weight vector */
@@ -179,11 +179,11 @@ public abstract class Struct {
 	 * 
 	 * @param args
 	 */
-	public void svm_struct_learn_api_init(String[] args) {
+	public void svmStructLearnApiInit(String[] args) {
 
 	}
 
-	public void print_struct_help() {
+	public void printStructHelp() {
 
 	}
 
@@ -193,7 +193,7 @@ public abstract class Struct {
 	 * 
 	 * @param sparm
 	 */
-	public void parse_struct_parameters_classify(STRUCT_LEARN_PARM sparm) {
+	public void parseStructParametersClassify(STRUCT_LEARN_PARM sparm) {
 		int i;
 
 		for (i = 0; (i < sparm.custom_argc)
@@ -213,7 +213,7 @@ public abstract class Struct {
 	 * 
 	 * @param sparm
 	 */
-	public void parse_struct_parameters(STRUCT_LEARN_PARM sparm) {
+	public void parseStructParameters(STRUCT_LEARN_PARM sparm) {
 		int i;
 
 		for (i = 0; (i < sparm.custom_argc)
@@ -239,38 +239,10 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract SAMPLE read_struct_examples(String file,
+	public abstract SAMPLE readStructExamples(String file,
 			STRUCT_LEARN_PARM sparm);
 
-	/*
-	 * public static SAMPLE read_struct_examples(String file, STRUCT_LEARN_PARM
-	 * sparm) {
-	 * 
-	 * SAMPLE sample = new SAMPLE(); EXAMPLE[] examples; int n; DOC[] docs;
-	 * double[] target = null; int totwords, i, num_classes = 0;
-	 * 
-	 * docs = svm_common.read_documents(file, target);
-	 * 
-	 * target = svm_common.read_target; totwords = svm_common.read_totwords; n =
-	 * svm_common.read_totdocs;
-	 * 
-	 * for (int k = 0; k < docs.length; k++) { if (docs[k] == null ||
-	 * docs[k].fvec == null) { continue; } } examples = new EXAMPLE[n]; for (int
-	 * k = 0; k < n; k++) { examples[k] = new EXAMPLE(); examples[k].x = new
-	 * PATTERN(); examples[k].y = new LABEL(); }
-	 * 
-	 * for (i = 0; i < n; i++) if (num_classes < (target[i] + 0.1)) num_classes
-	 * = (int) (target[i] + 0.1); for (i = 0; i < n; i++) if (target[i] < 1) {
-	 * System.exit(1); }
-	 * 
-	 * for (i = 0; i < n; i++) { examples[i].x.doc = docs[i];
-	 * examples[i].y.class_index = (int) (target[i] + 0.1); examples[i].y.scores
-	 * = null; examples[i].y.num_classes = num_classes; }
-	 * 
-	 * sample.n = n; sample.examples = examples;
-	 * 
-	 * return (sample); }
-	 */
+	
 
 	/**
 	 * 从标准输入读取svm struct样本
@@ -279,36 +251,9 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract SAMPLE read_struct_examples_from_stream(InputStream is,
+	public abstract SAMPLE readStructExamplesFromStream(InputStream is,
 			STRUCT_LEARN_PARM sparm);
 
-	/*
-	 * public static SAMPLE read_struct_examples_from_stream(InputStream is,
-	 * STRUCT_LEARN_PARM sparm) {
-	 * 
-	 * SAMPLE sample = new SAMPLE(); EXAMPLE[] examples; int n; DOC[] docs;
-	 * double[] target = null; int totwords, i, num_classes = 0;
-	 * 
-	 * docs = svm_common.read_documents_from_stream(is, target);
-	 * 
-	 * target = svm_common.read_target; totwords = svm_common.read_totwords; n =
-	 * svm_common.read_totdocs; for (int k = 0; k < docs.length; k++) { if
-	 * (docs[k] == null || docs[k].fvec == null) { continue; } } examples = new
-	 * EXAMPLE[n]; for (int k = 0; k < n; k++) { examples[k] = new EXAMPLE();
-	 * examples[k].x = new PATTERN(); examples[k].y = new LABEL(); }
-	 * 
-	 * for (i = 0; i < n; i++) if (num_classes < (target[i] + 0.1)) num_classes
-	 * = (int) (target[i] + 0.1); for (i = 0; i < n; i++) if (target[i] < 1) {
-	 * System.exit(1); }
-	 * 
-	 * for (i = 0; i < n; i++) { examples[i].x.doc = docs[i];
-	 * examples[i].y.class_index = (int) (target[i] + 0.1); examples[i].y.scores
-	 * = null; examples[i].y.num_classes = num_classes; }
-	 * 
-	 * sample.n = n; sample.examples = examples;
-	 * 
-	 * return (sample); }
-	 */
 
 	/**
 	 * 从arraylist读取svm struct样本
@@ -317,7 +262,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract SAMPLE read_struct_examples_from_arraylist(
+	public abstract SAMPLE readStructExamplesFromArraylist(
 			ArrayList<String> list, STRUCT_LEARN_PARM sparm);
 
 	/**
@@ -327,10 +272,10 @@ public abstract class Struct {
 	 * @param sm
 	 * @param sparm
 	 */
-	public void write_struct_model(String file, STRUCTMODEL sm,
+	public void writeStructModel(String file, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
 		try {
-			/* Writes structural model sm to file file. */
+			// Writes structural model sm to file file.
 			FileWriter fw = new FileWriter(new File(file));
 			PrintWriter modelfl = new PrintWriter(fw);
 			int j, i, sv_num;
@@ -387,11 +332,11 @@ public abstract class Struct {
 		}
 	}
 
-	public void svm_struct_classify_api_init(int argc, String[] args) {
+	public void svmStructClassifyApiInit(int argc, String[] args) {
 
 	}
 
-	public void print_struct_help_classify() {
+	public void printStructHelpClassify() {
 
 	}
 
@@ -402,7 +347,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public STRUCTMODEL read_struct_model(String file, STRUCT_LEARN_PARM sparm) {
+	public STRUCTMODEL readStructModel(String file, STRUCT_LEARN_PARM sparm) {
 
 		File modelfl;
 		STRUCTMODEL sm = new STRUCTMODEL();
@@ -567,10 +512,10 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract LABEL classify_struct_example(PATTERN x, STRUCTMODEL sm,
+	public abstract LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm);
 
-	public void write_label(PrintWriter fp, LABEL y) {
+	public void writeLabel(PrintWriter fp, LABEL y) {
 		int i;
 		fp.print(y.class_index + " ");
 		if (y.scores != null) {
@@ -581,9 +526,9 @@ public abstract class Struct {
 		fp.println();
 	}
 
-	public abstract void write_label(PrintWriter fp, LABEL y, LABEL ybar);
+	public abstract void writeLabel(PrintWriter fp, LABEL y, LABEL ybar);
 
-	public void eval_prediction(int exnum, EXAMPLE ex, LABEL ypred,
+	public void evalPrediction(int exnum, EXAMPLE ex, LABEL ypred,
 			STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, STRUCT_TEST_STATS teststats) {
 		if (exnum == 0) {
 			// this is the first time the function is called. So
@@ -592,12 +537,12 @@ public abstract class Struct {
 		}
 	}
 
-	public void print_struct_testing_stats(SAMPLE sample, STRUCTMODEL sm,
+	public void printStructTestingStats(SAMPLE sample, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm, STRUCT_TEST_STATS teststats) {
 
 	}
 
-	public void svm_struct_learn_api_exit() {
+	public void svmStructLearnApiExit() {
 
 	}
 

@@ -77,24 +77,24 @@ public class Perf extends Struct {
 		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss: 0/1loss
 
 			// return 0, if y==ybar. return 1 else
-			loss = zeroone_loss(a, b, c, d);
+			loss = zerooneLoss(a, b, c, d);
 		} else if (sparm.loss_function == ModelConstant.FONE) {
-			loss = fone_loss(a, b, c, d);
+			loss = foneLoss(a, b, c, d);
 		} else if (sparm.loss_function == ModelConstant.ERRORRATE) {
-			loss = errorrate_loss(a, b, c, d);
+			loss = errorrateLoss(a, b, c, d);
 		} else if (sparm.loss_function == ModelConstant.PRBEP) {
 			// WARNING: only valid if called for a labeling that is at PRBEP
-			loss = prbep_loss(a, b, c, d);
+			loss = prbepLoss(a, b, c, d);
 		} else if (sparm.loss_function == ModelConstant.PREC_K) {
 			// WARNING: only valid if for a labeling that predicts k positives
-			loss = prec_k_loss(a, b, c, d);
+			loss = precKLoss(a, b, c, d);
 		} else if (sparm.loss_function == ModelConstant.REC_K) {
 			// WARNING: only valid if for a labeling that predicts k positives
-			loss = rec_k_loss(a, b, c, d);
+			loss = recKLoss(a, b, c, d);
 		} else if (sparm.loss_function == ModelConstant.SWAPPEDPAIRS) {
-			loss = swappedpairs_loss(y, ybar);
+			loss = swappedpairsLoss(y, ybar);
 		} else if (sparm.loss_function == ModelConstant.AVGPREC) {
-			loss = avgprec_loss(y, ybar);
+			loss = avgprecLoss(y, ybar);
 		} else {
 			// Put your code for different loss functions here. But then
 			// find_most_violated_constraint_???(x, y, sm) has to return the
@@ -108,7 +108,7 @@ public class Perf extends Struct {
 	}
 
 	@Override
-	public boolean empty_label(LABEL y) {
+	public boolean emptyLabel(LABEL y) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -116,7 +116,7 @@ public class Perf extends Struct {
 	@Override
 	/**Reads struct examples and returns them in sample. The number of
 	 examples must be written into sample.n */
-	public SAMPLE read_struct_examples(String file, STRUCT_LEARN_PARM sparm) {
+	public SAMPLE readStructExamples(String file, STRUCT_LEARN_PARM sparm) {
 		SAMPLE sample = new SAMPLE(); // sample
 		EXAMPLE[] examples;
 		int n; // number of examples
@@ -239,14 +239,14 @@ public class Perf extends Struct {
 	}
 
 	@Override
-	public SAMPLE read_struct_examples_from_stream(InputStream is,
+	public SAMPLE readStructExamplesFromStream(InputStream is,
 			STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public SAMPLE read_struct_examples_from_arraylist(ArrayList<String> list,
+	public SAMPLE readStructExamplesFromArraylist(ArrayList<String> list,
 			STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;
@@ -261,7 +261,7 @@ public class Perf extends Struct {
 	 * return an empty label as recognized by the function empty_label(y).
 	 */
 	@Override
-	public LABEL classify_struct_example(PATTERN x, STRUCTMODEL sm,
+	public LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
 		LABEL y = new LABEL();
 		int i;
@@ -290,7 +290,7 @@ public class Perf extends Struct {
 	 * the prediction module, not in the learning module.
 	 */
 	@Override
-	public STRUCTMODEL read_struct_model(String file, STRUCT_LEARN_PARM sparm) {
+	public STRUCTMODEL readStructModel(String file, STRUCT_LEARN_PARM sparm) {
 		STRUCTMODEL sm = new STRUCTMODEL();
 		sm.svm_model = Common.read_model(file);
 		sparm.loss_function = ModelConstant.ERRORRATE;
@@ -317,13 +317,14 @@ public class Perf extends Struct {
 	}
 
 	@Override
-	public void write_struct_model(String file, STRUCTMODEL sm,
+	public void writeStructModel(String file, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
 
 	}
 
 	/** Writes label y to file handle fp. */
-	public void write_label(PrintWriter fp, LABEL y) {
+	@Override
+	public void writeLabel(PrintWriter fp, LABEL y) {
 		int i;
 		for (i = 0; i < y.totdoc; i++) {
 			fp.printf("%.8f\n", y.class_indexs[i]);
@@ -332,7 +333,7 @@ public class Perf extends Struct {
 	}
 
 	@Override
-	public void write_label(PrintWriter fp, LABEL y, LABEL ybar) {
+	public void writeLabel(PrintWriter fp, LABEL y, LABEL ybar) {
 		int i;
 		for (i = 0; i < y.totdoc; i++) {
 			fp.printf("%.8f\t%.8f\n", y.class_indexs[i], ybar.class_indexs[i]);
@@ -389,20 +390,20 @@ public class Perf extends Struct {
 		return (sum / 2.0);
 	}
 
-	double zeroone_loss(int a, int b, int c, int d) {
+	double zerooneLoss(int a, int b, int c, int d) {
 		return (zeroone(a, b, c, d));
 	}
 
-	double fone_loss(int a, int b, int c, int d) {
+	double foneLoss(int a, int b, int c, int d) {
 		return (100.0 * (1.0 - fone(a, b, c, d)));
 	}
 
-	double errorrate_loss(int a, int b, int c, int d) {
+	double errorrateLoss(int a, int b, int c, int d) {
 		return (100.0 * errorrate(a, b, c, d));
 	}
 
 	/** WARNING: Returns lower bound on PRBEP, if b!=c. */
-	double prbep_loss(int a, int b, int c, int d) {
+	double prbepLoss(int a, int b, int c, int d) {
 		double precision = prec(a, b, c, d);
 		double recall = rec(a, b, c, d);
 		if (precision < recall)
@@ -412,16 +413,16 @@ public class Perf extends Struct {
 	}
 
 	/** WARNING: Only valid if called with a+c==k. */
-	double prec_k_loss(int a, int b, int c, int d) {
+	double precKLoss(int a, int b, int c, int d) {
 		return (100.0 * (1.0 - prec(a, b, c, d)));
 	}
 
 	/** WARNING: Only valid if called with a+c==k. */
-	double rec_k_loss(int a, int b, int c, int d) {
+	double recKLoss(int a, int b, int c, int d) {
 		return (100.0 * (1.0 - rec(a, b, c, d)));
 	}
 
-	double swappedpairs_loss(LABEL y, LABEL ybar) {
+	double swappedpairsLoss(LABEL y, LABEL ybar) {
 		double nump = 0, numn = 0;
 		int i;
 		for (i = 0; i < y.totdoc; i++) {
@@ -440,7 +441,7 @@ public class Perf extends Struct {
 	 * @param ybar
 	 * @return
 	 */
-	double avgprec_loss(LABEL y, LABEL ybar) {
+	double avgprecLoss(LABEL y, LABEL ybar) {
 		return 100;
 		// return(100.0-avgprec_compressed(y,ybar));
 	}

@@ -175,12 +175,12 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public boolean empty_label(LABEL y) {
+	public boolean emptyLabel(LABEL y) {
 		return (y.class_index < 0.9);
 	}
 
 	@Override
-	public LABEL classify_struct_example(PATTERN x, STRUCTMODEL sm,
+	public LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
 		LABEL y = new LABEL();
 		DOC doc;
@@ -220,7 +220,7 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public SAMPLE read_struct_examples(String file, STRUCT_LEARN_PARM sparm) {
+	public SAMPLE readStructExamples(String file, STRUCT_LEARN_PARM sparm) {
 
 		SAMPLE sample = new SAMPLE();
 		EXAMPLE[] examples;
@@ -270,7 +270,7 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public SAMPLE read_struct_examples_from_stream(InputStream is,
+	public SAMPLE readStructExamplesFromStream(InputStream is,
 			STRUCT_LEARN_PARM sparm) {
 		SAMPLE sample = new SAMPLE();
 		EXAMPLE[] examples;
@@ -319,7 +319,7 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public SAMPLE read_struct_examples_from_arraylist(ArrayList<String> list,
+	public SAMPLE readStructExamplesFromArraylist(ArrayList<String> list,
 			STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 
@@ -389,7 +389,7 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public void write_label(PrintWriter fp, LABEL y, LABEL ybar) {
+	public void writeLabel(PrintWriter fp, LABEL y, LABEL ybar) {
 		// TODO Auto-generated method stub
 		
 	}

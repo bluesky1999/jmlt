@@ -241,7 +241,7 @@ public class LearnStruct {
 							rt_viol += Math.max(Common.get_runtime() - rt2,
 									0);
 
-							if (ssa.empty_label(ybar)) {
+							if (ssa.emptyLabel(ybar)) {
 								if (opti[i] != opti_round) {
 									activenum--;
 									opti[i] = opti_round;
@@ -542,7 +542,7 @@ public class LearnStruct {
 			logger.info("wstr:" + wstr);
 		}
 
-		ssa.print_struct_learning_stats(sample, sm, cset, alpha_g,
+		ssa.printStructLearningStats(sample, sm, cset, alpha_g,
 				sparm);
 
 	}
@@ -1107,7 +1107,7 @@ public class LearnStruct {
 		}
 
 
-		ssa.print_struct_learning_stats(sample, sm, cset, alpha_g,
+		ssa.printStructLearningStats(sample, sm, cset, alpha_g,
 				sparm);
 
 	}
@@ -1206,7 +1206,7 @@ public class LearnStruct {
 		if (CommonStruct.struct_verbosity >= 2)
 			rt_viol_g += Math.max(Common.get_runtime() - rt2, 0);
 
-		if (ssa.empty_label(ybar)) {
+		if (ssa.emptyLabel(ybar)) {
 			logger.info("ERROR: empty label was returned for example\n");
 		}
 

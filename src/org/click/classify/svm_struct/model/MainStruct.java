@@ -341,7 +341,7 @@ public class MainStruct {
 			System.exit(0);
 		}
 		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.parse_struct_parameters(struct_parm);
+		ssa.parseStructParameters(struct_parm);
 	}
 
 
@@ -359,7 +359,7 @@ public class MainStruct {
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
 		STRUCTMODEL structmodel = new STRUCTMODEL();
 		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.svm_struct_learn_api_init(args);
+		ssa.svmStructLearnApiInit(args);
 
 		long start_time = TimeOpera.getCurrentTimeLong();
 		
@@ -373,7 +373,7 @@ public class MainStruct {
 
 		
 		// read the training examples
-		sample = ssa.read_struct_examples(trainfile, struct_parm);
+		sample = ssa.readStructExamples(trainfile, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
 		}
@@ -416,7 +416,7 @@ public class MainStruct {
 		if (struct_verbosity >= 1) {
 			logger.info("Writing learned model...");
 		}
-		ssa.write_struct_model(modelfile, structmodel, struct_parm);
+		ssa.writeStructModel(modelfile, structmodel, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
 		}
@@ -427,7 +427,7 @@ public class MainStruct {
 		logger.info("tot_time:" + tot_time);
 		System.out.println("tot_time:" + tot_time);
 
-		ssa.svm_struct_learn_api_exit();
+		ssa.svmStructLearnApiExit();
 	}
 	
 	public static void main(String[] args) {
@@ -444,7 +444,7 @@ public class MainStruct {
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
 		STRUCTMODEL structmodel = new STRUCTMODEL();
 		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.svm_struct_learn_api_init(args);
+		ssa.svmStructLearnApiInit(args);
 		long start_time = TimeOpera.getCurrentTimeLong();
 		
 		read_input_parameters(args.length + 1, args, struct_parm, learn_parm,
@@ -457,7 +457,7 @@ public class MainStruct {
 
 
 		// read the training examples 
-		sample = ssa.read_struct_examples(trainfile, struct_parm);
+		sample = ssa.readStructExamples(trainfile, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
 		}
@@ -500,7 +500,7 @@ public class MainStruct {
 		if (struct_verbosity >= 1) {
 			logger.info("Writing learned model...");
 		}
-		ssa.write_struct_model(modelfile, structmodel, struct_parm);
+		ssa.writeStructModel(modelfile, structmodel, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
 		}
@@ -511,7 +511,7 @@ public class MainStruct {
 		logger.info("tot_time:" + tot_time);
 		System.out.println("tot_time:" + tot_time);
 
-		ssa.svm_struct_learn_api_exit();
+		ssa.svmStructLearnApiExit();
 	}
 	
 	public void train_from_stream(double c,String model_file)
@@ -524,7 +524,7 @@ public class MainStruct {
 		STRUCTMODEL structmodel = new STRUCTMODEL();
 		
 		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.svm_struct_learn_api_init(args);
+		ssa.svmStructLearnApiInit(args);
 
 		
 		long start_time = TimeOpera.getCurrentTimeLong();
@@ -539,7 +539,7 @@ public class MainStruct {
 
 	
 		// read the training examples 
-		sample = ssa.read_struct_examples_from_stream(System.in, struct_parm);
+		sample = ssa.readStructExamplesFromStream(System.in, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
 		}
@@ -583,7 +583,7 @@ public class MainStruct {
 		if (struct_verbosity >= 1) {
 			logger.info("Writing learned model...");
 		}
-		ssa.write_struct_model(modelfile, structmodel, struct_parm);
+		ssa.writeStructModel(modelfile, structmodel, struct_parm);
 		if (struct_verbosity >= 1) {
 			logger.info("done\n");
 		}
@@ -594,7 +594,7 @@ public class MainStruct {
 		logger.info("tot_time:" + tot_time);
 		System.out.println("tot_time:" + tot_time);
 
-		ssa.svm_struct_learn_api_exit();
+		ssa.svmStructLearnApiExit();
 			
 	}
 
@@ -725,7 +725,7 @@ public class MainStruct {
 				.print("                        (in the same order as in the training set)\n");
 		System.out.print("Application-Specific Options:\n");
 		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.print_struct_help();
+		ssa.printStructHelp();
 		wait_any_key();
 		System.out.print("\nMore details in:\n");
 		System.out
