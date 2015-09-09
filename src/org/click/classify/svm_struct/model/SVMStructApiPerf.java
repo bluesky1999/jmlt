@@ -18,7 +18,7 @@ import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
 import org.click.classify.svm_struct.data.SVECTOR;
 import org.click.classify.svm_struct.data.WORD;
 
-public class svm_struct_api_perf extends svm_struct_api {
+public class SVMStructApiPerf extends SVMStructApi {
 
 	@Override
 	public void init_struct_model(SAMPLE sample, STRUCTMODEL sm,
@@ -131,7 +131,7 @@ public class svm_struct_api_perf extends svm_struct_api {
 		// Using the read_documents function from SVM-light
 		ReadStruct rs = new ReadStruct();
 
-		examples[0].x.docs = svm_common.read_documents(file,
+		examples[0].x.docs = SVMCommon.read_documents(file,
 				examples[0].y.class_indexs, rs);
 		examples[0].y.class_indexs=rs.read_target;
 		
@@ -145,7 +145,7 @@ public class svm_struct_api_perf extends svm_struct_api {
 
 		if (sparm.preimage_method == 9) {
 			for (i = 0; i < n; i++) {
-				examples[0].x.docs[i].fvec.next = svm_common
+				examples[0].x.docs[i].fvec.next = SVMCommon
 						.copy_svector(examples[0].x.docs[i].fvec);
 				examples[0].x.docs[i].fvec.kernel_id = 0;
 				examples[0].x.docs[i].fvec.next.kernel_id = 2;
@@ -182,7 +182,7 @@ public class svm_struct_api_perf extends svm_struct_api {
 				words[j].wnum = sparm.bias_featurenum; // bias
 				words[j].weight = sparm.bias;
 
-				sample.examples[0].x.docs[i].fvec = svm_common.create_svector(
+				sample.examples[0].x.docs[i].fvec = SVMCommon.create_svector(
 						words, "", 1.0);
 			}
 		}
@@ -276,7 +276,7 @@ public class svm_struct_api_perf extends svm_struct_api {
 		 * weight vector
 		 */
 		for (i = 0; i < x.totdoc; i++) {
-			y.class_indexs[i] = svm_common.classify_example(sm.svm_model,
+			y.class_indexs[i] = SVMCommon.classify_example(sm.svm_model,
 					x.docs[i]);
 		}
 		return (y);
@@ -297,7 +297,7 @@ public class svm_struct_api_perf extends svm_struct_api {
 	@Override
 	public STRUCTMODEL read_struct_model(String file, STRUCT_LEARN_PARM sparm) {
 		STRUCTMODEL sm = new STRUCTMODEL();
-		sm.svm_model = svm_common.read_model(file);
+		sm.svm_model = SVMCommon.read_model(file);
 		sparm.loss_function = ModelConstant.ERRORRATE;
 		sparm.bias = 0;
 		sparm.bias_featurenum = 0;

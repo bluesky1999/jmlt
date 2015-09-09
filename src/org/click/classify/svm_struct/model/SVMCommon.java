@@ -29,7 +29,7 @@ import org.click.classify.svm_struct.data.WORD;
 import org.jmlp.str.basic.SSO;
 import org.jmlp.time.utils.TimeOpera;
 
-public class svm_common {
+public class SVMCommon {
 
 	public static int kernel_cache_statistic = 0;
 	public static int verbosity = 0;
@@ -48,7 +48,7 @@ public class svm_common {
 
 	public static int progress_n;
 
-	private static Logger logger = Logger.getLogger(svm_common.class);
+	private static Logger logger = Logger.getLogger(SVMCommon.class);
 
 	public static SVECTOR create_svector(WORD[] words, String userdefined,
 			double factor) {
@@ -702,7 +702,7 @@ public class svm_common {
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			InputStream model_is = svm_common.class.getResourceAsStream("/"
+			InputStream model_is = SVMCommon.class.getResourceAsStream("/"
 					+ input_file);
 			InputStreamReader model_isr = new InputStreamReader(model_is);
 			br = new BufferedReader(model_isr);
@@ -1182,7 +1182,7 @@ public class svm_common {
 
 		}
 
-		vec = svm_common.create_svector_shallow(sumi, userdefined, a.factor);
+		vec = SVMCommon.create_svector_shallow(sumi, userdefined, a.factor);
 		// logger.info("vec in sv:"+vec.toString());
 		return vec;
 	}
@@ -1468,10 +1468,10 @@ public class svm_common {
 		for (i = 1; i < model.sv_num; i++) {
 
 			newmodel.alpha[i] = model.alpha[i];
-			newmodel.supvec[i] = svm_common.create_example(
+			newmodel.supvec[i] = SVMCommon.create_example(
 					model.supvec[i].docnum, model.supvec[i].queryid, 0,
 					model.supvec[i].costfactor,
-					svm_common.copy_svector(model.supvec[i].fvec));
+					SVMCommon.copy_svector(model.supvec[i].fvec));
 
 		}
 		if (model.lin_weights != null) {
@@ -1751,7 +1751,7 @@ public class svm_common {
 				logger.info("Reading model...");
 			}
 
-			ReadSummary summary = svm_common.nol_ll(modelfile);
+			ReadSummary summary = SVMCommon.nol_ll(modelfile);
 			max_words = summary.read_max_words_doc;
 			max_words += 2;
 			line = br.readLine();
@@ -1819,7 +1819,7 @@ public class svm_common {
 				line=SSO.beforeStr(line, "#");
 				//System.err.println("i:"+i+" "+line);
 				ReadStruct rs = new ReadStruct();
-				read_words = svm_common.parse_document(line, max_words, rs);
+				read_words = SVMCommon.parse_document(line, max_words, rs);
 				model.alpha[i] = rs.read_doc_label;
 				queryid = rs.read_queryid;
 				slackid = rs.read_slackid;
@@ -1828,8 +1828,8 @@ public class svm_common {
 				comment = rs.read_comment;
 				// words = svm_common.read_words;
 				words = read_words;
-				model.supvec[i] = svm_common.create_example(-1, 0, 0, 0.0,
-						svm_common.create_svector(words, comment, 1.0));
+				model.supvec[i] = SVMCommon.create_example(-1, 0, 0, 0.0,
+						SVMCommon.create_svector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
 			}
 

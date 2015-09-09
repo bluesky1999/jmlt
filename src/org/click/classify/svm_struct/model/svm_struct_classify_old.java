@@ -25,8 +25,8 @@ public class svm_struct_classify_old {
 	public static String predictionsfile = "";
 	private STRUCTMODEL model;
 	private STRUCT_LEARN_PARM sparm;
-	svm_struct_api ssa = null;
-	private static Logger logger = Logger.getLogger(svm_struct_classify.class);
+	SVMStructApi ssa = null;
+	private static Logger logger = Logger.getLogger(SVMStructClassify.class);
 
 	public void init_svm_struct(String model_file) {
 		String[] args = { "no.txt", model_file, "no.txt" };
@@ -40,14 +40,14 @@ public class svm_struct_classify_old {
 		SAMPLE testsample;
 		LABEL y = new LABEL();
 
-		ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa = SVMStructApiFactory.get_svm_struct_api();
 		
 		ssa.svm_struct_classify_api_init(args.length + 1, args);
 
 		read_input_parameters(args.length + 1, args, sparm,
-				svm_common.verbosity, svm_struct_common.struct_verbosity);
+				SVMCommon.verbosity, SVMStructCommon.struct_verbosity);
 
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("Reading model ...");
 		}
 
@@ -58,11 +58,11 @@ public class svm_struct_classify_old {
 
 		if (model.svm_model.kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			logger.info("begin add_weight_vector_to_linear_model");
-			svm_common.add_weight_vector_to_linear_model(model.svm_model);
+			SVMCommon.add_weight_vector_to_linear_model(model.svm_model);
 			logger.info("after add_weight_vector_to_linear_model");
 			model.w = model.svm_model.lin_weights;
 		}
-		ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa = SVMStructApiFactory.get_svm_struct_api();
 	}
 
 	public LABEL classifyWordString(String sample)
@@ -87,13 +87,13 @@ public class svm_struct_classify_old {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-		ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa = SVMStructApiFactory.get_svm_struct_api();
 		ssa.svm_struct_classify_api_init(args.length + 1, args);
 
 		read_input_parameters(args.length + 1, args, sparm,
-				svm_common.verbosity, svm_struct_common.struct_verbosity);
+				SVMCommon.verbosity, SVMStructCommon.struct_verbosity);
 
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("Reading model ...");
 		}
 
@@ -106,13 +106,13 @@ public class svm_struct_classify_old {
 
 		if (model.svm_model.kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			logger.info("begin add_weight_vector_to_linear_model");
-			svm_common.add_weight_vector_to_linear_model(model.svm_model);
+			SVMCommon.add_weight_vector_to_linear_model(model.svm_model);
 			logger.info("after add_weight_vector_to_linear_model");
 			model.w = model.svm_model.lin_weights;
 
 		}
 
-		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		SVMStructApi ssa = SVMStructApiFactory.get_svm_struct_api();
 		// testsample=ssa.read_struct_examples(testfile, sparm);
 		logger.info("after get svm struct api");
 		ArrayList<String> sample_list = new ArrayList<String>();
@@ -160,11 +160,11 @@ public class svm_struct_classify_old {
 		testsample = ssa
 				.read_struct_examples_from_arraylist(sample_list, sparm);
 		logger.info("end read_struct_examples_from_arraylist");
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("done.");
 		}
 
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("Classifying test examples ...");
 		}
 
@@ -172,7 +172,7 @@ public class svm_struct_classify_old {
 
 		for (i = 0; i < testsample.n; i++) {
 
-			t1 = svm_common.get_runtime();
+			t1 = SVMCommon.get_runtime();
 			logger.info("doc [" + i + "] "
 					+ testsample.examples[i].x.doc.fvec.toString());
 			y = ssa.classify_struct_example(testsample.examples[i].x, model,
@@ -182,7 +182,7 @@ public class svm_struct_classify_old {
 			}
 			logger.info("y:" + y.class_index + "  testsample.examples[" + i
 					+ "].y:" + testsample.examples[i].y.class_index);
-			runtime += (svm_common.get_runtime() - t1);
+			runtime += (SVMCommon.get_runtime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 			System.out.println(identifier_list.get(i) + " " + y.toString());
 
@@ -202,7 +202,7 @@ public class svm_struct_classify_old {
 				no_accuracy = 1;
 			}
 
-			if (svm_struct_common.struct_verbosity >= 2) {
+			if (SVMStructCommon.struct_verbosity >= 2) {
 				if ((i + 1) % 100 == 0) {
 					logger.info(i + 1);
 				}
@@ -211,7 +211,7 @@ public class svm_struct_classify_old {
 		}
 
 		avgloss /= testsample.n;
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("done");
 			logger.info("Runtime (without IO) in cpu-seconds:"
 					+ (float) (runtime / 100.0));
@@ -250,13 +250,13 @@ public class svm_struct_classify_old {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-		ssa = svm_struct_api_factory.get_svm_struct_api();
+		ssa = SVMStructApiFactory.get_svm_struct_api();
 		ssa.svm_struct_classify_api_init(args.length + 1, args);
 	
 		read_input_parameters(args.length + 1, args, sparm,
-				svm_common.verbosity, svm_struct_common.struct_verbosity);
+				SVMCommon.verbosity, SVMStructCommon.struct_verbosity);
 
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("Reading model ...");
 		}
 
@@ -265,21 +265,21 @@ public class svm_struct_classify_old {
 		logger.info("predictionsfile:" + predictionsfile);
 
 		model = ssa.read_struct_model(modelfile, sparm);
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("done");
 		}
 
 		if (model.svm_model.kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
-			svm_common.add_weight_vector_to_linear_model(model.svm_model);
+			SVMCommon.add_weight_vector_to_linear_model(model.svm_model);
 			model.w = model.svm_model.lin_weights;
 		}
 
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("Reading test examples ...");
 			// System.out.println("Reading test examples ...");
 		}
 
-		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		SVMStructApi ssa = SVMStructApiFactory.get_svm_struct_api();
 		// testsample=ssa.read_struct_examples(testfile, sparm);
 
 		InputStreamReader isrstd = new InputStreamReader(System.in);
@@ -322,11 +322,11 @@ public class svm_struct_classify_old {
 		testsample = ssa
 				.read_struct_examples_from_arraylist(sample_list, sparm);
 		logger.info("end read_struct_examples_from_arraylist");
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("done.");
 		}
 
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("Classifying test examples ...");
 		}
 
@@ -334,7 +334,7 @@ public class svm_struct_classify_old {
 
 		for (i = 0; i < testsample.n; i++) {
 
-			t1 = svm_common.get_runtime();
+			t1 = SVMCommon.get_runtime();
 			logger.info("doc [" + i + "] "
 					+ testsample.examples[i].x.doc.fvec.toString());
 			y = ssa.classify_struct_example(testsample.examples[i].x, model,
@@ -344,7 +344,7 @@ public class svm_struct_classify_old {
 			}
 			logger.info("y:" + y.class_index + "  testsample.examples[" + i
 					+ "].y:" + testsample.examples[i].y.class_index);
-			runtime += (svm_common.get_runtime() - t1);
+			runtime += (SVMCommon.get_runtime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 			System.out.println(identifier_list.get(i) + " " + y.toString());
 
@@ -364,7 +364,7 @@ public class svm_struct_classify_old {
 				no_accuracy = 1;
 			}
 
-			if (svm_struct_common.struct_verbosity >= 2) {
+			if (SVMStructCommon.struct_verbosity >= 2) {
 				if ((i + 1) % 100 == 0) {
 					logger.info(i + 1);
 				}
@@ -373,7 +373,7 @@ public class svm_struct_classify_old {
 		}
 
 		avgloss /= testsample.n;
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("done");
 			logger.info("Runtime (without IO) in cpu-seconds:"
 					+ (float) (runtime / 100.0));
@@ -403,13 +403,13 @@ public class svm_struct_classify_old {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-		 svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		 SVMStructApi ssa = SVMStructApiFactory.get_svm_struct_api();
 		ssa.svm_struct_classify_api_init(args.length + 1, args);
 
 		read_input_parameters(args.length + 1, args, sparm,
-				svm_common.verbosity, svm_struct_common.struct_verbosity);
+				SVMCommon.verbosity, SVMStructCommon.struct_verbosity);
 
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("Reading model ...");
 		}
 
@@ -418,16 +418,16 @@ public class svm_struct_classify_old {
 		logger.info("predictionsfile:" + predictionsfile);
 	
 		model = ssa.read_struct_model(modelfile, sparm);
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("done");
 		}
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
-			svm_common.add_weight_vector_to_linear_model(model.svm_model);
+			SVMCommon.add_weight_vector_to_linear_model(model.svm_model);
 			model.w = model.svm_model.lin_weights;
 		}
 
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("Reading test examples ...");
 			// System.out.println("Reading test examples ...");
 		}
@@ -436,11 +436,11 @@ public class svm_struct_classify_old {
 
 		testsample = ssa.read_struct_examples(testfile, sparm);
 
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("done.");
 		}
 
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("Classifying test examples ...");
 		}
 
@@ -448,7 +448,7 @@ public class svm_struct_classify_old {
 
 		for (i = 0; i < testsample.n; i++) {
 
-			t1 = svm_common.get_runtime();
+			t1 = SVMCommon.get_runtime();
 			logger.info("doc [" + i + "] "
 					+ testsample.examples[i].x.doc.fvec.toString());
 			y = ssa.classify_struct_example(testsample.examples[i].x, model,sparm);
@@ -457,7 +457,7 @@ public class svm_struct_classify_old {
 			}
 			logger.info("y:" + y.class_index + "  testsample.examples[" + i
 					+ "].y:" + testsample.examples[i].y.class_index);
-			runtime += (svm_common.get_runtime() - t1);
+			runtime += (SVMCommon.get_runtime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 
 			l = ssa.loss(testsample.examples[i].y, y, sparm);
@@ -476,7 +476,7 @@ public class svm_struct_classify_old {
 				no_accuracy = 1;
 			}
 
-			if (svm_struct_common.struct_verbosity >= 2) {
+			if (SVMStructCommon.struct_verbosity >= 2) {
 				if ((i + 1) % 100 == 0) {
 					logger.info(i + 1);
 				}
@@ -485,7 +485,7 @@ public class svm_struct_classify_old {
 		}
 
 		avgloss /= testsample.n;
-		if (svm_struct_common.struct_verbosity >= 1) {
+		if (SVMStructCommon.struct_verbosity >= 1) {
 			logger.info("done");
 			logger.info("Runtime (without IO) in cpu-seconds:"
 					+ (float) (runtime / 100.0));
@@ -635,28 +635,28 @@ public class svm_struct_classify_old {
 		if ((i + 2) < argc) {
 			predictionsfile = argv[2];
 		}
-		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		SVMStructApi ssa = SVMStructApiFactory.get_svm_struct_api();
 		ssa.parse_struct_parameters_classify(struct_parm);
 	}
 
 	public static void print_help() {
 		System.out.println("\nSVM-struct classification module: "
-				+ svm_struct_common.INST_NAME + ", "
-				+ svm_struct_common.INST_VERSION + ", "
-				+ svm_struct_common.INST_VERSION_DATE + "\n");
+				+ SVMStructCommon.INST_NAME + ", "
+				+ SVMStructCommon.INST_VERSION + ", "
+				+ SVMStructCommon.INST_VERSION_DATE + "\n");
 		System.out.println("   includes SVM-struct "
-				+ svm_struct_common.STRUCT_VERSION
+				+ SVMStructCommon.STRUCT_VERSION
 				+ " for learning complex outputs, "
-				+ svm_struct_common.STRUCT_VERSION_DATE + "\n");
+				+ SVMStructCommon.STRUCT_VERSION_DATE + "\n");
 		System.out.println("   includes SVM-light " +  ModelConstant.VERSION
 				+ " quadratic optimizer, " +  ModelConstant.VERSION_DATE + "\n");
-		svm_common.copyright_notice();
+		SVMCommon.copyright_notice();
 		System.out
 				.println("   usage: svm_struct_classify [options] example_file model_file output_file\n\n");
 		System.out.println("options: -h         -> this help\n");
 		System.out
 				.println("         -v [0..3]  -> verbosity level (default 2)\n\n");
-		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
+		SVMStructApi ssa = SVMStructApiFactory.get_svm_struct_api();
 		ssa.print_struct_help_classify();
 	}
 

@@ -1,6 +1,6 @@
 package org.click.classify.svm_struct.model;
 
-public class svm_struct_common {
+public class SVMStructCommon {
 
 	public static final String INST_NAME      =  "Multi-Class SVM";
 	public static final String INST_VERSION    =   "V2.20";
