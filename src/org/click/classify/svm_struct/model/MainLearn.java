@@ -393,18 +393,7 @@ public class MainLearn {
 		System.out.println("docs length in main:" + docs.length);
 		totwords = rs.read_totwords;
 		totdoc = rs.read_totdocs;
-		/*
-		 * pw.println("docs length:"+docs.length); for(int
-		 * k=0;k<docs.length;k++) { pw.print(k+"  "); if(docs[k]!=null) for(int
-		 * l=0;l<docs[k].fvec.words.length;l++) {
-		 * pw.print(docs[k].fvec.words[l].
-		 * wnum+":"+docs[k].fvec.words[l].weight+" "); } pw.println(); }
-		 */
-		// for(int di=0;di<docs.length;di++)
-		// {
-		// if(docs[di]!=null)
-		// System.out.println("docs di["+di+"]="+docs[di].fvec.words.length);
-		// }
+
 		if (restartfile != null) {
 			alpha_in = Common.read_alphas(restartfile,
 					rs.read_totdocs);
@@ -412,11 +401,11 @@ public class MainLearn {
 		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 			kernel_cache = null;
 		} else {
-			/*
-			 * Always get a new kernel cache. It is not possible to use the same
-			 * cache for two different training runs
-			 */
-			kernel_cache = Learn.kernel_cache_init(totdoc,
+			
+			// Always get a new kernel cache. It is not possible to use the same
+			// cache for two different training runs
+			
+			kernel_cache = sl.kernel_cache_init(totdoc,
 					learn_parm.kernel_cache_size);
 		}
 

@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import org.apache.log4j.Logger;
+import org.click.classify.svm_struct.data.CheckStruct;
 import org.click.classify.svm_struct.data.DOC;
 import org.click.classify.svm_struct.data.KERNEL_CACHE;
 import org.click.classify.svm_struct.data.KERNEL_PARM;
@@ -31,13 +32,6 @@ public class Learn {
 	private static Logger logger = Logger.getLogger(Learn.class);
 	public int kernel_cache_statistic;
 	public static final int MAXSHRINK = 50000;
-	public double maxdiff;
-
-	public int misclassified = 0;
-	public int inconsistentnum = 0;
-	public double maxsharedviol;
-	//public double maxviol = 0;
-	public double[] alpha_g;
 
 	public Learn() {
 
@@ -74,6 +68,8 @@ public class Learn {
 		TIMING timing_profile = new TIMING();
 		SHRINK_STATE shrink_state = new SHRINK_STATE();
 
+		CheckStruct checkStruct = new CheckStruct();
+
 		runtime_start = Common.getRuntime();
 		timing_profile.time_kernel = 0;
 		timing_profile.time_opti = 0;
@@ -85,7 +81,7 @@ public class Learn {
 		kernel_cache_statistic = 0;
 
 		learn_parm.totwords = totwords;
-		/**** add test ******/
+
 		// learn_parm.sharedslack=1;
 
 		// make sure -n value is reasonable
@@ -111,7 +107,7 @@ public class Learn {
 
 		model.at_upper_bound = 0;
 		model.b = 0;
-		model.supvec[0] = null; // element 0 reserved and empty for now 
+		model.supvec[0] = null; // element 0 reserved and empty for now
 		model.alpha[0] = 0;
 		model.lin_weights = null;
 		model.totwords = totwords;
@@ -124,14 +120,14 @@ public class Learn {
 		model.xa_error = -1;
 		model.xa_recall = -1;
 		model.xa_precision = -1;
-		inconsistentnum = 0;
+		checkStruct.inconsistentnum = 0;
 		transduction = 0;
 
 		r_delta = estimate_r_delta(docs, totdoc, kernel_parm);
 		r_delta_sq = r_delta * r_delta;
 
 		r_delta_avg = estimate_r_delta_average(docs, totdoc, kernel_parm);
-		if (learn_parm.svm_c == 0.0) { // default value for C 
+		if (learn_parm.svm_c == 0.0) { // default value for C
 			learn_parm.svm_c = 1.0 / (r_delta_avg * r_delta_avg);
 			if (Common.verbosity >= 1)
 				System.out
@@ -139,10 +135,10 @@ public class Learn {
 								+ learn_parm.svm_c);
 		}
 
-		learn_parm.eps = -1.0; //equivalent regression epsilon for classification
-								
+		learn_parm.eps = -1.0; // equivalent regression epsilon for
+								// classification
 
-		for (i = 0; i < totdoc; i++) { // various inits 
+		for (i = 0; i < totdoc; i++) { // various inits
 			docs[i].docnum = i;
 			inconsistent[i] = 0;
 			a[i] = 0;
@@ -179,7 +175,7 @@ public class Learn {
 			/* kernel_cache = NULL; */
 		}
 
-		// compute starting state for initial alpha values 
+		// compute starting state for initial alpha values
 		if (alpha != null) {
 			if (Common.verbosity >= 1) {
 				System.out.println("Computing starting state...");
@@ -188,7 +184,7 @@ public class Learn {
 			index2dnum = new int[totdoc + 11];
 			weights = new double[totwords + 1];
 			aicache = new double[totdoc];
-			for (i = 0; i < totdoc; i++) { // create full index and clip alphas 
+			for (i = 0; i < totdoc; i++) { // create full index and clip alphas
 				index[i] = 1;
 				alpha[i] = Math.abs(alpha[i]);
 				if (alpha[i] < 0)
@@ -199,14 +195,14 @@ public class Learn {
 			}
 
 			if ((kernel_cache != null)
-					&& (kernel_parm.kernel_type !=  ModelConstant.LINEAR)) {
+					&& (kernel_parm.kernel_type != ModelConstant.LINEAR)) {
 				for (i = 0; i < totdoc; i++)
-					//fill kernel cache with unbounded SV 
+					// fill kernel cache with unbounded SV
 					if ((alpha[i] > 0) && (alpha[i] < learn_parm.svm_cost[i])
 							&& (kernel_cache_space_available(kernel_cache)))
 						cache_kernel_row(kernel_cache, docs, i, kernel_parm);
 				for (i = 0; i < totdoc; i++)
-					// fill rest of kernel cache with bounded SV 
+					// fill rest of kernel cache with bounded SV
 					if ((alpha[i] == learn_parm.svm_cost[i])
 							&& (kernel_cache_space_available(kernel_cache)))
 						cache_kernel_row(kernel_cache, docs, i, kernel_parm);
@@ -260,10 +256,11 @@ public class Learn {
 			System.out.println("Optimizing");
 		}
 
-		// train the svm 
+		// train the svm
 		iterations = optimize_to_convergence(docs, label, totdoc, totwords,
 				learn_parm, kernel_parm, kernel_cache, shrink_state, model,
-				inconsistent, unlabeled, a, lin, c, timing_profile, -1, 1);
+				inconsistent, unlabeled, a, lin, c, timing_profile, -1, 1,
+				checkStruct);
 
 		if (Common.verbosity >= 1) {
 			if (Common.verbosity == 1) {
@@ -277,7 +274,7 @@ public class Learn {
 			}
 
 			System.out.println("Optimization finished (" + misclassified
-					+ " misclassified, maxdiff=" + maxdiff + ").");
+					+ " misclassified, maxdiff=" + checkStruct.maxdiff + ").");
 
 			runtime_end = Common.getRuntime();
 			if (Common.verbosity >= 2) {
@@ -303,12 +300,12 @@ public class Learn {
 			}
 
 			if (learn_parm.remove_inconsistent != 0) {
-				inconsistentnum = 0;
+				checkStruct.inconsistentnum = 0;
 				for (i = 0; i < totdoc; i++)
 					if (inconsistent[i] != 0)
-						inconsistentnum++;
+						checkStruct.inconsistentnum++;
 				System.out.println("Number of SV: " + (model.sv_num - 1)
-						+ " (plus " + inconsistentnum
+						+ " (plus " + checkStruct.inconsistentnum
 						+ " inconsistent examples)");
 			} else {
 				upsupvecnum = 0;
@@ -429,10 +426,11 @@ public class Learn {
 					}
 				} else {
 					loocomputed++;
-			 		heldout_c = learn_parm.svm_cost[heldout]; //set upper bound to zero
+					heldout_c = learn_parm.svm_cost[heldout]; // set upper bound
+																// to zero
 					learn_parm.svm_cost[heldout] = 0;
-					// make sure heldout example is not currently 
-					// shrunk away. Assumes that lin is up to date! 
+					// make sure heldout example is not currently
+					// shrunk away. Assumes that lin is up to date!
 					shrink_state.active[heldout] = 1;
 					if (Common.verbosity >= 2)
 						System.out.println("\nLeave-One-Out test on example "
@@ -444,7 +442,7 @@ public class Learn {
 					optimize_to_convergence(docs, label, totdoc, totwords,
 							learn_parm, kernel_parm, kernel_cache,
 							shrink_state, model, inconsistent, unlabeled, a,
-							lin, c, timing_profile, heldout, 2);
+							lin, c, timing_profile, heldout, 2, checkStruct);
 
 					if (((lin[heldout] - model.b) * (double) label[heldout]) <= 0.0) {
 						loo_count++; // there was a loo-error
@@ -460,19 +458,21 @@ public class Learn {
 							System.out.print("+)");
 						}
 					}
-					// now we need to restore the original data set 
-					learn_parm.svm_cost[heldout] = heldout_c; // restore upper bound
+					// now we need to restore the original data set restore upper  bound
+					learn_parm.svm_cost[heldout] = heldout_c; 
+																
 				}
-			} // end of leave-one-out loop 
+			} // end of leave-one-out loop
 
 			if (Common.verbosity >= 1) {
 				System.out.print("\nRetrain on full problem");
 			}
 			optimize_to_convergence(docs, label, totdoc, totwords, learn_parm,
 					kernel_parm, kernel_cache, shrink_state, model,
-					inconsistent, unlabeled, a, lin, c, timing_profile, -1, 1);
+					inconsistent, unlabeled, a, lin, c, timing_profile, -1, 1,
+					checkStruct);
 
-			// after all leave-one-out computed 
+			// after all leave-one-out computed
 			model.loo_error = 100.0 * loo_count / (double) totdoc;
 			model.loo_recall = (1.0 - (double) loo_count_pos
 					/ (double) trainpos) * 100.0;
@@ -492,8 +492,7 @@ public class Learn {
 				System.out.println("Actual leave-one-outs computed:  "
 						+ loocomputed + " (rho=" + learn_parm.rho + ")");
 				System.out.println("Runtime for leave-one-out in cpu-seconds: "
-						+ (Common.getRuntime() - runtime_start_loo)
-						/ 100.0);
+						+ (Common.getRuntime() - runtime_start_loo) / 100.0);
 			}
 		}
 
@@ -506,7 +505,6 @@ public class Learn {
 	public void svm_learn_optimization(DOC[] docs, double[] rhs, int totdoc,
 			int totwords, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm,
 			KERNEL_CACHE kernel_cache, MODEL model, double[] alpha) {
-
 
 		int i;
 		int[] label;
@@ -527,6 +525,8 @@ public class Learn {
 		double[] alphaslack;
 
 		double[] aicache;
+
+		CheckStruct checkStruct = new CheckStruct();
 
 		TIMING timing_profile = new TIMING();
 		SHRINK_STATE shrink_state = new SHRINK_STATE();
@@ -619,10 +619,9 @@ public class Learn {
 
 		if (alpha != null) {
 
-
 			index = new int[totdoc];
 			index2dnum = new int[totdoc + 11];
-			if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
+			if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
 				weights = new double[totwords + 1];
 				Common.clearNvector(weights, totwords);
 				aicache = null;
@@ -644,9 +643,9 @@ public class Learn {
 			}
 
 			if ((kernel_cache != null)
-					&& (kernel_parm.kernel_type !=  ModelConstant.LINEAR)) {
+					&& (kernel_parm.kernel_type != ModelConstant.LINEAR)) {
 
-				// fill kernel cache with unbounded SV 
+				// fill kernel cache with unbounded SV
 				for (i = 0; i < totdoc; i++) {
 					if ((alpha[i] > 0) && (alpha[i] < learn_parm.svm_cost[i])
 							&& (kernel_cache_space_available(kernel_cache))) {
@@ -672,7 +671,7 @@ public class Learn {
 			for (i = 0; i < totdoc; i++) {
 				a[i] = alpha[i];
 			}
-	
+
 		}
 
 		if (learn_parm.remove_inconsistent != 0) {
@@ -681,8 +680,8 @@ public class Learn {
 					.println("'remove inconsistent' not available in this mode. Switching option off!");
 		}
 
-		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
-			// kernel_cache=NULL; 
+		if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
+			// kernel_cache=NULL;
 		}
 
 		if (Common.verbosity == 1) {
@@ -692,12 +691,13 @@ public class Learn {
 		if (learn_parm.sharedslack != 0) {
 			iterations = optimize_to_convergence_sharedslack(docs, label,
 					totdoc, totwords, learn_parm, kernel_parm, kernel_cache,
-					shrink_state, model, a, lin, c, timing_profile);
+					shrink_state, model, a, lin, c, timing_profile, checkStruct);
 
 		} else {
 			iterations = optimize_to_convergence(docs, label, totdoc, totwords,
 					learn_parm, kernel_parm, kernel_cache, shrink_state, model,
-					inconsistent, unlabeled, a, lin, c, timing_profile, -1, 1);
+					inconsistent, unlabeled, a, lin, c, timing_profile, -1, 1,
+					checkStruct);
 
 		}
 
@@ -711,8 +711,8 @@ public class Learn {
 					misclassified++;
 			}
 
-			System.out.println("Optimization finished (maxdiff=" + maxdiff
-					+ ").");
+			System.out.println("Optimization finished (maxdiff="
+					+ checkStruct.maxdiff + ").");
 
 			runtime_end = Common.getRuntime();
 			if (Common.verbosity >= 2) {
@@ -738,8 +738,7 @@ public class Learn {
 			}
 		}
 
-		if ((Common.verbosity >= 1)
-				&& (learn_parm.skip_final_opt_check == 0)) {
+		if ((Common.verbosity >= 1) && (learn_parm.skip_final_opt_check == 0)) {
 			loss = 0;
 			model_length = 0;
 			alphasum = 0;
@@ -770,11 +769,11 @@ public class Learn {
 			compute_index(index, totdoc, index2dnum);
 			slack = new double[maxslackid + 1];
 			alphaslack = new double[maxslackid + 1];
-			for (i = 0; i <= maxslackid; i++) { // init shared slacks 
+			for (i = 0; i <= maxslackid; i++) { // init shared slacks
 				slack[i] = 0;
 				alphaslack[i] = 0;
 			}
-			for (i = 0; i < totdoc; i++) { // compute alpha aggregated by slack 
+			for (i = 0; i < totdoc; i++) { // compute alpha aggregated by slack
 				alphaslack[docs[i].slackid] += a[i];
 			}
 			compute_shared_slacks(docs, label, a, lin, c, index2dnum,
@@ -782,7 +781,7 @@ public class Learn {
 			loss = 0;
 			model.at_upper_bound = 0;
 			svsetnum = 0;
-			for (i = 0; i <= maxslackid; i++) { // create full index 
+			for (i = 0; i <= maxslackid; i++) { // create full index
 				loss += slack[i];
 				if (alphaslack[i] > (learn_parm.svm_c - learn_parm.epsilon_a)) {
 					model.at_upper_bound++;
@@ -792,8 +791,7 @@ public class Learn {
 			}
 		}
 
-		if ((Common.verbosity >= 1)
-				&& (learn_parm.skip_final_opt_check == 0)) {
+		if ((Common.verbosity >= 1) && (learn_parm.skip_final_opt_check == 0)) {
 			if (learn_parm.sharedslack != 0) {
 				System.out.println("Number of SV: " + (model.sv_num - 1));
 				System.out.println("Number of non-zero slack variables: "
@@ -822,22 +820,13 @@ public class Learn {
 		}
 
 		if (alpha != null) {
-			for (i = 0; i < totdoc; i++) { /* copy final alphas */
+			for (i = 0; i < totdoc; i++) { // copy final alphas 
 				alpha[i] = a[i];
 			}
 		}
 
 		if (learn_parm.alphafile != null) {
 			write_alphas(learn_parm.alphafile, a, label, totdoc);
-		}
-
-		if (alpha == null) {
-			alpha_g = alpha;
-		} else {
-			alpha_g = new double[alpha.length];
-			for (int j = 0; j < alpha_g.length; j++) {
-				alpha_g[j] = alpha[j];
-			}
 		}
 
 	}
@@ -872,8 +861,9 @@ public class Learn {
 		double tec;
 		SVECTOR f;
 
-		System.err.println("kernel_parm.kernel_type:"+kernel_parm.kernel_type);
-		
+		System.err
+				.println("kernel_parm.kernel_type:" + kernel_parm.kernel_type);
+
 		if (kernel_parm.kernel_type == 0) {
 
 			for (ii = 0; (i = working2dnum[ii]) >= 0; ii++) {
@@ -907,12 +897,11 @@ public class Learn {
 					for (ii = 0; (j = active2dnum[ii]) >= 0; ii++) {
 						tec = aicache[j];
 						lin[j] += (((a[i] * tec) - (a_old[i] * tec)) * (double) label[i]);
-			
+
 					}
 				}
 			}
 		}
-		
 
 	}
 
@@ -929,10 +918,8 @@ public class Learn {
 		avgxlen = 0;
 
 		for (i = 0; i < totdoc; i++) {
-			avgxlen += Math.sqrt(Common.kernel(kernel_parm, docs[i],
-					docs[i])
-					- 2
-					* Common.kernel(kernel_parm, docs[i], nulldoc)
+			avgxlen += Math.sqrt(Common.kernel(kernel_parm, docs[i], docs[i])
+					- 2 * Common.kernel(kernel_parm, docs[i], nulldoc)
 					+ Common.kernel(kernel_parm, nulldoc, nulldoc));
 		}
 
@@ -1096,7 +1083,6 @@ public class Learn {
 		int i, ii, pos, b_calculated = 0, first_low, first_high;
 		double ex_c, b_temp, b_low, b_high;
 
-
 		if (learn_parm.biased_hyperplane == 0) {
 			model.b = 0;
 			b_calculated = 1;
@@ -1123,7 +1109,7 @@ public class Learn {
 
 				model.index[model.supvec[pos].docnum] = pos;
 			} else if ((a_old[i] == 0) && (a[i] > 0)) {
-				// add to model 
+				// add to model
 				model.supvec[model.sv_num] = docs[i];
 				model.alpha[model.sv_num] = a[i] * ((double) label[i]);
 				model.index[i] = model.sv_num;
@@ -1157,11 +1143,9 @@ public class Learn {
 
 		}
 
+		// No alpha in the working set not at bounds, so b was not calculated in
+		// the usual way. The following handles this special case.
 
-	
-		 //No alpha in the working set not at bounds, so b was not calculated in
-		 //the usual way. The following handles this special case.
-		
 		if ((learn_parm.biased_hyperplane != 0) && (b_calculated == 0)
 				&& ((model.sv_num - 1) == model.at_upper_bound)) {
 			first_low = 1;
@@ -1219,8 +1203,8 @@ public class Learn {
 			int totwords, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm,
 			KERNEL_CACHE kernel_cache, SHRINK_STATE shrink_state, MODEL model,
 			int[] inconsistent, int[] unlabeled, double[] a, double[] lin,
-			double[] c, TIMING timing_profile, int heldout, int retrain) {
-
+			double[] c, TIMING timing_profile, int heldout, int retrain,
+			CheckStruct struct) {
 
 		int[] chosen;
 		int[] key;
@@ -1253,11 +1237,11 @@ public class Learn {
 		qp = new QP();
 
 		epsilon_crit_org = learn_parm.epsilon_crit;
-		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
+		if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			learn_parm.epsilon_crit = 2.0;
 		}
 		learn_parm.epsilon_shrink = 2;
-		maxdiff = 1;
+		struct.maxdiff = 1;
 
 		learn_parm.totwords = totwords;
 
@@ -1280,7 +1264,7 @@ public class Learn {
 		qp.opt_low = new double[learn_parm.svm_maxqpsize];
 		qp.opt_up = new double[learn_parm.svm_maxqpsize];
 
-		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
+		if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			weights = Common.createNvector(totwords);
 			Common.clearNvector(weights, totwords);
 		} else {
@@ -1413,7 +1397,7 @@ public class Learn {
 
 					if ((Math.min(learn_parm.svm_newvarsinqp,
 							learn_parm.svm_maxqpsize - choosenum) >= 4)
-							&& (kernel_parm.kernel_type !=  ModelConstant.LINEAR)) {
+							&& (kernel_parm.kernel_type != ModelConstant.LINEAR)) {
 						// logger.info("minl");
 						already_chosen = select_next_qp_subproblem_grad(label,
 								unlabeled, a, lin, c, totdoc, (Math.min(
@@ -1439,7 +1423,7 @@ public class Learn {
 							learn_parm, inconsistent, active2dnum,
 							working2dnum, selcrit, selexam, kernel_cache, 0,
 							key, chosen);
-				
+
 					for (int wi = 0; wi < working2dnum.length; wi++) {
 						if (working2dnum[wi] > -1) {
 							// System.out.println("select working2dnum:"+wi+"  "+working2dnum[wi]);
@@ -1472,18 +1456,17 @@ public class Learn {
 			}
 
 			if (retrain != 2) {
-			
+
 				optimize_svm(docs, label, unlabeled, inconsistent, 0.0, chosen,
 						active2dnum, model, totdoc, working2dnum, choosenum, a,
 						lin, c, learn_parm, aicache, kernel_parm, qp,
 						epsilon_crit_org);
-		
+
 			}
 
 			if (Common.verbosity >= 2) {
 				t3 = Common.getRuntime();
 			}
-
 
 			update_linear_component(docs, label, active2dnum, a, a_old,
 					working2dnum, totdoc, totwords, kernel_parm, kernel_cache,
@@ -1510,7 +1493,7 @@ public class Learn {
 				a_old[i] = a[i];
 			}
 
-			if (retrain == 2) { // reset inconsistent unlabeled examples 
+			if (retrain == 2) { // reset inconsistent unlabeled examples
 				for (i = 0; (i < totdoc); i++) {
 					if ((inconsistent[i] != 0) && (unlabeled[i] != 0)) {
 						inconsistent[i] = 0;
@@ -1518,11 +1501,12 @@ public class Learn {
 					}
 				}
 			}
-		
+
 			retrain = check_optimality(model, label, unlabeled, a, lin, c,
 					totdoc, learn_parm, epsilon_crit_org, inconsistent,
-					active2dnum, last_suboptimal_at, iteration, kernel_parm);
-		
+					active2dnum, last_suboptimal_at, iteration, kernel_parm,
+					struct);
+
 			if (Common.verbosity >= 2) {
 				t6 = Common.getRuntime();
 				timing_profile.time_select += t1 - t0;
@@ -1533,14 +1517,14 @@ public class Learn {
 				timing_profile.time_check += t6 - t5;
 			}
 
-			// checking whether optimizer got stuck 
-			if (maxdiff < bestmaxdiff) {
-				bestmaxdiff = maxdiff;
+			// checking whether optimizer got stuck
+			if (struct.maxdiff < bestmaxdiff) {
+				bestmaxdiff = struct.maxdiff;
 				bestmaxdiffiter = iteration;
 			}
 
 			if (iteration > (bestmaxdiffiter + learn_parm.maxiter)) {
-				// long time no progress? 
+				// long time no progress?
 				terminate = 1;
 				retrain = 0;
 				if (Common.verbosity >= 1) {
@@ -1552,9 +1536,9 @@ public class Learn {
 
 			if ((retrain == 0)
 					&& (inactivenum > 0)
-					&& ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type ==  ModelConstant.LINEAR))) {
+					&& ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == ModelConstant.LINEAR))) {
 
-				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
+				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type != ModelConstant.LINEAR))
 						|| (Common.verbosity >= 2)) {
 					if (Common.verbosity == 1) {
 						logger.info("");
@@ -1564,27 +1548,26 @@ public class Learn {
 
 				t1 = Common.getRuntime();
 
-		
 				reactivate_inactive_examples(label, unlabeled, a, shrink_state,
 						lin, c, totdoc, totwords, iteration, learn_parm,
 						inconsistent, docs, kernel_parm, kernel_cache, model,
-						aicache, weights);
-			
+						aicache, weights, struct);
+
 				activenum = compute_index(shrink_state.active, totdoc,
 						active2dnum);
 				inactivenum = totdoc - activenum;
-				// reset watchdog 
-				bestmaxdiff = maxdiff;
+				// reset watchdog
+				bestmaxdiff = struct.maxdiff;
 				bestmaxdiffiter = iteration;
 
-				// termination criterion 
+				// termination criterion
 				noshrink = 1;
 				retrain = 0;
-				if (maxdiff > learn_parm.epsilon_crit) {
+				if (struct.maxdiff > learn_parm.epsilon_crit) {
 					retrain = 1;
 				}
 				timing_profile.time_shrink += Common.getRuntime() - t1;
-				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
+				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type != ModelConstant.LINEAR))
 						|| (Common.verbosity >= 2)) {
 					logger.info("done.");
 					logger.info(" Number of inactive variables = "
@@ -1592,8 +1575,8 @@ public class Learn {
 				}
 			}
 
-			if ((retrain == 0) && (learn_parm.epsilon_crit > maxdiff)) {
-				learn_parm.epsilon_crit = maxdiff;
+			if ((retrain == 0) && (learn_parm.epsilon_crit > struct.maxdiff)) {
+				learn_parm.epsilon_crit = struct.maxdiff;
 			}
 
 			if ((retrain == 0) && (learn_parm.epsilon_crit > epsilon_crit_org)) {
@@ -1607,7 +1590,7 @@ public class Learn {
 
 			if (Common.verbosity >= 2) {
 				logger.info(" => (" + supvecnum + model.at_upper_bound
-						+ "SV (incl. " + maxdiff
+						+ "SV (incl. " + struct.maxdiff
 						+ " SV at u-bound), max violation=%.5f)");
 
 			}
@@ -1625,21 +1608,21 @@ public class Learn {
 				if (Common.verbosity == 1) {
 					// logger.info("done");
 				}
-			
+
 				retrain = incorporate_unlabeled_examples(model, label,
 						inconsistent, unlabeled, a, lin, totdoc, selcrit,
 						selexam, key, transductcycle, kernel_parm, learn_parm);
-			
+
 				epsilon_crit_org = learn_parm.epsilon_crit;
-				if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
+				if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
 					learn_parm.epsilon_crit = 1;
 				}
 				transductcycle++;
-				// reset watchdog 
-				bestmaxdiff = maxdiff;
+				// reset watchdog
+				bestmaxdiff = struct.maxdiff;
 				bestmaxdiffiter = iteration;
 			} else if (((iteration % 10) == 0) && (noshrink == 0)) {
-		
+
 				activenum = shrink_problem(
 						docs,
 						learn_parm,
@@ -1651,7 +1634,7 @@ public class Learn {
 						totdoc,
 						Math.max((activenum / 10),
 								Math.max((totdoc / 500), 100)), a, inconsistent);
-			
+
 				inactivenum = totdoc - activenum;
 				if ((kernel_cache != null)
 						&& (supvecnum > kernel_cache.max_elems)
@@ -1669,21 +1652,21 @@ public class Learn {
 					logger.info(" Moving training errors to inconsistent examples...");
 				}
 				if (learn_parm.remove_inconsistent == 1) {
-			
+
 					retrain = identify_inconsistent(a, label, unlabeled,
-							totdoc, learn_parm, inconsistent);
-				
+							totdoc, learn_parm, inconsistent, struct);
 
 				} else if (learn_parm.remove_inconsistent == 2) {
 					retrain = identify_misclassified(lin, label, unlabeled,
-							totdoc, model, inconsistent);
+							totdoc, model, inconsistent, struct);
 				} else if (learn_parm.remove_inconsistent == 3) {
 					retrain = identify_one_misclassified(lin, label, unlabeled,
-							totdoc, model, inconsistent);
+							totdoc, model, inconsistent, struct);
 				}
 				if (retrain != 0) {
-					if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) { // reinit shrinking
-																		 
+					if (kernel_parm.kernel_type == ModelConstant.LINEAR) { // reinit
+																			// shrinking
+
 						learn_parm.epsilon_crit = 2.0;
 					}
 				}
@@ -1698,9 +1681,7 @@ public class Learn {
 		}// end of loop
 
 		learn_parm.epsilon_crit = epsilon_crit_org;
-		model.maxdiff = maxdiff;
-
-		
+		model.maxdiff = struct.maxdiff;
 
 		return iteration;
 	}
@@ -1756,14 +1737,11 @@ public class Learn {
 		int choosenum, i, j, k, activedoc, inum, valid;
 		double s;
 
-		for (inum = 0; working2dnum[inum] >= 0; inum++)
-			;
-		// System.out.println("inum:"+inum);
+		for (inum = 0; working2dnum[inum] >= 0; inum++);
 		choosenum = 0;
 		activedoc = 0;
 
 		for (i = 0; (j = active2dnum[i]) >= 0; i++) {
-			//logger.info("i=" + i + " j=" + j);
 			s = -label[j];
 			if ((kernel_cache != null) && (cache_only != 0)) {
 				if (kernel_cache.index[j] >= 0) {
@@ -1785,15 +1763,7 @@ public class Learn {
 						* (learn_parm.eps - (double) label[j] * c[j] + (double) label[j]
 								* lin[j]);
 
-				// selcrit[activedoc]=WeightsUpdate.mul((double)label[j],
-				// WeightsUpdate.sum(WeightsUpdate.sub(learn_parm.eps,
-				// WeightsUpdate.mul((double)label[j],
-				// c[j])),WeightsUpdate.mul((double)label[j], lin[j]) ));
 
-				//logger.info("j=" + j + " label=" + (double) label[j] + " eps="
-				//		+ learn_parm.eps + " c=" + c[j] + " lin=" + lin[j]);
-				//logger.info("activedoc=" + activedoc + " selcrit="
-				//		+ selcrit[activedoc] + " key=" + key[activedoc]);
 				if (Math.abs(selcrit[activedoc]) > (double) (0.5)) {
 					key[activedoc] = j;
 					activedoc++;
@@ -1801,7 +1771,6 @@ public class Learn {
 			}
 		}
 
-		//logger.info("qp_size1:" + qp_size + " activedoc:" + activedoc);
 		select_top_n(selcrit, activedoc, select, qp_size / 2);
 
 		for (k = 0; (choosenum < ((qp_size) / 2)) && (k < (qp_size / 2))
@@ -1810,15 +1779,13 @@ public class Learn {
 			i = key[select[k]];
 			chosen[i] = 1;
 			working2dnum[inum + choosenum] = i;
-			//logger.info("inum:" + inum + " choosenum:" + choosenum + " i:" + i
-			//		+ " k=" + k + " select[k]=" + select[k]);
-		
+
 			choosenum += 1;
 			if (kernel_cache != null) {
 				kernel_cache_touch(kernel_cache, i);
 			}
 		}
-		// System.out.println("half choosenum="+choosenum);
+
 		activedoc = 0;
 		for (i = 0; (j = active2dnum[i]) >= 0; i++) {
 			s = label[j];
@@ -1841,60 +1808,36 @@ public class Learn {
 						* (learn_parm.eps - (double) label[j] * c[j] + (double) label[j]
 								* lin[j]);
 
-				/*
-				 * selcrit[activedoc]=-(double)(label[j]*(-1.0+(double)label[j]*lin
-				 * [j]));
-				 */
-				//logger.info("activedoc=" + activedoc + "key=" + key[activedoc]);
-				if (Math.abs(selcrit[activedoc]) > (double)( 0.5)) {
+				if (Math.abs(selcrit[activedoc]) > (double) (0.5)) {
 					key[activedoc] = j;
-					// logger.info("key2["+activedoc+"]="+j);
 					activedoc++;
 				}
 			}
 		}
 
-		/*
-		 * if((sumselcrit<1E-5)&&(wloop>10)&&activedoc>2) { isTooSamll=true; }
-		 */
-		// logger.info("qp_size:"+qp_size);
+
 		select_top_n(selcrit, activedoc, select, qp_size / 2);
 
-		// for(k=0;(choosenum<qp_size) && (k<((qp_size+0.1)/2)) &&
-		// (k<activedoc);k++) {
+
 		for (k = 0; (choosenum < qp_size) && (k < ((qp_size) / 2))
 				&& (k < activedoc); k++) {
-			/* if(learn_parm->biased_hyperplane || (selcrit[select[k]] > 0)) { */
 			i = key[select[k]];
-			// logger.info("select["+k+"]="+select[k]);
-			// logger.info("key[select["+k+"]]="+i);
+
 			chosen[i] = 1;
 			working2dnum[inum + choosenum] = i;
-			//logger.info("tt inum:" + inum + " choosenum:" + choosenum + " i:"
-			//		+ i);
-			// System.out.println("inum:"+inum+" choosenum:"+choosenum);
-			// logger.info("inum+choosenum2["+(inum+choosenum)+"]="+i);
 			choosenum += 1;
 			if (kernel_cache != null) {
 				kernel_cache_touch(kernel_cache, i);
 			}
-			/* } */
 		}
 
-		// System.out.println("choosenum:"+choosenum);
-		working2dnum[inum + choosenum] = -1; /* complete index */
+
+		working2dnum[inum + choosenum] = -1; // complete index
 		return (choosenum);
 	}
 
 	void select_top_n(double[] selcrit, int range, int[] select, int n) {
 
-		//for (int k = 0; k < n && k < range; k++) {
-			// //logger.info("selcrit[" + k + "]=" + selcrit[k] + "  select[" +
-			// k
-			// // + "]=" + select[k]);
-		//}
-
-		// logger.info("n=" + n + " range=" + range);
 
 		int i, j;
 
@@ -1902,12 +1845,8 @@ public class Learn {
 			for (j = i; j >= 0; j--) {
 				if ((j > 0) && (selcrit[select[j - 1]] < selcrit[i])) {
 					select[j] = select[j - 1];
-					// logger.info("j=" + j + " i=" + i + " select="
-					// + select[j - 1] + " selcritj="
-					// + selcrit[select[j - 1]] + " selcrit=" + selcrit[i]);
 				} else {
 					select[j] = i;
-					// logger.info("j=" + j + " i=" + i);
 					j = -1;
 				}
 			}
@@ -1915,22 +1854,14 @@ public class Learn {
 
 		if (n > 0) {
 			for (i = n; i < range; i++) {
-				// logger.info("i=" + i + " n-1=" + (n - 1) + " select: "
-				// + select[n - 1] + " s1:" + selcrit[i] + " s2:"
-				// + selcrit[select[n - 1]]);
-				// logger.info("sub:"+(selcrit[i]-selcrit[select[n - 1]]));
 
 				if (selcrit[i] > selcrit[select[n - 1]]) {
 					for (j = n - 1; j >= 0; j--) {
 						if ((j > 0) && (selcrit[select[j - 1]] < selcrit[i])) {
 							select[j] = select[j - 1];
-							// logger.info("n>0 j=" + j + " i=" + i + " select="
-							// + select[j - 1] + " selcritj="
-							// + selcrit[select[j - 1]] + " selcrit="
-							// + selcrit[i]);
+
 						} else {
 							select[j] = i;
-							// logger.info("n>0 j=" + j + " i=" + i);
 							j = -1;
 						}
 					}
@@ -1983,11 +1914,7 @@ public class Learn {
 			chosen[i] = 1;
 			working2dnum[inum + choosenum] = i;
 			choosenum += 1;
-			kernel_cache_touch(kernel_cache, i); /*
-												 * make sure it does not get
-												 * kicked
-												 */
-			/* out of cache */
+			kernel_cache_touch(kernel_cache, i); // make sure it does not get kicked out of cache 
 		}
 
 		activedoc = 0;
@@ -2010,13 +1937,9 @@ public class Learn {
 			chosen[i] = 1;
 			working2dnum[inum + choosenum] = i;
 			choosenum += 1;
-			kernel_cache_touch(kernel_cache, i); /*
-												 * make sure it does not get
-												 * kicked
-												 */
-			/* out of cache */
+			kernel_cache_touch(kernel_cache, i); // make sure it does not get kicked out of cache 
 		}
-		working2dnum[inum + choosenum] = -1; /* complete index */
+		working2dnum[inum + choosenum] = -1; // complete index 
 		return (choosenum);
 
 	}
@@ -2024,7 +1947,7 @@ public class Learn {
 	public void cache_multiple_kernel_rows(KERNEL_CACHE kernel_cache,
 			DOC[] docs, int[] key, int varnum, KERNEL_PARM kernel_parm) {
 		int i;
-		for (i = 0; i < varnum; i++) { /* fill up kernel cache */
+		for (i = 0; i < varnum; i++) { // fill up kernel cache 
 			cache_kernel_row(kernel_cache, docs, key[i], kernel_parm);
 		}
 	}
@@ -2037,23 +1960,18 @@ public class Learn {
 			QP qp, double epsilon_crit_target) {
 		int i;
 		double[] a_v;
-		
+
 		compute_matrices_for_optimization(docs, label, unlabeled,
 				exclude_from_eq_const, eq_target, chosen, active2dnum,
 				working2dnum, model, a, lin, c, varnum, totdoc, learn_parm,
 				aicache, kernel_parm, qp);
-	
-		//if (svm_common.verbosity >= 3) {
 
-		//}
-		// logger.info("Running optimizer...");
 
-		/* call the qp-subsolver */
+		// call the qp-subsolver
 		Hideo shid = new Hideo();
 
 		a_v = shid.optimize_qp(qp, epsilon_crit_target,
 				learn_parm.svm_maxqpsize, (model.b), learn_parm);
-		
 
 		for (i = 0; i < varnum; i++) {
 			a[working2dnum[i]] = a_v[i];
@@ -2068,12 +1986,7 @@ public class Learn {
 			LEARN_PARM learn_parm, double[] aicache, KERNEL_PARM kernel_parm,
 			QP qp) {
 
-		/*
-		 * logger.info("in compute_matrices_for_optimization"); if(docs!=null) {
-		 * logger.info("docs.size:"+docs.length); for(int i=0;i<docs.length;i++)
-		 * { logger.info(i+" doc fvec:"+docs[i].fvec.toString());
-		 * logger.info(" label:"+label[i]); } }
-		 */
+
 		int ki, kj, i, j;
 		double kernel_temp;
 
@@ -2088,19 +2001,9 @@ public class Learn {
 
 		qp.opt_n = varnum;
 		qp.opt_ce0[0] = -eq_target;
-		// System.out.print("label");
-		for (int li = 0; li < label.length; li++) {
-			// System.out.print("label["+li+"]="+label[li]+" ");
-		}
-		// //logger.info("varnum:" + varnum);
-		// System.out.println();
+
 		for (j = 1; j < model.sv_num; j++) {
-			// //logger.info("j=" + j + " chosen[" + model.supvec[j].docnum +
-			// "]="
-			// // + chosen[model.supvec[j].docnum]
-			// // + " exclude_from_eq_const="
-			// // + exclude_from_eq_const[model.supvec[j].docnum] + " alpha:"
-			// // + model.alpha[j]);
+
 			if ((chosen[model.supvec[j].docnum] == 0)
 					&& (exclude_from_eq_const[model.supvec[j].docnum] == 0)) {
 				qp.opt_ce0[0] += model.alpha[j];
@@ -2114,56 +2017,43 @@ public class Learn {
 		}
 
 		for (i = 0; i < varnum; i++) {
-			// //logger.info("i=" + i + " keyi:" + key[i] + " lin:" +
-			// lin[key[i]]);
+
 			qp.opt_g0[i] = lin[key[i]];
 		}
 
 		for (i = 0; i < varnum; i++) {
 			ki = key[i];
-			// logger.info("ki:"+ki);
-			// System.out.print("  i="+i+" ki= "+ki);
+
 			qp.opt_ce[i] = label[ki];
 			qp.opt_low[i] = 0;
 			qp.opt_up[i] = learn_parm.svm_cost[ki];
-			// System.out.println("docs[ki]:"+ki);
+
 			kernel_temp = Common.kernel(kernel_parm, docs[ki], docs[ki]);
-			// //logger.info("kernel_temp:" + kernel_temp);
 			qp.opt_g0[i] -= (kernel_temp * a[ki] * (double) label[ki]);
 			qp.opt_g[varnum * i + i] = kernel_temp;
 
 			for (j = i + 1; j < varnum; j++) {
 				kj = key[j];
-				kernel_temp = Common
-						.kernel(kernel_parm, docs[ki], docs[kj]);
+				kernel_temp = Common.kernel(kernel_parm, docs[ki], docs[kj]);
 
 				qp.opt_g0[i] -= (kernel_temp * a[kj] * (double) label[kj]);
 				qp.opt_g0[j] -= (kernel_temp * a[ki] * (double) label[ki]);
 
-				/* compute quadratic part of objective function */
+				// compute quadratic part of objective function 
 				qp.opt_g[varnum * i + j] = (double) label[ki]
 						* (double) label[kj] * kernel_temp;
 				qp.opt_g[varnum * j + i] = (double) label[ki]
 						* (double) label[kj] * kernel_temp;
-				// //logger.info("i=" + i + " j=" + j + " qpij="
-				// // + qp.opt_g[varnum * i + j] + " qpji="
-				// // + qp.opt_g[varnum * j + i]);
-				// logger.info("varnum*j+i:"+(varnum*j+i)+" "+
-				// qp.opt_g[varnum*j+i]);
+
 
 			}
-			/*
-			 * if(svm_common.verbosity>=3) {
-			 * 
-			 * if(i % 20 == 0) { logger.info(i+".."); } }
-			 */
 
 		}
 
 		for (i = 0; i < varnum; i++) {
-			/* assure starting at feasible point */
+			// assure starting at feasible point 
 			qp.opt_xinit[i] = a[key[i]];
-			/* set linear part of objective function */
+			//set linear part of objective function 
 			qp.opt_g0[i] = (learn_parm.eps - (double) label[key[i]] * c[key[i]])
 					+ qp.opt_g0[i] * (double) label[key[i]];
 		}
@@ -2174,14 +2064,14 @@ public class Learn {
 
 	}
 
+	/** Return value of objective function. 
+	 Works only relative to the active variables! */
 	public double compute_objective_function(double[] a, double[] lin,
 			double[] c, double eps, int[] label, int[] active2dnum)
-	/* Return value of objective function. */
-	/* Works only relative to the active variables! */
 	{
 		int i, ii;
 		double criterion;
-		/* calculate value of objective function */
+		// calculate value of objective function 
 		criterion = 0;
 		for (ii = 0; active2dnum[ii] >= 0; ii++) {
 			i = active2dnum[ii];
@@ -2195,59 +2085,56 @@ public class Learn {
 			double[] a, double[] lin, double[] c, int totdoc,
 			LEARN_PARM learn_parm, double epsilon_crit_org, int[] inconsistent,
 			int[] active2dnum, int[] last_suboptimal_at, int iteration,
-			KERNEL_PARM kernel_parm) {
+			KERNEL_PARM kernel_parm, CheckStruct struct) {
 		int i, ii, retrain;
 		double dist = 0, ex_c, target;
-		// logger.info("in check_optimality");
-		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) { /* be optimistic */
+		if (kernel_parm.kernel_type == ModelConstant.LINEAR) { // be optimistic 
 			learn_parm.epsilon_shrink = -learn_parm.epsilon_crit
 					+ epsilon_crit_org;
-		} else { /* be conservative */
+		} else { // be conservative 
 			learn_parm.epsilon_shrink = learn_parm.epsilon_shrink * 0.7
-					+ (maxdiff) * 0.3;
+					+ (struct.maxdiff) * 0.3;
 		}
 
 		retrain = 0;
-		maxdiff = 0;
-		misclassified = 0;
+		struct.maxdiff = 0;
+		struct.misclassified = 0;
 
 		for (ii = 0; (i = active2dnum[ii]) >= 0; ii++) {
 			if ((inconsistent[i] == 0) && (label[i] != 0)) {
-				// System.out.println("dist:"+dist);
-				// logger.info("i="+i+" a["+i+"]="+a[i]+"  c["+i+"]="+c[i]+"  label["+i+"]="+label[i]+"  lin["+i+"]="+lin[i]);
 				dist = (lin[i] - model.b) * (double) label[i];
 				target = -(learn_parm.eps - (double) label[i] * c[i]);
 				ex_c = learn_parm.svm_cost[i] - learn_parm.epsilon_a;
 
 				if (dist <= 0) {
-					misclassified++;
+					struct.misclassified++;
 				}
 
 				if ((a[i] > learn_parm.epsilon_a) && (dist > target)) {
-					if ((dist - target) > maxdiff) {
-						maxdiff = dist - target;
+					if ((dist - target) > struct.maxdiff) {
+						struct.maxdiff = dist - target;
 					}
 				} else if ((a[i] < ex_c) && (dist < target)) {
-					if ((target - dist) > maxdiff) /* largest violation */
+					if ((target - dist) > struct.maxdiff) // largest violation 
 					{
-						maxdiff = target - dist;
+						struct.maxdiff = target - dist;
 					}
 				}
 
 				if ((a[i] > (learn_parm.epsilon_a)) && (a[i] < ex_c)) {
-					last_suboptimal_at[i] = iteration; /* not at bound */
+					last_suboptimal_at[i] = iteration; // not at bound
 				} else if ((a[i] <= (learn_parm.epsilon_a))
 						&& (dist < (target + learn_parm.epsilon_shrink))) {
-					last_suboptimal_at[i] = iteration; /* not likely optimal */
+					last_suboptimal_at[i] = iteration; // not likely optimal
 				} else if ((a[i] >= ex_c)
 						&& (dist > (target - learn_parm.epsilon_shrink))) {
-					last_suboptimal_at[i] = iteration; /* not likely optimal */
+					last_suboptimal_at[i] = iteration; // not likely optimal
 				}
 			}
 		}
-		// System.out.println("maxdiff is :"+maxdiff);
-		/* termination criterion */
-		if ((retrain == 0) && (maxdiff > (learn_parm.epsilon_crit))) {
+
+	    // termination criterion 
+		if ((retrain == 0) && (struct.maxdiff > (learn_parm.epsilon_crit))) {
 			retrain = 1;
 		}
 		return (retrain);
@@ -2259,7 +2146,7 @@ public class Learn {
 			int totdoc, int totwords, int iteration, LEARN_PARM learn_parm,
 			int[] inconsistent, DOC[] docs, KERNEL_PARM kernel_parm,
 			KERNEL_CACHE kernel_cache, MODEL model, double[] aicache,
-			double[] weights) {
+			double[] weights, CheckStruct struct) {
 		int i, j, ii, jj, t;
 		int[] changed2dnum, inactive2dnum;
 		int[] changed;
@@ -2272,7 +2159,7 @@ public class Learn {
 		double ex_c, target;
 		SVECTOR f;
 
-		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
+		if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			a_old = shrink_state.last_a;
 
 			for (i = 0; i < totdoc; i++) {
@@ -2295,10 +2182,7 @@ public class Learn {
 			}
 			for (i = 0; i < totdoc; i++) {
 				for (f = docs[i].fvec; f != null; f = f.next) {
-					Common.multVectorNs(weights, f, 0.0); /*
-																 * set weights
-																 * back to zero
-																 */
+					Common.multVectorNs(weights, f, 0.0); // set weights back to zero
 				}
 			}
 		} else {
@@ -2342,7 +2226,7 @@ public class Learn {
 			}
 		}
 
-		maxdiff = 0;
+		struct.maxdiff = 0;
 
 		for (i = 0; i < totdoc; i++) {
 			shrink_state.inactive_since[i] = shrink_state.deactnum - 1;
@@ -2351,37 +2235,31 @@ public class Learn {
 				target = -(learn_parm.eps - (double) label[i] * c[i]);
 				ex_c = learn_parm.svm_cost[i] - learn_parm.epsilon_a;
 				if ((a[i] > learn_parm.epsilon_a) && (dist > target)) {
-					if ((dist - target) > maxdiff) /* largest violation */
+					if ((dist - target) > struct.maxdiff) // largest violation
 					{
-						maxdiff = dist - target;
+						struct.maxdiff = dist - target;
 					}
 				} else if ((a[i] < ex_c) && (dist < target)) {
-					if ((target - dist) > maxdiff) /* largest violation */
+					if ((target - dist) > struct.maxdiff) // largest violation 
 					{
-						maxdiff = target - dist;
+						struct.maxdiff = target - dist;
 					}
 				}
 				if ((a[i] > (0 + learn_parm.epsilon_a)) && (a[i] < ex_c)) {
-					shrink_state.active[i] = 1; /* not at bound */
+					shrink_state.active[i] = 1; // not at bound 
 				} else if ((a[i] <= (0 + learn_parm.epsilon_a))
 						&& (dist < (target + learn_parm.epsilon_shrink))) {
 					shrink_state.active[i] = 1;
 				} else if ((a[i] >= ex_c)
 						&& (dist > (target - learn_parm.epsilon_shrink))) {
 					shrink_state.active[i] = 1;
-				} else if (learn_parm.sharedslack != 0) { /*
-														 * make all active when
-														 * sharedslack
-														 */
+				} else if (learn_parm.sharedslack != 0) { // make all active when sharedslack
 					shrink_state.active[i] = 1;
 				}
 			}
 		}
 
-		if (kernel_parm.kernel_type != ModelConstant.LINEAR) { /*
-															 * update history
-															 * for non-linear
-															 */
+		if (kernel_parm.kernel_type != ModelConstant.LINEAR) { // update history for non-linear
 			for (i = 0; i < totdoc; i++) {
 				shrink_state.a_history[shrink_state.deactnum - 1][i] = a[i];
 			}
@@ -2409,7 +2287,7 @@ public class Learn {
 
 		switchsens /= 1.2;
 
-		/* assumes that lin[] is up to date -> no inactive vars */
+		// assumes that lin[] is up to date -> no inactive vars
 
 		orgpos = 0;
 		orgneg = 0;
@@ -2442,15 +2320,12 @@ public class Learn {
 		if (learn_parm.transduction_posratio >= 0) {
 			posratio = learn_parm.transduction_posratio;
 		} else {
-			posratio = (double) orgpos / (double) (orgpos + orgneg); /*
-																	 * use ratio
-																	 * of
-																	 * pos/neg
-																	 */
-		} /* in training data */
+			posratio = (double) orgpos / (double) (orgpos + orgneg); // use ratio of pos/neg
+
+		} // in training data 
 		negratio = 1.0 - posratio;
 
-		learn_parm.svm_costratio = 1.0; /* global */
+		learn_parm.svm_costratio = 1.0; // global 
 		if (posratio > 0) {
 			learn_parm.svm_costratio_unlab = negratio / posratio;
 		} else {
@@ -2462,7 +2337,7 @@ public class Learn {
 		upos = 0;
 		uneg = 0;
 		for (i = 0; i < totdoc; i++) {
-			dist = (lin[i] - model.b); /* 'distance' from hyperplane */
+			dist = (lin[i] - model.b); // 'distance' from hyperplane
 			if (dist > 0) {
 				pos++;
 			} else {
@@ -2477,10 +2352,6 @@ public class Learn {
 			}
 			if ((unlabeled[i] == 0)
 					&& (a[i] > (learn_parm.svm_cost[i] - learn_parm.epsilon_a))) {
-				/*
-				 * printf("Ubounded %ld (class %ld, unlabeled %ld)\n",i,label[i],
-				 * unlabeled[i]);
-				 */
 			}
 		}
 		if (Common.verbosity >= 2) {
@@ -2497,7 +2368,7 @@ public class Learn {
 			j2 = 0;
 			j4 = 0;
 			for (i = 0; i < totdoc; i++) {
-				dist = (lin[i] - model.b); /* 'distance' from hyperplane */
+				dist = (lin[i] - model.b); // 'distance' from hyperplane
 				if ((label[i] == 0) && (unlabeled[i] != 0)) {
 					selcrit[j4] = dist;
 					key[j4] = i;
@@ -2522,7 +2393,7 @@ public class Learn {
 					unsupaddnum2++;
 				}
 			}
-			for (i = 0; i < totdoc; i++) { /* set upper bounds on vars */
+			for (i = 0; i < totdoc; i++) {// set upper bounds on vars
 				if (unlabeled[i] != 0) {
 					if (label[i] == 1) {
 						learn_parm.svm_cost[i] = learn_parm.svm_c
@@ -2542,9 +2413,7 @@ public class Learn {
 			if (Common.verbosity >= 1) {
 				System.out.println("Retraining.");
 			}
-			if (Common.verbosity >= 2) {
-				// System.out.println();
-			}
+
 			return 3;
 		}
 
@@ -2552,9 +2421,7 @@ public class Learn {
 			if (Common.verbosity >= 1) {
 				System.out.println("Retraining.");
 			}
-			if (Common.verbosity >= 2) {
-				// System.out.println();
-			}
+
 
 			j1 = 0;
 			j2 = 0;
@@ -2573,7 +2440,7 @@ public class Learn {
 					unsupaddnum2++;
 				}
 			}
-			for (i = 0; i < totdoc; i++) { /* set upper bounds on vars */
+			for (i = 0; i < totdoc; i++) { // set upper bounds on vars 
 				if (unlabeled[i] != 0) {
 					if (label[i] == 1) {
 						learn_parm.svm_cost[i] = learn_parm.svm_c
@@ -2593,12 +2460,9 @@ public class Learn {
 			}
 
 			if (learn_parm.svm_unlabbound == 1) {
-				learn_parm.epsilon_crit = 0.001; /* do the last run right */
+				learn_parm.epsilon_crit = 0.001; // do the last run right 
 			} else {
-				learn_parm.epsilon_crit = 0.01; /*
-												 * otherwise, no need to be so
-												 * picky
-												 */
+				learn_parm.epsilon_crit = 0.01; // otherwise, no need to be so picky
 			}
 
 			return 3;
@@ -2609,7 +2473,7 @@ public class Learn {
 			for (i = 0; i < totdoc; i++) {
 				model_length += a[i] * label[i] * lin[i];
 				sumalpha += a[i];
-				dist = (lin[i] - model.b); /* 'distance' from hyperplane */
+				dist = (lin[i] - model.b); // 'distance' from hyperplane 
 				if ((label[i] * dist) < (1.0 - learn_parm.epsilon_crit)) {
 					loss += (1.0 - (label[i] * dist)) * learn_parm.svm_cost[i];
 				}
@@ -2665,19 +2529,15 @@ public class Learn {
 					} else if (label[j] < 0) {
 						unlabeled[j] = 3;
 					}
-					/* inconsistent[j]=1; */
+					// inconsistent[j]=1; 
 					j3++;
 				}
 			}
 			switchnum += unsupaddnum1 + unsupaddnum2;
 
-			/*
-			 * stop and print out current margin
-			 * 
-			 * if(switchnum == 2*kernel_parm.poly_degree) {
-			 * learn_parm.svm_unlabbound=1; }
-			 */
 
+			 // stop and print out current margin
+			 
 			if ((unsupaddnum1 == 0) && (unsupaddnum2 == 0)) {
 				if ((learn_parm.svm_unlabbound >= 1)
 						&& ((newpos + newneg) == allunlab)) {
@@ -2699,7 +2559,7 @@ public class Learn {
 				if (learn_parm.svm_unlabbound > 1) {
 					learn_parm.svm_unlabbound = 1;
 				}
-				model.at_upper_bound = 0; /* since upper bound increased */
+				model.at_upper_bound = 0; // since upper bound increased 
 				if (Common.verbosity >= 1)
 					System.out
 							.println("Increasing influence of unlabeled examples to "
@@ -2710,12 +2570,10 @@ public class Learn {
 						+ " NEG unlabeled examples.");
 			}
 
-			if (Common.verbosity >= 2) {
-				// System.out.println();
-			}
-			learn_parm.epsilon_crit = 0.5; /* don't need to be so picky */
 
-			for (i = 0; i < totdoc; i++) { /* set upper bounds on vars */
+			learn_parm.epsilon_crit = 0.5; // don't need to be so picky 
+
+			for (i = 0; i < totdoc; i++) { //set upper bounds on vars
 				if (unlabeled[i] != 0) {
 					if (label[i] == 1) {
 						learn_parm.svm_cost[i] = learn_parm.svm_c
@@ -2787,14 +2645,14 @@ public class Learn {
 
 	}
 
+	/**
+	 * Shrink some variables away. Do the shrinking only if at least minshrink
+	 * variables can be removed.
+	 */
 	public int shrink_problem(DOC[] docs, LEARN_PARM learn_parm,
 			SHRINK_STATE shrink_state, KERNEL_PARM kernel_parm,
 			int[] active2dnum, int[] last_suboptimal_at, int iteration,
 			int totdoc, int minshrink, double[] a, int[] inconsistent)
-	/*
-	 * Shrink some variables away. Do the shrinking only if at least minshrink
-	 * variables can be removed.
-	 */
 	{
 		int i, ii, change, activenum, lastiter;
 		double[] a_old;
@@ -2814,22 +2672,16 @@ public class Learn {
 				change++;
 			}
 		}
-		if ((change >= minshrink) /* shrink only if sufficiently many candidates */
-				&& (shrink_state.deactnum < shrink_state.maxhistory)) { /*
-																		 * and
-																		 * enough
-																		 * memory
-																		 */
-			/* Shrink problem by removing those variables which are */
-			/* optimal at a bound for a minimum number of iterations */
+		if ((change >= minshrink) // shrink only if sufficiently many candidates  and enough memory
+				&& (shrink_state.deactnum < shrink_state.maxhistory)) { 
+																		 
+
+			// Shrink problem by removing those variables which are 
+			// optimal at a bound for a minimum number of iterations 
 			if (Common.verbosity >= 2) {
 				System.out.println(" Shrinking...");
 			}
-			if (kernel_parm.kernel_type !=  ModelConstant.LINEAR) { /*
-																 * non-linear
-																 * case save
-																 * alphas
-																 */
+			if (kernel_parm.kernel_type != ModelConstant.LINEAR) { // non-linear case save alphas
 				a_old = new double[totdoc];
 				shrink_state.a_history[shrink_state.deactnum] = a_old;
 				for (i = 0; i < totdoc; i++) {
@@ -2851,7 +2703,7 @@ public class Learn {
 			}
 			activenum = compute_index(shrink_state.active, totdoc, active2dnum);
 			shrink_state.deactnum++;
-			if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
+			if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
 				shrink_state.deactnum = 0;
 			}
 			if (Common.verbosity >= 2) {
@@ -2863,12 +2715,12 @@ public class Learn {
 		return (activenum);
 	}
 
-	public void kernel_cache_shrink(KERNEL_CACHE kernel_cache, int totdoc,
-			int numshrink, int[] after)
-	/*
+	/**
 	 * Remove numshrink columns in the cache which correspond to examples marked
 	 * 0 in after.
 	 */
+	public void kernel_cache_shrink(KERNEL_CACHE kernel_cache, int totdoc,
+			int numshrink, int[] after)
 	{
 		int i, j, jj, from = 0, to = 0, scount;
 		int[] keep;
@@ -2926,23 +2778,24 @@ public class Learn {
 		}
 	}
 
+	/** Throw out examples with multipliers at upper bound. This 
+	 corresponds to the -i 1 option. 
+	 ATTENTION: this is just a heuristic for finding a close 
+	 to minimum number of examples to exclude to
+	 make the problem separable with desired margin */
 	int identify_inconsistent(double[] a, int[] label, int[] unlabeled,
-			int totdoc, LEARN_PARM learn_parm, int[] inconsistent) {
+			int totdoc, LEARN_PARM learn_parm, int[] inconsistent,
+			CheckStruct struct) {
 		int i, retrain;
 
-		/* Throw out examples with multipliers at upper bound. This */
-		/* corresponds to the -i 1 option. */
-		/* ATTENTION: this is just a heuristic for finding a close */
-		/* to minimum number of examples to exclude to */
-		/* make the problem separable with desired margin */
 		retrain = 0;
 		for (i = 0; i < totdoc; i++) {
 			if ((inconsistent[i] == 0)
 					&& (unlabeled[i] == 0)
 					&& (a[i] >= (learn_parm.svm_cost[i] - learn_parm.epsilon_a))) {
-				inconsistentnum++;
-				inconsistent[i] = 1; /* never choose again */
-				retrain = 2; /* start over */
+				struct.inconsistentnum++;
+				inconsistent[i] = 1; // never choose again 
+				retrain = 2; // start over 
 				if (Common.verbosity >= 3) {
 					System.out.println("inconsistent(" + i + ")..");
 				}
@@ -2951,26 +2804,24 @@ public class Learn {
 		return (retrain);
 	}
 
+	/** Throw out misclassified examples. This 
+	 corresponds to the -i 2 option. 
+	 ATTENTION: this is just a heuristic for finding a close 
+	 to minimum number of examples to exclude to 
+	 make the problem separable with desired margin */
 	public int identify_misclassified(double[] lin, int[] label,
-			int[] unlabeled, int totdoc, MODEL model, int[] inconsistent) {
+			int[] unlabeled, int totdoc, MODEL model, int[] inconsistent,
+			CheckStruct struct) {
 		int i, retrain;
 		double dist;
 
-		/* Throw out misclassified examples. This */
-		/* corresponds to the -i 2 option. */
-		/* ATTENTION: this is just a heuristic for finding a close */
-		/* to minimum number of examples to exclude to */
-		/* make the problem separable with desired margin */
 		retrain = 0;
 		for (i = 0; i < totdoc; i++) {
-			dist = (lin[i] - model.b) * (double) label[i]; /*
-															 * 'distance' from
-															 * hyperplane
-															 */
+			dist = (lin[i] - model.b) * (double) label[i]; // 'distance' from hyperplane
 			if ((inconsistent[i] == 0) && (unlabeled[i] == 0) && (dist <= 0)) {
-				inconsistentnum++;
-				inconsistent[i] = 1; /* never choose again */
-				retrain = 2; /* start over */
+				struct.inconsistentnum++;
+				inconsistent[i] = 1; // never choose again
+				retrain = 2; // start over
 				if (Common.verbosity >= 3) {
 					System.out.println("inconsistent(" + i + ")..");
 				}
@@ -2978,24 +2829,23 @@ public class Learn {
 		}
 		return (retrain);
 	}
-
+	
+	/** Throw out the 'most misclassified' example. This 
+	 corresponds to the -i 3 option.
+	 ATTENTION: this is just a heuristic for finding a close
+	 to minimum number of examples to exclude to 
+	 make the problem separable with desired margin */
 	public int identify_one_misclassified(double[] lin, int[] label,
-			int[] unlabeled, int totdoc, MODEL model, int[] inconsistent) {
+			int[] unlabeled, int totdoc, MODEL model, int[] inconsistent,
+			CheckStruct struct) {
 		int i, retrain, maxex = -1;
 		double dist, maxdist = 0;
 
-		/* Throw out the 'most misclassified' example. This */
-		/* corresponds to the -i 3 option. */
-		/* ATTENTION: this is just a heuristic for finding a close */
-		/* to minimum number of examples to exclude to */
-		/* make the problem separable with desired margin */
 		retrain = 0;
 		for (i = 0; i < totdoc; i++) {
 			if ((inconsistent[i] == 0) && (unlabeled[i] == 0)) {
-				dist = (lin[i] - model.b) * (double) label[i];/*
-															 * 'distance' from
-															 * hyperplane
-															 */
+				dist = (lin[i] - model.b) * (double) label[i];//'distance' from hyperplane
+
 				if (dist < maxdist) {
 					maxdist = dist;
 					maxex = i;
@@ -3003,9 +2853,9 @@ public class Learn {
 			}
 		}
 		if (maxex >= 0) {
-			inconsistentnum++;
-			inconsistent[maxex] = 1; /* never choose again */
-			retrain = 2; /* start over */
+			struct.inconsistentnum++;
+			inconsistent[maxex] = 1; // never choose again
+			retrain = 2; // start over 
 			if (Common.verbosity >= 3) {
 				System.out.println("inconsistent(" + i + ")..");
 			}
@@ -3035,8 +2885,8 @@ public class Learn {
 			int totdoc, int totwords, LEARN_PARM learn_parm,
 			KERNEL_PARM kernel_parm, KERNEL_CACHE kernel_cache,
 			SHRINK_STATE shrink_state, MODEL model, double[] a, double[] lin,
-			double[] c, TIMING timing_profile) {
-		//logger.info("in optimize_to_convergence_sharedslack");
+			double[] c, TIMING timing_profile, CheckStruct struct) {
+
 		int[] chosen;
 		int[] key;
 		int i, j, jj;
@@ -3056,27 +2906,25 @@ public class Learn {
 		double criterion, eq_target;
 		double[] a_old;
 		double[] alphaslack;
-		double t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0; /* timing */
+		double t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0; // timing 
 		double epsilon_crit_org;
 		double bestmaxdiff;
 		int bestmaxdiffiter, terminate;
 
-		double[] selcrit; /* buffer for sorting */
-		double[] aicache; /* buffer to keep one row of hessian */
-		double[] weights; /* buffer for weight vector in linear case */
-		QP qp = new QP(); /* buffer for one quadratic program */
-		double[] slack; /*
-						 * vector of slack variables for optimization with
-						 * shared slacks
-						 */
+		double[] selcrit; // buffer for sorting 
+		double[] aicache; // buffer to keep one row of hessian 
+		double[] weights; // buffer for weight vector in linear case 
+		QP qp = new QP(); // buffer for one quadratic program 
+		double[] slack; //vector of slack variables for optimization with shared slacks
+					
 		Common.verbosity = 0;
 		epsilon_crit_org = learn_parm.epsilon_crit; /* save org */
-		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
+		if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			learn_parm.epsilon_crit = 2.0;
-			/* kernel_cache=NULL; *//* caching makes no sense for linear kernel */
+			// kernel_cache=NULL;  caching makes no sense for linear kernel
 		}
 		learn_parm.epsilon_shrink = 2;
-		maxdiff = 1;
+		struct.maxdiff = 1;
 		learn_parm.totwords = totwords;
 
 		chosen = new int[totdoc];
@@ -3101,7 +2949,7 @@ public class Learn {
 		qp.opt_low = new double[learn_parm.svm_maxqpsize];
 		qp.opt_up = new double[learn_parm.svm_maxqpsize];
 
-		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
+		if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			weights = Common.createNvector(totwords);
 			Common.clearNvector(weights, totwords);
 		} else {
@@ -3110,7 +2958,7 @@ public class Learn {
 
 		maxslackid = 0;
 
-		for (i = 0; i < totdoc; i++) { /* determine size of slack array */
+		for (i = 0; i < totdoc; i++) { //determine size of slack array
 			if (maxslackid < docs[i].slackid) {
 				maxslackid = docs[i].slackid;
 			}
@@ -3132,11 +2980,11 @@ public class Learn {
 		terminate = 0;
 
 		if (kernel_cache != null) {
-			kernel_cache.time = iteration; /* for lru cache */
+			kernel_cache.time = iteration; // for lru cache 
 			kernel_cache_reset_lru(kernel_cache);
 		}
 
-		for (i = 0; i < totdoc; i++) { /* various inits */
+		for (i = 0; i < totdoc; i++) { // various inits
 			chosen[i] = 0;
 			unlabeled[i] = 0;
 			inconsistent[i] = 0;
@@ -3149,27 +2997,25 @@ public class Learn {
 		inactivenum = totdoc - activenum;
 		clear_index(working2dnum);
 
-		/* call to init slack and alphaslack */
+		// call to init slack and alphaslack 
 		compute_shared_slacks(docs, label, a, lin, c, active2dnum, learn_parm,
 				slack, alphaslack);
 
 		for (; (retrain != 0) && (terminate == 0); iteration++) {
 
-			
-			 for(int ci=0;ci<totdoc;ci++)
-             {
-                selcrit[ci]=0.0;
-             }
-			 
+			for (int ci = 0; ci < totdoc; ci++) {
+				selcrit[ci] = 0.0;
+			}
+
 			if (kernel_cache != null) {
-				kernel_cache.time = iteration; /* for lru cache */
+				kernel_cache.time = iteration; // for lru cache 
 			}
 
 			if (Common.verbosity >= 0) {
-				//if (iteration % 51 == 0) {
-					System.out.println("Iteration " + iteration + ": ");
-					logger.info("Iteration " + iteration + ": ");
-				//}
+				// if (iteration % 51 == 0) {
+				System.out.println("Iteration " + iteration + ": ");
+				logger.info("Iteration " + iteration + ": ");
+				// }
 			} else if (Common.verbosity == 1) {
 				System.out.println(".");
 			}
@@ -3186,17 +3032,16 @@ public class Learn {
 				learn_parm.svm_newvarsinqp = learn_parm.svm_maxqpsize;
 			}
 
-			/* select working set according to steepest gradient */
+			// select working set according to steepest gradient
 			jointstep = 0;
 			eq_target = 0;
 
 			if ((iteration % 101) != 0) {
 				slackset = select_next_qp_slackset(docs, label, a, lin, slack,
-						alphaslack, c, learn_parm, active2dnum);
-				//logger.info("slackset="+slackset+" maxsharedviol:"+maxsharedviol+" learn_parm.epsilon_crit:"+learn_parm.epsilon_crit);
+						alphaslack, c, learn_parm, active2dnum, struct);
 				if (((iteration % 100) == 0) || (slackset == 0)
-						|| (maxsharedviol < learn_parm.epsilon_crit)) {
-					/* do a step with examples from different slack sets */
+						|| (struct.maxsharedviol < learn_parm.epsilon_crit)) {
+					//do a step with examples from different slack sets
 					if (Common.verbosity >= 2) {
 						System.out.println("(i-step)");
 					}
@@ -3210,26 +3055,16 @@ public class Learn {
 						} else {
 							chosen[j]++;
 							working2dnum[i++] = j;
-							//logger.info("working2dum " + i + " " + j);
+							// logger.info("working2dum " + i + " " + j);
 						}
 					}
 					working2dnum[i] = -1;
-					//logger.info("working2dum[" + i + "] is -1");
+
 					already_chosen = 0;
 					if ((Math.min(learn_parm.svm_newvarsinqp,
 							learn_parm.svm_maxqpsize - choosenum) >= 4)
-							&& (kernel_parm.kernel_type !=  ModelConstant.LINEAR)) {
-						/* select part of the working set from cache */
-						//logger.info("minl select");
-                        /*
-						String sc_str = "";
-						for (int ci = 0; ci < totdoc; ci++) {
-							sc_str += (ci + ":" + selcrit[ci] + " ");
-						}
-
-						logger.info("sc_str:" + sc_str);
-                        */
-						
+							&& (kernel_parm.kernel_type != ModelConstant.LINEAR)) {
+						// select part of the working set from cache 
 						already_chosen = select_next_qp_subproblem_grad(label,
 								unlabeled, a, lin, c, totdoc, (int) (Math.min(
 										learn_parm.svm_maxqpsize - choosenum,
@@ -3240,7 +3075,7 @@ public class Learn {
 
 						choosenum += already_chosen;
 					}
-					//logger.info("or select \n");
+					// logger.info("or select \n");
 					choosenum += select_next_qp_subproblem_grad(
 							label,
 							unlabeled,
@@ -3253,22 +3088,21 @@ public class Learn {
 							learn_parm, inconsistent, active2dnum,
 							working2dnum, selcrit, selexam, kernel_cache, 0,
 							key, chosen);
-				} else { /* do a step with all examples from same slack set */
-					// logger.info("do a step with all examples from same slack set");
+				} else {// do a step with all examples from same slack set 
+
 					if (Common.verbosity >= 2) {
 						System.out.println("(j-step on " + slackset + ")");
 					}
 					jointstep = 1;
-					
-					
-					//  clear working set					 
-					for (jj = 0; (j = working2dnum[jj]) >= 0; jj++) { 
+
+					// clear working set
+					for (jj = 0; (j = working2dnum[jj]) >= 0; jj++) {
 						chosen[j] = 0;
 					}
 					working2dnum[0] = -1;
 					eq_target = alphaslack[slackset];
-					for (j = 0; j < totdoc; j++) { /* mask all but slackset */
-						/* for(jj=0;(j=active2dnum[jj])>=0;jj++) { */
+					for (j = 0; j < totdoc; j++) { //mask all but slackset 
+	
 						if (docs[j].slackid != slackset) {
 							ignore[j] = 1;
 						} else {
@@ -3284,12 +3118,11 @@ public class Learn {
 							kernel_cache, 0, key, chosen);
 					learn_parm.biased_hyperplane = 0;
 				}
-			} else { /*
-					 * once in a while, select a somewhat random working set to
-					 * get unlocked of infinite loops due to numerical
-					 * inaccuracies in the core qp-solver
-					 */
-				//logger.info("in else yr");
+			} else { 
+					//once in a while, select a somewhat random working set to
+					// get unlocked of infinite loops due to numerical
+					// inaccuracies in the core qp-solver
+					 
 				choosenum += select_next_qp_subproblem_rand(label, unlabeled,
 						a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize
 								- choosenum, learn_parm.svm_newvarsinqp),
@@ -3318,7 +3151,6 @@ public class Learn {
 				learn_parm.biased_hyperplane = 1;
 			}
 
-			
 			optimize_svm(docs, label, unlabeled, ignore, eq_target, chosen,
 					active2dnum, model, totdoc, working2dnum, choosenum, a,
 					lin, c, learn_parm, aicache, kernel_parm, qp,
@@ -3326,15 +3158,12 @@ public class Learn {
 
 			learn_parm.biased_hyperplane = 0;
 
-			
-			//  recompute sums of alphas
-			for (jj = 0; (i = working2dnum[jj]) >= 0; jj++) 
-			{
+			// recompute sums of alphas
+			for (jj = 0; (i = working2dnum[jj]) >= 0; jj++) {
 				alphaslack[docs[i].slackid] += (a[i] - a_old[i]);
 			}
 
-			 
-		    //reduce alpha to fulfill constraints		 
+			// reduce alpha to fulfill constraints
 			for (jj = 0; (i = working2dnum[jj]) >= 0; jj++) {
 				if (alphaslack[docs[i].slackid] > learn_parm.svm_c) {
 					if (a[i] < (alphaslack[docs[i].slackid] - learn_parm.svm_c)) {
@@ -3380,8 +3209,8 @@ public class Learn {
 				t5 = Common.getRuntime();
 			}
 
-			/* The following computation of the objective function works only */
-			/* relative to the active variables */
+			// The following computation of the objective function works only
+			//relative to the active variables 
 			if (Common.verbosity >= 3) {
 				criterion = compute_objective_function(a, lin, c,
 						learn_parm.eps, label, active2dnum);
@@ -3395,10 +3224,10 @@ public class Learn {
 				a_old[i] = a[i];
 			}
 
-			
 			retrain = check_optimality_sharedslack(docs, model, label, a, lin,
 					c, slack, alphaslack, totdoc, learn_parm, epsilon_crit_org,
-					active2dnum, last_suboptimal_at, iteration, kernel_parm);
+					active2dnum, last_suboptimal_at, iteration, kernel_parm,
+					struct);
 			// maxdiff?传值 or 传地址?
 
 			if (Common.verbosity >= 2) {
@@ -3411,14 +3240,14 @@ public class Learn {
 				timing_profile.time_check += t6 - t5;
 			}
 
-			/* checking whether optimizer got stuck */
-			if (maxdiff < bestmaxdiff) {
-				bestmaxdiff = maxdiff;
+			// checking whether optimizer got stuck
+			if (struct.maxdiff < bestmaxdiff) {
+				bestmaxdiff = struct.maxdiff;
 				bestmaxdiffiter = iteration;
 			}
 
 			if (iteration > (bestmaxdiffiter + learn_parm.maxiter)) {
-				/* long time no progress? */
+				// long time no progress? 
 				terminate = 1;
 				retrain = 0;
 				if (Common.verbosity >= 1) {
@@ -3430,12 +3259,10 @@ public class Learn {
 
 			if ((retrain == 0)
 					&& (inactivenum > 0)
-					&& ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type ==  ModelConstant.LINEAR))) {
-				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
+					&& ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == ModelConstant.LINEAR))) {
+				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type != ModelConstant.LINEAR))
 						|| (Common.verbosity >= 2)) {
-					if (Common.verbosity == 1) {
-						// System.out.println();
-					}
+			
 					System.out
 							.println(" Checking optimality of inactive variables...");
 
@@ -3445,35 +3272,32 @@ public class Learn {
 				reactivate_inactive_examples(label, unlabeled, a, shrink_state,
 						lin, c, totdoc, totwords, iteration, learn_parm,
 						inconsistent, docs, kernel_parm, kernel_cache, model,
-						aicache, weights);
-				/* Update to new active variables. */
+						aicache, weights, struct);
+				// Update to new active variables. 
 				activenum = compute_index(shrink_state.active, totdoc,
 						active2dnum);
 				inactivenum = totdoc - activenum;
-				/*
-				 * check optimality, since check in reactivate does not work for
-				 * sharedslacks
-				 */
+				
+				// check optimality, since check in reactivate does not work for sharedslacks	
 				compute_shared_slacks(docs, label, a, lin, c, active2dnum,
 						learn_parm, slack, alphaslack);
 
 				retrain = check_optimality_sharedslack(docs, model, label, a,
 						lin, c, slack, alphaslack, totdoc, learn_parm,
 						epsilon_crit_org, active2dnum, last_suboptimal_at,
-						iteration, kernel_parm);
+						iteration, kernel_parm, struct);
 
-
-				/* reset watchdog */
-				bestmaxdiff = maxdiff;
+				// reset watchdog
+				bestmaxdiff = struct.maxdiff;
 				bestmaxdiffiter = iteration;
-				/* termination criterion */
+				// termination criterion 
 				noshrink = 1;
 				retrain = 0;
-				if (maxdiff > learn_parm.epsilon_crit) {
+				if (struct.maxdiff > learn_parm.epsilon_crit) {
 					retrain = 1;
 				}
 				timing_profile.time_shrink += Common.getRuntime() - t1;
-				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
+				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type != ModelConstant.LINEAR))
 						|| (Common.verbosity >= 2)) {
 					// System.out.println("done.");
 					System.out.println(" Number of inactive variables = "
@@ -3481,8 +3305,8 @@ public class Learn {
 				}
 			}
 
-			if ((retrain == 0) && (learn_parm.epsilon_crit > maxdiff)) {
-				learn_parm.epsilon_crit = maxdiff;
+			if ((retrain == 0) && (learn_parm.epsilon_crit > struct.maxdiff)) {
+				learn_parm.epsilon_crit = struct.maxdiff;
 			}
 			if ((retrain == 0) && (learn_parm.epsilon_crit > epsilon_crit_org)) {
 				learn_parm.epsilon_crit /= 2.0;
@@ -3495,7 +3319,8 @@ public class Learn {
 			if (Common.verbosity >= 2) {
 				System.out.println(" => (" + supvecnum + " SV (incl. "
 						+ model.at_upper_bound
-						+ " SV at u-bound), max violation=" + maxdiff + ")");
+						+ " SV at u-bound), max violation=" + struct.maxdiff
+						+ ")");
 			}
 			if (Common.verbosity >= 3) {
 				System.out.println();
@@ -3528,55 +3353,42 @@ public class Learn {
 
 		}
 
-		learn_parm.epsilon_crit = epsilon_crit_org; /* restore org */
-		model.maxdiff = maxdiff;
+		learn_parm.epsilon_crit = epsilon_crit_org; //restore org
+		model.maxdiff = struct.maxdiff;
 
 		return (iteration);
 
 	}
 
+	/** compute the value of shared slacks and the joint alphas */
 	public void compute_shared_slacks(DOC[] docs, int[] label, double[] a,
 			double[] lin, double[] c, int[] active2dnum, LEARN_PARM learn_parm,
 			double[] slack, double[] alphaslack)
-	/* compute the value of shared slacks and the joint alphas */
 	{
 		int jj, i;
 		double dist, target;
 
-		for (jj = 0; (i = active2dnum[jj]) >= 0; jj++) { /* clear slack variables */
+		for (jj = 0; (i = active2dnum[jj]) >= 0; jj++) { // clear slack variables 
 			slack[docs[i].slackid] = 0.0;
-			//logger.info("jj=" + jj + " i=" + i + " slackid=" + docs[i].slackid
-			//		+ " is zero");
-			/* alphaslack[docs[i].slackid]=0.0; */
 		}
 		for (jj = 0; (i = active2dnum[jj]) >= 0; jj++) {
-			/*
-			 * dist = (lin[i]) * (double) label[i]; target = -(learn_parm.eps -
-			 * (double) label[i] * c[i]); if ((target - dist) >
-			 * slack[docs[i].slackid]) { slack[docs[i].slackid] = target - dist;
-			 * //alphaslack[docs[i].slackid]+=a[i]; }
-			 */
+
 			dist = (lin[i]) * (double) label[i];
 
 			target = -WU.sub(learn_parm.eps, WU.mul((double) label[i], c[i]));
-			//logger.info("jj=" + jj + " i=" + i + " lin=" + lin[i] + " dist="
-			//		+ dist + " c=" + c[i] + " eps=" + learn_parm.eps
-			//		+ " target:" + target + " slack=" + slack[docs[i].slackid]);
+
 			if (((target - dist) > slack[docs[i].slackid])
 					&& Math.abs(target - dist) > (double) (0.5)) {
 
 				slack[docs[i].slackid] = WU.sub(target, dist);
-				//logger.info("jj=" + jj + " i=" + i + " slackid="
-				//		+ docs[i].slackid + "  slack=" + slack[docs[i].slackid]);
-				// alphaslack[docs[i].slackid]+=a[i];
 			}
 		}
 	}
 
+	/** returns the slackset with the largest internal violation */
 	public int select_next_qp_slackset(DOC[] docs, int[] label, double[] a,
 			double[] lin, double[] slack, double[] alphaslack, double[] c,
-			LEARN_PARM learn_parm, int[] active2dnum)
-	/* returns the slackset with the largest internal violation */
+			LEARN_PARM learn_parm, int[] active2dnum, CheckStruct struct)
 	{
 		int i, ii, maxdiffid;
 		double dist, target, maxdiff, ex_c;
@@ -3586,88 +3398,68 @@ public class Learn {
 		for (ii = 0; (i = active2dnum[ii]) >= 0; ii++) {
 			ex_c = learn_parm.svm_c - learn_parm.epsilon_a;
 			if (alphaslack[docs[i].slackid] >= ex_c) {
-				dist = (lin[i]) * (double) label[i] + slack[docs[i].slackid]; // distance 
-				target = -(learn_parm.eps - (double) label[i] * c[i]); //rhs of constraint
-																		
+				dist = (lin[i]) * (double) label[i] + slack[docs[i].slackid]; // distance
+				target = -(learn_parm.eps - (double) label[i] * c[i]); // rhs of
+																		// constraint
+
 				if ((a[i] > learn_parm.epsilon_a) && (dist > target)) {
-					if ((dist - target) > maxdiff) { //largest violation 
+					if ((dist - target) > maxdiff) { // largest violation
 						maxdiff = dist - target;
 						maxdiffid = docs[i].slackid;
 					}
 				}
 			}
 		}
-		maxsharedviol = maxdiff;
+		struct.maxsharedviol = maxdiff;
 		return (maxdiffid);
 	}
 
+	/** Check KT-conditions */
 	public int check_optimality_sharedslack(DOC[] docs, MODEL model,
 			int[] label, double[] a, double[] lin, double[] c, double[] slack,
 			double[] alphaslack, int totdoc, LEARN_PARM learn_parm,
 			double epsilon_crit_org, int[] active2dnum,
-			int[] last_suboptimal_at, int iteration, KERNEL_PARM kernel_parm)
-	/* Check KT-conditions */
+			int[] last_suboptimal_at, int iteration, KERNEL_PARM kernel_parm,
+			CheckStruct struct)
 	{
 		int i, ii, retrain;
 		double dist, dist_noslack, ex_c = 0, target;
 
-		// logger.info("in check_optimality_sharedslack");
-		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) { /* be optimistic */
+		if (kernel_parm.kernel_type == ModelConstant.LINEAR) { // be optimistic 
 			learn_parm.epsilon_shrink = -learn_parm.epsilon_crit / 2.0;
-		} else { /* be conservative */
+		} else {// be conservative 
 			learn_parm.epsilon_shrink = learn_parm.epsilon_shrink * 0.7
-					+ maxdiff * 0.3;
+					+ struct.maxdiff * 0.3;
 		}
 
 		retrain = 0;
-		maxdiff = 0;
-		misclassified = 0;
+		struct.maxdiff = 0;
+		struct.misclassified = 0;
 		for (ii = 0; (i = active2dnum[ii]) >= 0; ii++) {
-			
-			/* 'distance' from hyperplane */
+
+			//distance' from hyperplane
 			dist_noslack = (lin[i] - model.b) * (double) label[i];
 			dist = dist_noslack + slack[docs[i].slackid];
 			target = -(learn_parm.eps - (double) label[i] * c[i]);
 			ex_c = learn_parm.svm_c - learn_parm.epsilon_a;
-			 //logger.info("ii="+ii+" i="+i+" a="+a[i]+"  c="+c[i]+"  label="+label[i]+"  lin="+lin[i]+" epsilon_a="+learn_parm.epsilon_a+" dist="+dist+" target="+target+" maxdiff="+maxdiff+" ex_c="+ex_c);
 			if ((a[i] > learn_parm.epsilon_a) && (dist > target)) {
-				if ((dist - target) > maxdiff) { /* largest violation */
-					maxdiff = dist - target;
-					//if (svm_common.verbosity >= 5) {
-					//logger.info("sid " + docs[i].slackid + ": dist="
-					//					+ dist + ", target=" + target
-					//					+ ", slack=" + slack[docs[i].slackid]
-					//					+ ", a=" + a[i] + ", alphaslack="
-					//					+ alphaslack[docs[i].slackid]);
-					//}
+				if ((dist - target) > struct.maxdiff) { // largest violation
+					struct.maxdiff = dist - target;
 
-					//if (svm_common.verbosity >= 5) {
-					//logger.info(" (single " + maxdiff + ")");
-					//}
 				}
 			}
 			if ((alphaslack[docs[i].slackid] < ex_c)
 					&& (slack[docs[i].slackid] > 0)) {
-				if ((slack[docs[i].slackid]) > (maxdiff)) { /* largest violation */
-					maxdiff = slack[docs[i].slackid];
-					//if (svm_common.verbosity >= 5) {
-					//	logger.info("sid " + docs[i].slackid + ": dist="
-					//					+ dist + ", target=" + target
-					//					+ ", slack=" + slack[docs[i].slackid]
-					//					+ ", a=" + a[i] + ", alphaslack="
-					//					+ alphaslack[docs[i].slackid]);
-					//}
-					//if (svm_common.verbosity >= 5) {
-					//	logger.info(" (joint " + maxdiff + ")");
-					//}
+				if ((slack[docs[i].slackid]) > (struct.maxdiff)) { //largest violation
+					struct.maxdiff = slack[docs[i].slackid];
 				}
 			}
 
-			/* Count how long a variable was at lower/upper bound (and optimal). */
-			/* Variables, which were at the bound and optimal for a long */
-			/* time are unlikely to become support vectors. In case our */
-			/* cache is filled up, those variables are excluded to save */
-			/* kernel evaluations. (See chapter 'Shrinking'). */
+			// Count how long a variable was at lower/upper bound (and optimal). 
+			// Variables, which were at the bound and optimal for a long 
+			// time are unlikely to become support vectors. In case our 
+			// cache is filled up, those variables are excluded to save 
+			// kernel evaluations. (See chapter 'Shrinking'). 
 			if ((a[i] <= learn_parm.epsilon_a)
 					&& (dist < (target + learn_parm.epsilon_shrink))) {
 				last_suboptimal_at[i] = iteration; /* not likely optimal */
@@ -3681,24 +3473,25 @@ public class Learn {
 				last_suboptimal_at[i] = iteration; /* not likely optimal */
 			}
 		}
-		/* termination criterion */
-		if ((retrain == 0) && ((maxdiff) > learn_parm.epsilon_crit)) {
+		// termination criterion 
+		if ((retrain == 0) && ((struct.maxdiff) > learn_parm.epsilon_crit)) {
 			retrain = 1;
 		}
 		return (retrain);
 	}
 
-	public double estimate_sphere(MODEL model)
-	/* Approximates the radius of the ball containing */
-	/* the support vectors by bounding it with the */
-	{ /* length of the longest support vector. This is */
-		int j; /* pretty good for text categorization, since all */
-		double xlen, maxxlen = 0; /*
-								 * documents have feature vectors of length 1.
-								 * It
-								 */
-		DOC nulldoc; /* assumes that the center of the ball is at the */
-		WORD[] nullword = new WORD[1]; /* origin of the space. */
+	/**
+	 * Approximates the radius of the ball containing length of the longest
+	 * support vector. This is pretty good for text categorization, since all
+	 * documents have feature vectors of length 1. It assumes that the center of
+	 * the ball is at theorigin of the space. the support vectors by bounding it
+	 * with the
+	 */
+	public double estimate_sphere(MODEL model) {
+		int j;
+		double xlen, maxxlen = 0;
+		DOC nulldoc;
+		WORD[] nullword = new WORD[1];
 		KERNEL_PARM kernel_parm = model.kernel_parm;
 		nullword[0] = new WORD();
 		nullword[0].wnum = 0;
@@ -3737,7 +3530,7 @@ public class Learn {
 
 	public void write_alphas(String alphafile, double[] a, int[] label,
 			int totdoc) {
-		// System.out.println("alpha file:"+alphafile);
+
 		alphafile = "alpha.txt";
 		FileWriter fw = null;
 		PrintWriter pw = null;
@@ -3749,10 +3542,6 @@ public class Learn {
 		}
 		int i;
 
-		// if(svm_common.verbosity>=1) {
-		// System.out.println("Writing alpha file...");
-		// }
-		// System.out.println("totdoc.size:"+totdoc);
 		for (i = 0; i < totdoc; i++) {
 			pw.println(a[i] * (double) label[i]);
 		}
@@ -3762,17 +3551,15 @@ public class Learn {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		if (Common.verbosity >= 1) {
-			// System.out.println("done");
-		}
+
 	}
 
 	public double estimate_r_delta(DOC[] docs, int totdoc,
 			KERNEL_PARM kernel_parm) {
 		int i;
 		double maxxlen, xlen;
-		DOC nulldoc; /* assumes that the center of the ball is at the */
-		WORD[] nullword = new WORD[1]; /* origin of the space. */
+		DOC nulldoc; // assumes that the center of the ball is at the
+		WORD[] nullword = new WORD[1]; // origin of the space.
 
 		nullword[0] = new WORD();
 		nullword[0].wnum = 0;
@@ -3781,18 +3568,9 @@ public class Learn {
 
 		maxxlen = 0;
 		for (i = 0; i < totdoc; i++) {
-			/*
-			 * pw.println("doc i:"+i);
-			 * pw.println("docs i label "+docs[i].docnum); for(int
-			 * k=0;k<docs[i].fvec.words.length;k++) {
-			 * System.out.print(k+":"+docs
-			 * [i].fvec.words[k].wnum+":"+docs[i].fvec.words[k].weight+" ");
-			 * pw.print
-			 * (k+":"+docs[i].fvec.words[k].wnum+":"+docs[i].fvec.words[k
-			 * ].weight+" "); } System.out.println(); pw.flush();
-			 */
-			xlen = Math.sqrt(Common.kernel(kernel_parm, docs[i], docs[i])
-					- 2 * Common.kernel(kernel_parm, docs[i], nulldoc)
+
+			xlen = Math.sqrt(Common.kernel(kernel_parm, docs[i], docs[i]) - 2
+					* Common.kernel(kernel_parm, docs[i], nulldoc)
 					+ Common.kernel(kernel_parm, nulldoc, nulldoc));
 			if (xlen > maxxlen) {
 				maxxlen = xlen;
@@ -3802,13 +3580,14 @@ public class Learn {
 		return (maxxlen);
 	}
 
-	public double estimate_margin_vcdim(MODEL model, double w, double R)
-	/* optional: length of model vector in feature space */
-	/* optional: radius of ball containing the data */
-	{
+	/**
+	 * optional: length of model vector in feature space optional: radius of
+	 * ball containing the data
+	 */
+	public double estimate_margin_vcdim(MODEL model, double w, double R) {
 		double h;
 
-		/* follows chapter 5.6.4 in [Vapnik/95] */
+		// follows chapter 5.6.4 in [Vapnik/95]
 
 		if (w < 0) {
 			w = Common.modelLengthS(model);
@@ -3821,16 +3600,14 @@ public class Learn {
 	}
 
 	/************************** Compute estimates ******************************/
-
-	public void compute_xa_estimates(MODEL model, int[] label, int[] unlabeled,
-			int totdoc, DOC[] docs, double[] lin, double[] a,
-			KERNEL_PARM kernel_parm, LEARN_PARM learn_parm)
-	/*
+	/**
 	 * Computes xa-estimate of error rate, recall, and precision. See T.
 	 * Joachims, Estimating the Generalization Performance of an SVM
 	 * Efficiently, IMCL, 2000.
 	 */
-	{
+	public void compute_xa_estimates(MODEL model, int[] label, int[] unlabeled,
+			int totdoc, DOC[] docs, double[] lin, double[] a,
+			KERNEL_PARM kernel_parm, LEARN_PARM learn_parm) {
 		int i, looerror, looposerror, loonegerror;
 		int totex, totposex;
 		double xi, r_delta, r_delta_sq, sim = 0;
@@ -3911,14 +3688,13 @@ public class Learn {
 		index[0] = -1;
 	}
 
-	public double distribute_alpha_t_greedily(int[] sv2dnum, int svnum,
-			DOC[] docs, double[] a, int docnum, int[] label,
-			KERNEL_PARM kernel_parm, LEARN_PARM learn_parm, double thresh)
-	/*
+	/**
 	 * Experimental Code improving plain XiAlpha Estimates by computing a better
 	 * bound using a greedy optimzation strategy.
 	 */
-	{
+	public double distribute_alpha_t_greedily(int[] sv2dnum, int svnum,
+			DOC[] docs, double[] a, int docnum, int[] label,
+			KERNEL_PARM kernel_parm, LEARN_PARM learn_parm, double thresh) {
 		int best_depth = 0;
 		int i, j, k, d, skip, allskip;
 		double best, val, init_val_sq, init_val_lin;
@@ -3930,8 +3706,8 @@ public class Learn {
 		trow = new double[svnum];
 
 		for (k = 0; k < svnum; k++) {
-			trow[k] = Common.kernel(kernel_parm, docs[docnum],
-					docs[sv2dnum[k]]);
+			trow[k] = Common
+					.kernel(kernel_parm, docs[docnum], docs[sv2dnum[k]]);
 		}
 
 		init_val_sq = 0;
@@ -3995,15 +3771,14 @@ public class Learn {
 		return (best);
 	}
 
-	public void estimate_transduction_quality(MODEL model, int[] label,
-			int[] unlabeled, int totdoc, DOC[] docs, double[] lin)
-	/*
+	/**
 	 * Loo-bound based on observation that loo-errors must have an equal
 	 * distribution in both training and test examples, given that the test
 	 * examples are classified correctly. Compare chapter
 	 * "Constraints on the Transductive Hyperplane" in my Dissertation.
 	 */
-	{
+	public void estimate_transduction_quality(MODEL model, int[] label,
+			int[] unlabeled, int totdoc, DOC[] docs, double[] lin) {
 		int i, j, l = 0, ulab = 0, lab = 0, labpos = 0, labneg = 0, ulabpos = 0, ulabneg = 0, totulab = 0;
 		double totlab = 0, totlabpos = 0, totlabneg = 0, labsum = 0, ulabsum = 0;
 		double r_delta, r_delta_sq, xi, xisum = 0, asum = 0;
@@ -4073,7 +3848,7 @@ public class Learn {
 				+ " asum=" + asum);
 	}
 
-	public static KERNEL_CACHE kernel_cache_init(int totdoc, int buffsize) {
+	public KERNEL_CACHE kernel_cache_init(int totdoc, int buffsize) {
 		int i;
 		KERNEL_CACHE kernel_cache = new KERNEL_CACHE();
 

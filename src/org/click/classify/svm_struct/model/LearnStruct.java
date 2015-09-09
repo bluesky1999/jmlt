@@ -132,11 +132,12 @@ public class LearnStruct {
 		//set initial model and slack variables
 		svmModel = new MODEL();
 		lparm.epsilon_crit = epsilon;
+		Learn sl = new Learn();
 		if (kparm.kernel_type !=  ModelConstant.LINEAR) {
-			kcache = Learn.kernel_cache_init(Math.max(cset.m, 1),
+			kcache = sl.kernel_cache_init(Math.max(cset.m, 1),
 					lparm.kernel_cache_size);
 		}
-		Learn sl = new Learn();
+
 		logger.info("sizePsi:" + sizePsi + "   n:" + n);
 		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n,
 				lparm, kparm, kcache, svmModel, alpha);
