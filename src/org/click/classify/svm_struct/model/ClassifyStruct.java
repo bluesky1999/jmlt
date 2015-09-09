@@ -45,7 +45,7 @@ public class ClassifyStruct {
 		ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		read_input_parameters(args.length + 1, args, sparm,
+		readInputParameters(args.length + 1, args, sparm,
 				Common.verbosity, CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
@@ -75,7 +75,7 @@ public class ClassifyStruct {
 	 * 从arraylist读取未分类样本， 结果写到标准输出 输入格式: identified format samples
 	 * 输出格式：identified label
 	 */
-	public void classify_from_arraylist(ArrayList<String> input_list,
+	public void classifyFromArraylist(ArrayList<String> input_list,
 			String model_file) {
 		String[] args = { "no.txt", model_file, "no.txt" };
 		int correct = 0, incorrect = 0, no_accuracy = 0;
@@ -92,7 +92,7 @@ public class ClassifyStruct {
 		ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		read_input_parameters(args.length + 1, args, sparm,
+		readInputParameters(args.length + 1, args, sparm,
 				Common.verbosity, CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
@@ -175,7 +175,7 @@ public class ClassifyStruct {
 		logger.info("predict result ===============================");
 		for (i = 0; i < testsample.n; i++) {
 
-			t1 = Common.get_runtime();
+			t1 = Common.getRuntime();
 			// logger.info("doc [" + i + "] "
 			// + testsample.examples[i].x.doc.fvec.toString());
 			y = ssa.classifyStructExample(testsample.examples[i].x, model,
@@ -187,7 +187,7 @@ public class ClassifyStruct {
 			// + "].y:" + testsample.examples[i].y.class_index);
 			logger.info(testsample.examples[i].y.class_index + " "
 					+ y.class_index);
-			runtime += (Common.get_runtime() - t1);
+			runtime += (Common.getRuntime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 			System.out.println(identifier_list.get(i) + " " + y.toString());
 
@@ -241,7 +241,7 @@ public class ClassifyStruct {
 	 * 从标准输入读取未分类样本， 结果写到标准输出 输入格式: identified format samples 输出格式：identified
 	 * label
 	 */
-	public void classify_from_stream(String model_file) {
+	public void classifyFromStream(String model_file) {
 
 		String[] args = { "no.txt", model_file, "no.txt" };
 		int correct = 0, incorrect = 0, no_accuracy = 0;
@@ -258,7 +258,7 @@ public class ClassifyStruct {
 		ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		read_input_parameters(args.length + 1, args, sparm,
+		readInputParameters(args.length + 1, args, sparm,
 				Common.verbosity, CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
@@ -339,7 +339,7 @@ public class ClassifyStruct {
 
 		for (i = 0; i < testsample.n; i++) {
 
-			t1 = Common.get_runtime();
+			t1 = Common.getRuntime();
 			logger.info("doc [" + i + "] "
 					+ testsample.examples[i].x.doc.fvec.toString());
 			y = ssa.classifyStructExample(testsample.examples[i].x, model,
@@ -349,7 +349,7 @@ public class ClassifyStruct {
 			}
 			logger.info("y:" + y.class_index + "  testsample.examples[" + i
 					+ "].y:" + testsample.examples[i].y.class_index);
-			runtime += (Common.get_runtime() - t1);
+			runtime += (Common.getRuntime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 			System.out.println(identifier_list.get(i) + " " + y.toString());
 
@@ -396,7 +396,7 @@ public class ClassifyStruct {
 
 	}
 
-	public static void read_input_parameters(int argc, String[] argv,
+	public static void readInputParameters(int argc, String[] argv,
 			STRUCT_LEARN_PARM struct_parm, int verbosity, int struct_verbosity) {
 		// System.err.println("in read_input_parameters");
 		int i;
@@ -409,10 +409,10 @@ public class ClassifyStruct {
 		for (i = 1; (i < argc) && ((argv[i].charAt(0)) == '-'); i++) {
 			switch ((argv[i].charAt(1))) {
 			case 'h':
-				print_help();
+				printHelp();
 				System.exit(0);
 			case '?':
-				print_help();
+				printHelp();
 				System.exit(0);
 			case '-':
 				struct_parm.custom_argv[struct_parm.custom_argc++] = argv[i];
@@ -430,14 +430,14 @@ public class ClassifyStruct {
 			default:
 				System.out
 						.println("\nUnrecognized option " + argv[i] + "!\n\n");
-				print_help();
+				printHelp();
 				System.exit(0);
 			}
 		}
 
 		if ((i + 1) >= argc) {
 			// System.out.println("Not enough input parameters!");
-			print_help();
+			printHelp();
 			System.exit(0);
 		}
 
@@ -454,7 +454,7 @@ public class ClassifyStruct {
 		ssa.parseStructParametersClassify(struct_parm);
 	}
 
-	public static void print_help() {
+	public static void printHelp() {
 		System.out.println("\nSVM-struct classification module: "
 				+ CommonStruct.INST_NAME + ", "
 				+ CommonStruct.INST_VERSION + ", "
@@ -490,7 +490,7 @@ public class ClassifyStruct {
 		Struct ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		read_input_parameters(args.length + 1, args, sparm,
+		readInputParameters(args.length + 1, args, sparm,
 				Common.verbosity, CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
@@ -533,7 +533,7 @@ public class ClassifyStruct {
 
 		for (i = 0; i < testsample.n; i++) {
 
-			t1 = Common.get_runtime();
+			t1 = Common.getRuntime();
 			// logger.info("doc [" + i + "] "
 			// + testsample.examples[i].x.doc.fvec.toString());
 			y = ssa.classifyStructExample(testsample.examples[i].x, model,
@@ -554,7 +554,7 @@ public class ClassifyStruct {
 				pw.println(testsample.examples[i].y.class_index + " "
 						+ y.class_index);
 			}
-			runtime += (Common.get_runtime() - t1);
+			runtime += (Common.getRuntime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 
 			l = ssa.loss(testsample.examples[i].y, y, sparm);

@@ -27,7 +27,7 @@ public class MainLearn {
 		String type;
 
 		/* set default */
-		Common.set_learning_defaults(learn_parm, kernel_parm);
+		Common.setLearningDefaults(learn_parm, kernel_parm);
 		modelfile = "svm_model";
 		restartfile = "";
 		Common.verbosity = 5;
@@ -387,7 +387,7 @@ public class MainLearn {
 		}
 
 		ReadStruct rs=new ReadStruct();
-		docs = Common.read_documents(docfile, rs);
+		docs = Common.readDocuments(docfile, rs);
 
 		target = rs.read_target;
 		System.out.println("docs length in main:" + docs.length);

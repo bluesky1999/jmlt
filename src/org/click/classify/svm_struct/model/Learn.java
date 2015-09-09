@@ -74,7 +74,7 @@ public class Learn {
 		TIMING timing_profile = new TIMING();
 		SHRINK_STATE shrink_state = new SHRINK_STATE();
 
-		runtime_start = Common.get_runtime();
+		runtime_start = Common.getRuntime();
 		timing_profile.time_kernel = 0;
 		timing_profile.time_opti = 0;
 		timing_profile.time_shrink = 0;
@@ -211,7 +211,7 @@ public class Learn {
 							&& (kernel_cache_space_available(kernel_cache)))
 						cache_kernel_row(kernel_cache, docs, i, kernel_parm);
 			}
-			Common.clear_nvector(weights, totwords);// set weights to zero
+			Common.clearNvector(weights, totwords);// set weights to zero
 			compute_index(index, totdoc, index2dnum);
 			update_linear_component(docs, label, index2dnum, alpha, a,
 					index2dnum, totdoc, totwords, kernel_parm, kernel_cache,
@@ -279,7 +279,7 @@ public class Learn {
 			System.out.println("Optimization finished (" + misclassified
 					+ " misclassified, maxdiff=" + maxdiff + ").");
 
-			runtime_end = Common.get_runtime();
+			runtime_end = Common.getRuntime();
 			if (Common.verbosity >= 2) {
 				System.out.println("Runtime in cpu-seconds:"
 						+ (runtime_end - runtime_start) / 100.0 + " ("
@@ -355,7 +355,7 @@ public class Learn {
 
 				if ((learn_parm.remove_inconsistent == 0)
 						&& (transduction == 0)) {
-					runtime_start_xa = Common.get_runtime();
+					runtime_start_xa = Common.getRuntime();
 					if (Common.verbosity >= 1) {
 						System.out.println("Computing XiAlpha-estimates...");
 					}
@@ -366,7 +366,7 @@ public class Learn {
 					}
 					System.out
 							.println("Runtime for XiAlpha-estimates in cpu-seconds: "
-									+ (Common.get_runtime() - runtime_start_xa)
+									+ (Common.getRuntime() - runtime_start_xa)
 									/ 100.0);
 
 					System.out.println("XiAlpha-estimate of the error: error<="
@@ -398,7 +398,7 @@ public class Learn {
 		// leave-one-out testing starts now
 		if (learn_parm.compute_loo != 0) {
 			// save results of training on full dataset for leave-one-out
-			runtime_start_loo = Common.get_runtime();
+			runtime_start_loo = Common.getRuntime();
 			for (i = 0; i < totdoc; i++) {
 				xi_fullset[i] = 1.0 - ((lin[i] - model.b) * (double) label[i]);
 				if (xi_fullset[i] < 0)
@@ -492,7 +492,7 @@ public class Learn {
 				System.out.println("Actual leave-one-outs computed:  "
 						+ loocomputed + " (rho=" + learn_parm.rho + ")");
 				System.out.println("Runtime for leave-one-out in cpu-seconds: "
-						+ (Common.get_runtime() - runtime_start_loo)
+						+ (Common.getRuntime() - runtime_start_loo)
 						/ 100.0);
 			}
 		}
@@ -624,7 +624,7 @@ public class Learn {
 			index2dnum = new int[totdoc + 11];
 			if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
 				weights = new double[totwords + 1];
-				Common.clear_nvector(weights, totwords);
+				Common.clearNvector(weights, totwords);
 				aicache = null;
 			} else {
 				weights = null;
@@ -714,7 +714,7 @@ public class Learn {
 			System.out.println("Optimization finished (maxdiff=" + maxdiff
 					+ ").");
 
-			runtime_end = Common.get_runtime();
+			runtime_end = Common.getRuntime();
 			if (Common.verbosity >= 2) {
 				System.out.println("Runtime in cpu-seconds:"
 						+ (runtime_end - runtime_start) / 100.0 + " ("
@@ -879,7 +879,7 @@ public class Learn {
 			for (ii = 0; (i = working2dnum[ii]) >= 0; ii++) {
 				if (a[i] != a_old[i]) {
 					for (f = docs[i].fvec; f != null; f = f.next) {
-						Common.add_vector_ns(weights, f, f.factor
+						Common.addVectorNs(weights, f, f.factor
 								* ((a[i] - a_old[i]) * label[i]));
 
 					}
@@ -888,14 +888,14 @@ public class Learn {
 
 			for (jj = 0; (j = active2dnum[jj]) >= 0; jj++) {
 				for (f = docs[j].fvec; f != null; f = f.next) {
-					lin[j] += f.factor * Common.sprod_ns(weights, f);
+					lin[j] += f.factor * Common.sprodNs(weights, f);
 				}
 			}
 
 			for (ii = 0; (i = working2dnum[ii]) >= 0; ii++) {
 				if (a[i] != a_old[i]) {
 					for (f = docs[i].fvec; f != null; f = f.next) {
-						Common.mult_vector_ns(weights, f, 0.0);
+						Common.multVectorNs(weights, f, 0.0);
 					}
 				}
 			}
@@ -924,8 +924,8 @@ public class Learn {
 		WORD[] nullword = new WORD[1];
 		nullword[0] = new WORD();
 		nullword[0].wnum = 0;
-		nulldoc = Common.create_example(-2, 0, 0, 0.0,
-				Common.create_svector(nullword, "", 1.0));
+		nulldoc = Common.createExample(-2, 0, 0, 0.0,
+				Common.createSvector(nullword, "", 1.0));
 		avgxlen = 0;
 
 		for (i = 0; i < totdoc; i++) {
@@ -1281,8 +1281,8 @@ public class Learn {
 		qp.opt_up = new double[learn_parm.svm_maxqpsize];
 
 		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
-			weights = Common.create_nvector(totwords);
-			Common.clear_nvector(weights, totwords);
+			weights = Common.createNvector(totwords);
+			Common.clearNvector(weights, totwords);
 		} else {
 			weights = null;
 		}
@@ -1337,7 +1337,7 @@ public class Learn {
 			}
 
 			if (Common.verbosity >= 2) {
-				t0 = Common.get_runtime();
+				t0 = Common.getRuntime();
 			}
 
 			if (Common.verbosity >= 3) {
@@ -1459,7 +1459,7 @@ public class Learn {
 
 			if (Common.verbosity >= 2) {
 				// System.out.println(choosenum+" vectors chosen");
-				t1 = Common.get_runtime();
+				t1 = Common.getRuntime();
 			}
 
 			if (kernel_cache != null) {
@@ -1468,7 +1468,7 @@ public class Learn {
 			}
 
 			if (Common.verbosity >= 2) {
-				t2 = Common.get_runtime();
+				t2 = Common.getRuntime();
 			}
 
 			if (retrain != 2) {
@@ -1481,7 +1481,7 @@ public class Learn {
 			}
 
 			if (Common.verbosity >= 2) {
-				t3 = Common.get_runtime();
+				t3 = Common.getRuntime();
 			}
 
 
@@ -1490,14 +1490,14 @@ public class Learn {
 					lin, aicache, weights);
 
 			if (Common.verbosity >= 2) {
-				t4 = Common.get_runtime();
+				t4 = Common.getRuntime();
 			}
 
 			supvecnum = calculate_svm_model(docs, label, unlabeled, lin, a,
 					a_old, c, learn_parm, working2dnum, active2dnum, model);
 
 			if (Common.verbosity >= 2) {
-				t5 = Common.get_runtime();
+				t5 = Common.getRuntime();
 			}
 
 			if (Common.verbosity >= 3) {
@@ -1524,7 +1524,7 @@ public class Learn {
 					active2dnum, last_suboptimal_at, iteration, kernel_parm);
 		
 			if (Common.verbosity >= 2) {
-				t6 = Common.get_runtime();
+				t6 = Common.getRuntime();
 				timing_profile.time_select += t1 - t0;
 				timing_profile.time_kernel += t2 - t1;
 				timing_profile.time_opti += t3 - t2;
@@ -1562,7 +1562,7 @@ public class Learn {
 					logger.info(" Checking optimality of inactive variables...");
 				}
 
-				t1 = Common.get_runtime();
+				t1 = Common.getRuntime();
 
 		
 				reactivate_inactive_examples(label, unlabeled, a, shrink_state,
@@ -1583,7 +1583,7 @@ public class Learn {
 				if (maxdiff > learn_parm.epsilon_crit) {
 					retrain = 1;
 				}
-				timing_profile.time_shrink += Common.get_runtime() - t1;
+				timing_profile.time_shrink += Common.getRuntime() - t1;
 				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
 						|| (Common.verbosity >= 2)) {
 					logger.info("done.");
@@ -2278,7 +2278,7 @@ public class Learn {
 			for (i = 0; i < totdoc; i++) {
 				if (a[i] != a_old[i]) {
 					for (f = docs[i].fvec; (f != null); f = f.next) {
-						Common.add_vector_ns(weights, f, f.factor
+						Common.addVectorNs(weights, f, f.factor
 								* ((a[i] - a_old[i]) * (double) label[i]));
 					}
 					a_old[i] = a[i];
@@ -2288,14 +2288,14 @@ public class Learn {
 				if (shrink_state.active[i] == 0) {
 					for (f = docs[i].fvec; f != null; f = f.next) {
 						lin[i] = shrink_state.last_lin[i] + f.factor
-								* Common.sprod_ns(weights, f);
+								* Common.sprodNs(weights, f);
 					}
 				}
 				shrink_state.last_lin[i] = lin[i];
 			}
 			for (i = 0; i < totdoc; i++) {
 				for (f = docs[i].fvec; f != null; f = f.next) {
-					Common.mult_vector_ns(weights, f, 0.0); /*
+					Common.multVectorNs(weights, f, 0.0); /*
 																 * set weights
 																 * back to zero
 																 */
@@ -3102,8 +3102,8 @@ public class Learn {
 		qp.opt_up = new double[learn_parm.svm_maxqpsize];
 
 		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
-			weights = Common.create_nvector(totwords);
-			Common.clear_nvector(weights, totwords);
+			weights = Common.createNvector(totwords);
+			Common.clearNvector(weights, totwords);
 		} else {
 			weights = null;
 		}
@@ -3175,7 +3175,7 @@ public class Learn {
 			}
 
 			if (Common.verbosity >= 2) {
-				t0 = Common.get_runtime();
+				t0 = Common.getRuntime();
 			}
 
 			if (Common.verbosity >= 3) {
@@ -3302,7 +3302,7 @@ public class Learn {
 			}
 
 			if (Common.verbosity >= 2) {
-				t1 = Common.get_runtime();
+				t1 = Common.getRuntime();
 			}
 
 			if (kernel_cache != null) {
@@ -3311,7 +3311,7 @@ public class Learn {
 			}
 
 			if (Common.verbosity >= 2) {
-				t2 = Common.get_runtime();
+				t2 = Common.getRuntime();
 			}
 
 			if (jointstep != 0) {
@@ -3360,7 +3360,7 @@ public class Learn {
 			}
 
 			if (Common.verbosity >= 2) {
-				t3 = Common.get_runtime();
+				t3 = Common.getRuntime();
 			}
 
 			update_linear_component(docs, label, active2dnum, a, a_old,
@@ -3370,14 +3370,14 @@ public class Learn {
 					learn_parm, slack, alphaslack);
 
 			if (Common.verbosity >= 2) {
-				t4 = Common.get_runtime();
+				t4 = Common.getRuntime();
 			}
 
 			supvecnum = calculate_svm_model(docs, label, unlabeled, lin, a,
 					a_old, c, learn_parm, working2dnum, active2dnum, model);
 
 			if (Common.verbosity >= 2) {
-				t5 = Common.get_runtime();
+				t5 = Common.getRuntime();
 			}
 
 			/* The following computation of the objective function works only */
@@ -3402,7 +3402,7 @@ public class Learn {
 			// maxdiff?传值 or 传地址?
 
 			if (Common.verbosity >= 2) {
-				t6 = Common.get_runtime();
+				t6 = Common.getRuntime();
 				timing_profile.time_select += t1 - t0;
 				timing_profile.time_kernel += t2 - t1;
 				timing_profile.time_opti += t3 - t2;
@@ -3441,7 +3441,7 @@ public class Learn {
 
 				}
 
-				t1 = Common.get_runtime();
+				t1 = Common.getRuntime();
 				reactivate_inactive_examples(label, unlabeled, a, shrink_state,
 						lin, c, totdoc, totwords, iteration, learn_parm,
 						inconsistent, docs, kernel_parm, kernel_cache, model,
@@ -3472,7 +3472,7 @@ public class Learn {
 				if (maxdiff > learn_parm.epsilon_crit) {
 					retrain = 1;
 				}
-				timing_profile.time_shrink += Common.get_runtime() - t1;
+				timing_profile.time_shrink += Common.getRuntime() - t1;
 				if (((Common.verbosity >= 1) && (kernel_parm.kernel_type !=  ModelConstant.LINEAR))
 						|| (Common.verbosity >= 2)) {
 					// System.out.println("done.");
@@ -3586,14 +3586,11 @@ public class Learn {
 		for (ii = 0; (i = active2dnum[ii]) >= 0; ii++) {
 			ex_c = learn_parm.svm_c - learn_parm.epsilon_a;
 			if (alphaslack[docs[i].slackid] >= ex_c) {
-				dist = (lin[i]) * (double) label[i] + slack[docs[i].slackid]; /* distance */
-				target = -(learn_parm.eps - (double) label[i] * c[i]); /*
-																		 * rhs
-																		 * of
-																		 * constraint
-																		 */
+				dist = (lin[i]) * (double) label[i] + slack[docs[i].slackid]; // distance 
+				target = -(learn_parm.eps - (double) label[i] * c[i]); //rhs of constraint
+																		
 				if ((a[i] > learn_parm.epsilon_a) && (dist > target)) {
-					if ((dist - target) > maxdiff) { /* largest violation */
+					if ((dist - target) > maxdiff) { //largest violation 
 						maxdiff = dist - target;
 						maxdiffid = docs[i].slackid;
 					}
@@ -3705,8 +3702,8 @@ public class Learn {
 		KERNEL_PARM kernel_parm = model.kernel_parm;
 		nullword[0] = new WORD();
 		nullword[0].wnum = 0;
-		nulldoc = Common.create_example(-2, 0, 0, 0.0,
-				Common.create_svector(nullword, "", 1.0));
+		nulldoc = Common.createExample(-2, 0, 0, 0.0,
+				Common.createSvector(nullword, "", 1.0));
 
 		for (j = 1; j < model.sv_num; j++) {
 			xlen = Math.sqrt(Common.kernel(kernel_parm, model.supvec[j],
@@ -3779,8 +3776,8 @@ public class Learn {
 
 		nullword[0] = new WORD();
 		nullword[0].wnum = 0;
-		nulldoc = Common.create_example(-2, 0, 0, 0.0,
-				Common.create_svector(nullword, "", 1.0));
+		nulldoc = Common.createExample(-2, 0, 0, 0.0,
+				Common.createSvector(nullword, "", 1.0));
 
 		maxxlen = 0;
 		for (i = 0; i < totdoc; i++) {
@@ -3814,7 +3811,7 @@ public class Learn {
 		/* follows chapter 5.6.4 in [Vapnik/95] */
 
 		if (w < 0) {
-			w = Common.model_length_s(model);
+			w = Common.modelLengthS(model);
 		}
 		if (R < 0) {
 			R = estimate_sphere(model);

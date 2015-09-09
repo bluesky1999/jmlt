@@ -129,7 +129,7 @@ public class Perf extends Struct {
 		// Using the read_documents function from SVM-light
 		ReadStruct rs = new ReadStruct();
 
-		examples[0].x.docs = Common.read_documents(file, rs);
+		examples[0].x.docs = Common.readDocuments(file, rs);
 		examples[0].y.class_indexs = rs.read_target;
 		examples[0].x.totdoc = rs.read_totdocs;
 		examples[0].y.totdoc = rs.read_totdocs;
@@ -180,7 +180,7 @@ public class Perf extends Struct {
 				words[j].wnum = sparm.bias_featurenum; // bias
 				words[j].weight = sparm.bias;
 
-				sample.examples[0].x.docs[i].fvec = Common.create_svector(
+				sample.examples[0].x.docs[i].fvec = Common.createSvector(
 						words, "", 1.0);
 			}
 		}

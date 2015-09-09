@@ -38,7 +38,7 @@ public class Common {
 
 	private static Logger logger = Logger.getLogger(Common.class);
 
-	public static SVECTOR create_svector(WORD[] words, String userdefined,
+	public static SVECTOR createSvector(WORD[] words, String userdefined,
 			double factor) {
 		SVECTOR vec;
 		int fnum, i;
@@ -66,7 +66,7 @@ public class Common {
 		return vec;
 	}
 
-	public static DOC create_example(int docnum, int queryid, int slackid,
+	public static DOC createExample(int docnum, int queryid, int slackid,
 			double costfactor, SVECTOR fvec) {
 
 		DOC example = new DOC();
@@ -104,7 +104,7 @@ public class Common {
 					// if (sum > 0)
 					// System.out.println("sum:" + sum);
 					sum += fa.factor * fb.factor
-							* single_kernel(kernel_parm, fa, fb);
+							* singleKernel(kernel_parm, fa, fb);
 				}
 			}
 		}
@@ -112,27 +112,27 @@ public class Common {
 		return sum;
 	}
 
-	public static double single_kernel(KERNEL_PARM kernel_parm, SVECTOR a,
+	public static double singleKernel(KERNEL_PARM kernel_parm, SVECTOR a,
 			SVECTOR b) {
 		kernel_cache_statistic++;
 
 		switch (kernel_parm.kernel_type) {
 		case ModelConstant.LINEAR:
 			// System.out.println("liner kernel y");
-			return sprod_ss(a, b);
+			return sprodSs(a, b);
 		case ModelConstant.POLY:
-			return Math.pow(kernel_parm.coef_lin * sprod_ss(a, b)
+			return Math.pow(kernel_parm.coef_lin * sprodSs(a, b)
 					+ kernel_parm.coef_const, kernel_parm.poly_degree);
 		case ModelConstant.RBF:
 			if (a.twonorm_sq < 0) {
-				a.twonorm_sq = sprod_ss(a, a);
+				a.twonorm_sq = sprodSs(a, a);
 			} else if (b.twonorm_sq < 0) {
-				b.twonorm_sq = sprod_ss(b, b);
+				b.twonorm_sq = sprodSs(b, b);
 			}
 			return Math.exp(-kernel_parm.rbf_gamma
-					* (a.twonorm_sq - 2 * sprod_ss(a, b) + b.twonorm_sq));
+					* (a.twonorm_sq - 2 * sprodSs(a, b) + b.twonorm_sq));
 		case ModelConstant.SIGMOID:
-			return Math.tanh(kernel_parm.coef_lin * sprod_ss(a, b)
+			return Math.tanh(kernel_parm.coef_lin * sprodSs(a, b)
 					+ kernel_parm.coef_const);
 		case ModelConstant.CUSTOM:
 			// return kernel.custom_kernel(kernel_parm, a, b);
@@ -145,7 +145,7 @@ public class Common {
 		return 0;
 	}
 
-	public static double sprod_ss(SVECTOR a, SVECTOR b) {
+	public static double sprodSs(SVECTOR a, SVECTOR b) {
 		double sum = 0;
 		WORD[] ai, bj;
 		ai = a.words;
@@ -173,20 +173,20 @@ public class Common {
 		return sum;
 	}
 
-	public static void clear_nvector(double[] vec, int n) {
+	public static void clearNvector(double[] vec, int n) {
 		int i;
 		for (i = 0; i <= n; i++) {
 			vec[i] = 0;
 		}
 	}
 
-	public static double[] create_nvector(int n) {
+	public static double[] createNvector(int n) {
 		double[] vector;
 		vector = new double[n + 1];
 		return vector;
 	}
 
-	public static void add_vector_ns(double[] vec_n, SVECTOR vec_s,
+	public static void addVectorNs(double[] vec_n, SVECTOR vec_s,
 			double faktor) {
 		WORD[] ai;
 		ai = vec_s.words;
@@ -199,7 +199,7 @@ public class Common {
 		}
 	}
 
-	public static double sprod_ns(double[] vec_n, SVECTOR vec_s) {
+	public static double sprodNs(double[] vec_n, SVECTOR vec_s) {
 		double sum = 0;
 		WORD[] ai;
 		ai = vec_s.words;
@@ -215,7 +215,7 @@ public class Common {
 		return sum;
 	}
 
-	public static void mult_vector_ns(double[] vec_n, SVECTOR vec_s,
+	public static void multVectorNs(double[] vec_n, SVECTOR vec_s,
 			double faktor) {
 		WORD[] ai;
 		ai = vec_s.words;
@@ -228,7 +228,7 @@ public class Common {
 
 	}
 
-	public static double get_runtime() {
+	public static double getRuntime() {
 		int c = (int) TimeOpera.getCurrentTimeLong();
 		double hc = 0;
 		hc = ((double) c) * 10;
@@ -236,7 +236,7 @@ public class Common {
 	}
 
 	/** compute length of weight vector */
-	public static double model_length_s(MODEL model) {
+	public static double modelLengthS(MODEL model) {
 		int i, j;
 		double sum = 0, alphai;
 		DOC supveci;
@@ -253,7 +253,7 @@ public class Common {
 		return (Math.sqrt(sum));
 	}
 
-	public static void set_learning_defaults(LEARN_PARM learn_parm,
+	public static void setLearningDefaults(LEARN_PARM learn_parm,
 			KERNEL_PARM kernel_parm) {
 		learn_parm.type = ModelConstant.CLASSIFICATION;
 		learn_parm.predfile = "trans_predictions";
@@ -291,7 +291,7 @@ public class Common {
 		kernel_parm.custom = "empty";
 	}
 
-	public static DOC[] read_documents(String docfile, ReadStruct struct) {
+	public static DOC[] readDocuments(String docfile, ReadStruct struct) {
 		String line, comment;
 
 		DOC[] docs;
@@ -366,9 +366,9 @@ public class Common {
 						&& ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
 					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
-				docs[dnum] = create_example(dnum, rs.read_queryid,
+				docs[dnum] = createExample(dnum, rs.read_queryid,
 						rs.read_slackid, rs.read_costfactor,
-						create_svector(words, rs.read_comment, 1.0));
+						createSvector(words, rs.read_comment, 1.0));
 				dnum++;
 
 			}
@@ -386,7 +386,7 @@ public class Common {
 		return docs;
 	}
 
-	public static DOC[] read_documents_from_stream(InputStream is,
+	public static DOC[] readDocumentsFromStream(InputStream is,
 			double[] label, ReadStruct struct) {
 		String line, comment;
 
@@ -453,9 +453,9 @@ public class Common {
 						&& ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
 					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
-				docs[dnum] = create_example(dnum, rs.read_queryid,
+				docs[dnum] = createExample(dnum, rs.read_queryid,
 						rs.read_slackid, rs.read_costfactor,
-						create_svector(words, rs.read_comment, 1.0));
+						createSvector(words, rs.read_comment, 1.0));
 
 				dnum++;
 
@@ -529,9 +529,9 @@ public class Common {
 						&& ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
 					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
-				docs[dnum] = create_example(dnum, rs.read_queryid,
+				docs[dnum] = createExample(dnum, rs.read_queryid,
 						rs.read_slackid, rs.read_costfactor,
-						create_svector(words, rs.read_comment, 1.0));
+						createSvector(words, rs.read_comment, 1.0));
 				dnum++;
 
 			}
@@ -969,7 +969,7 @@ public class Common {
 		newmodel.index = null; // index is not copied
 		newmodel.supvec[0] = null;
 		newmodel.alpha[0] = 0.0;
-		newmodel.supvec[1] = create_example(
+		newmodel.supvec[1] = createExample(
 				-1,
 				0,
 				0,
@@ -987,11 +987,11 @@ public class Common {
 		int i;
 		SVECTOR f;
 		// logger.info("model.totwords:" + model.totwords);
-		model.lin_weights = create_nvector(model.totwords);
-		clear_nvector(model.lin_weights, model.totwords);
+		model.lin_weights = createNvector(model.totwords);
+		clearNvector(model.lin_weights, model.totwords);
 		for (i = 1; i < model.sv_num; i++) {
 			for (f = (model.supvec[i]).fvec; f != null; f = f.next)
-				add_vector_ns(model.lin_weights, f, f.factor * model.alpha[i]);
+				addVectorNs(model.lin_weights, f, f.factor * model.alpha[i]);
 		}
 	}
 
@@ -1205,7 +1205,7 @@ public class Common {
 
 		if (a == null) {
 			empty[0].wnum = 0;
-			sum = create_svector(empty, null, 1.0);
+			sum = createSvector(empty, null, 1.0);
 		} else if ((a != null) && (a.next == null)) {
 			sum = smult_s(a, a.factor);
 		} else {
@@ -1361,7 +1361,7 @@ public class Common {
 			vec = create_svector_shallow(sumi, null, 1.0);
 			// logger.info("vec ee:"+vec.toLongString());
 		} else { // this is more memory efficient
-			vec = create_svector(sumi, null, 1.0);
+			vec = createSvector(sumi, null, 1.0);
 
 		}
 		return (vec);
@@ -1398,7 +1398,7 @@ public class Common {
 		SVECTOR f;
 
 		for (f = ex.fvec; f != null; f = f.next) {
-			sum += f.factor * sprod_ns(model.lin_weights, f);
+			sum += f.factor * sprodNs(model.lin_weights, f);
 		}
 		return (sum - model.b);
 	}
@@ -1406,7 +1406,7 @@ public class Common {
 	public static SVECTOR copy_svector(SVECTOR vec) {
 		SVECTOR newvec = null;
 		if (vec != null) {
-			newvec = create_svector(vec.words, vec.userdefined, vec.factor);
+			newvec = createSvector(vec.words, vec.userdefined, vec.factor);
 			newvec.kernel_id = vec.kernel_id;
 			newvec.next = copy_svector(vec.next);
 		}
@@ -1445,7 +1445,7 @@ public class Common {
 		for (i = 1; i < model.sv_num; i++) {
 
 			newmodel.alpha[i] = model.alpha[i];
-			newmodel.supvec[i] = Common.create_example(
+			newmodel.supvec[i] = Common.createExample(
 					model.supvec[i].docnum, model.supvec[i].queryid, 0,
 					model.supvec[i].costfactor,
 					Common.copy_svector(model.supvec[i].fvec));
@@ -1547,11 +1547,11 @@ public class Common {
 			if (true) { // this wastes some memory, but saves malloc'ing
 				sum = create_svector_shallow(concat, null, 1.0);
 			} else { // this is more memory efficient
-				sum = create_svector(concat, null, 1.0);
+				sum = createSvector(concat, null, 1.0);
 			}
 		} else {
 			empty[0].wnum = 0;
-			sum = create_svector(empty, null, 1.0);
+			sum = createSvector(empty, null, 1.0);
 		}
 		return (sum);
 	}
@@ -1592,7 +1592,7 @@ public class Common {
 			double faktor) {
 		SVECTOR f;
 		for (f = vec_s; f != null; f = f.next)
-			add_vector_ns(vec_n, f, f.factor * faktor);
+			addVectorNs(vec_n, f, f.factor * faktor);
 	}
 
 	/**
@@ -1637,11 +1637,11 @@ public class Common {
 					totwords = ai[k].wnum;
 			}
 		}
-		sum = create_nvector(totwords);
+		sum = createNvector(totwords);
 
-		clear_nvector(sum, totwords);
+		clearNvector(sum, totwords);
 		for (f = a; f != null; f = f.next)
-			add_vector_ns(sum, f, f.factor);
+			addVectorNs(sum, f, f.factor);
 
 		vec = create_svector_n_r(sum, totwords, null, 1.0, min_non_zero);
 
@@ -1698,12 +1698,12 @@ public class Common {
 		if (model.kernel_parm.kernel_type != ModelConstant.LINEAR) {
 			logger.info("ERROR: model_length_n applies only to linear kernel!\n");
 		}
-		weight_n = create_nvector(totwords);
-		clear_nvector(weight_n, totwords);
+		weight_n = createNvector(totwords);
+		clearNvector(weight_n, totwords);
 		for (i = 1; i < model.sv_num; i++)
 			add_list_n_ns(weight_n, model.supvec[i].fvec, model.alpha[i]);
 		weight = create_svector_n(weight_n, totwords, null, 1.0);
-		sum = sprod_ss(weight, weight);
+		sum = sprodSs(weight, weight);
 
 		return (Math.sqrt(sum));
 	}
@@ -1805,8 +1805,8 @@ public class Common {
 				comment = rs.read_comment;
 				// words = svm_common.read_words;
 				words = read_words;
-				model.supvec[i] = Common.create_example(-1, 0, 0, 0.0,
-						Common.create_svector(words, comment, 1.0));
+				model.supvec[i] = Common.createExample(-1, 0, 0, 0.0,
+						Common.createSvector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
 			}
 

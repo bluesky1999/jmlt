@@ -62,8 +62,8 @@ public class Classify {
 			comment = rs.read_comment;
 			//words = svm_common.read_words;
 			words = read_words;
-			doc = Common.create_example(-1, 0, 0, 0.0,
-					Common.create_svector(words, comment, 1.0));
+			doc = Common.createExample(-1, 0, 0, 0.0,
+					Common.createSvector(words, comment, 1.0));
 			if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) { 
 			    logger.info("kernel type is linear aa");
 				dist = Common.classify_example_linear(model, doc);

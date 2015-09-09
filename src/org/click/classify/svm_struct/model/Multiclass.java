@@ -230,7 +230,7 @@ public class Multiclass extends Struct {
 		int totwords, i, num_classes = 0;
 
 		ReadStruct rs=new ReadStruct();
-		docs = Common.read_documents(file,rs);
+		docs = Common.readDocuments(file,rs);
 
 		target = rs.read_target;
 		totwords = rs.read_totwords;
@@ -280,7 +280,7 @@ public class Multiclass extends Struct {
 		int totwords, i, num_classes = 0;
 		
 		ReadStruct rs=new ReadStruct();
-		docs = Common.read_documents_from_stream(is, target,rs);
+		docs = Common.readDocumentsFromStream(is, target,rs);
 
 		target = rs.read_target;
 		totwords = rs.read_totwords;
@@ -380,8 +380,8 @@ public class Multiclass extends Struct {
 		String read_comment = "";
 		WORD[] words = null;
 		words = string2words(wordString);
-		DOC doc = Common.create_example(dnum, queryid, slackid, costfactor,
-				Common.create_svector(words, read_comment, 1.0));
+		DOC doc = Common.createExample(dnum, queryid, slackid, costfactor,
+				Common.createSvector(words, read_comment, 1.0));
 		PATTERN pat = new PATTERN();
 		pat.doc = doc;
 

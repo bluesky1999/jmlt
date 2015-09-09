@@ -477,8 +477,8 @@ public abstract class Struct {
 				words = read_words;
 				// System.out.println("words:" + words.length);
 				// System.out.println("queryid:" + queryid);
-				model.supvec[i] = sc.create_example(-1, 0, 0, 0.0,
-						sc.create_svector(words, comment, 1.0));
+				model.supvec[i] = sc.createExample(-1, 0, 0, 0.0,
+						sc.createSvector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
 				// System.err.println("read supvec["+i+"]:"+model.supvec[i].fvec.toString());
 			}
