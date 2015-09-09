@@ -18,7 +18,7 @@ import org.click.classify.svm_struct.data.SVECTOR;
  * @author zkyz
  *
  */
-public class SVMStructApiMultilevel extends SVMStructApi{
+public class MultilevelSVMStructApi extends SVMStructApi{
 
 	@Override
 	public void init_struct_model(SAMPLE sample, STRUCTMODEL sm,

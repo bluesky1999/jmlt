@@ -18,7 +18,7 @@ import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
 import org.click.classify.svm_struct.data.SVECTOR;
 import org.click.classify.svm_struct.data.WORD;
 
-public class SVMStructApiPerf extends SVMStructApi {
+public class PerfSVMStructApi extends SVMStructApi {
 
 	@Override
 	public void init_struct_model(SAMPLE sample, STRUCTMODEL sm,
@@ -48,7 +48,7 @@ public class SVMStructApiPerf extends SVMStructApi {
 		return null;
 	}
 
-	/*
+	/**
 	 * loss for correct label y and predicted label ybar. The loss for y==ybar
 	 * has to be zero. sparm->loss_function is set with the -l option.
 	 */
@@ -57,7 +57,7 @@ public class SVMStructApiPerf extends SVMStructApi {
 		int a = 0, b = 0, c = 0, d = 0, i;
 		double loss = 1;
 
-		/* compute contingency table */
+		// compute contingency table
 		for (i = 0; i < y.totdoc; i++) {
 			if ((y.class_indexs[i] > 0) && (ybar.class_indexs[i] > 0)) {
 				a++;
@@ -74,11 +74,9 @@ public class SVMStructApiPerf extends SVMStructApi {
 
 		}
 		// Return the loss according to the selected loss function.
-		if (sparm.loss_function == ModelConstant.ZEROONE) { /*
-															 * type 0 loss: 0/1
-															 * loss
-															 */
-			/* return 0, if y==ybar. return 1 else */
+		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss: 0/1loss
+
+			// return 0, if y==ybar. return 1 else
 			loss = zeroone_loss(a, b, c, d);
 		} else if (sparm.loss_function == ModelConstant.FONE) {
 			loss = fone_loss(a, b, c, d);
@@ -131,19 +129,19 @@ public class SVMStructApiPerf extends SVMStructApi {
 		// Using the read_documents function from SVM-light
 		ReadStruct rs = new ReadStruct();
 
-		examples[0].x.docs = SVMCommon.read_documents(file, rs);
-		examples[0].y.class_indexs=rs.read_target;		
+		examples[0].x.docs = CommonSVM.read_documents(file, rs);
+		examples[0].y.class_indexs = rs.read_target;
 		examples[0].x.totdoc = rs.read_totdocs;
 		examples[0].y.totdoc = rs.read_totdocs;
 		n = rs.read_totdocs;
 		totwords = rs.read_totwords;
-		
+
 		sample.n = 1;
 		sample.examples = examples;
 
 		if (sparm.preimage_method == 9) {
 			for (i = 0; i < n; i++) {
-				examples[0].x.docs[i].fvec.next = SVMCommon
+				examples[0].x.docs[i].fvec.next = CommonSVM
 						.copy_svector(examples[0].x.docs[i].fvec);
 				examples[0].x.docs[i].fvec.kernel_id = 0;
 				examples[0].x.docs[i].fvec.next.kernel_id = 2;
@@ -180,7 +178,7 @@ public class SVMStructApiPerf extends SVMStructApi {
 				words[j].wnum = sparm.bias_featurenum; // bias
 				words[j].weight = sparm.bias;
 
-				sample.examples[0].x.docs[i].fvec = SVMCommon.create_svector(
+				sample.examples[0].x.docs[i].fvec = CommonSVM.create_svector(
 						words, "", 1.0);
 			}
 		}
@@ -260,7 +258,6 @@ public class SVMStructApiPerf extends SVMStructApi {
 	 * 1 to index sm->sizePsi. If the function cannot find a label, it shall
 	 * return an empty label as recognized by the function empty_label(y).
 	 */
-
 	@Override
 	public LABEL classify_struct_example(PATTERN x, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
@@ -269,12 +266,11 @@ public class SVMStructApiPerf extends SVMStructApi {
 
 		y.totdoc = x.totdoc;
 		y.class_indexs = new double[y.totdoc];
-		/*
-		 * simply classify by sign of inner product between example vector and
-		 * weight vector
-		 */
+
+		// simply classify by sign of inner product between example vector and
+		// weight vector
 		for (i = 0; i < x.totdoc; i++) {
-			y.class_indexs[i] = SVMCommon.classify_example(sm.svm_model,
+			y.class_indexs[i] = CommonSVM.classify_example(sm.svm_model,
 					x.docs[i]);
 		}
 		return (y);
@@ -291,11 +287,10 @@ public class SVMStructApiPerf extends SVMStructApi {
 	 * Reads structural model sm from file file. This function is used only in
 	 * the prediction module, not in the learning module.
 	 */
-
 	@Override
 	public STRUCTMODEL read_struct_model(String file, STRUCT_LEARN_PARM sparm) {
 		STRUCTMODEL sm = new STRUCTMODEL();
-		sm.svm_model = SVMCommon.read_model(file);
+		sm.svm_model = CommonSVM.read_model(file);
 		sparm.loss_function = ModelConstant.ERRORRATE;
 		sparm.bias = 0;
 		sparm.bias_featurenum = 0;
@@ -324,22 +319,22 @@ public class SVMStructApiPerf extends SVMStructApi {
 			STRUCT_LEARN_PARM sparm) {
 
 	}
-	
+
 	/** Writes label y to file handle fp. */
-	public  void write_label(PrintWriter fp, LABEL y) {
-		  int i;
-		  for(i=0;i<y.totdoc;i++) {
-		    fp.printf("%.8f\n",y.class_indexs[i]);
-		  }
+	public void write_label(PrintWriter fp, LABEL y) {
+		int i;
+		for (i = 0; i < y.totdoc; i++) {
+			fp.printf("%.8f\n", y.class_indexs[i]);
+		}
 
 	}
-	
+
 	@Override
 	public void write_label(PrintWriter fp, LABEL y, LABEL ybar) {
-		  int i;
-		  for(i=0;i<y.totdoc;i++) {
-		    fp.printf("%.8f\t%.8f\n",y.class_indexs[i],ybar.class_indexs[i]);
-		  }
+		int i;
+		for (i = 0; i < y.totdoc; i++) {
+			fp.printf("%.8f\t%.8f\n", y.class_indexs[i], ybar.class_indexs[i]);
+		}
 	}
 
 	double zeroone(int a, int b, int c, int d) {
@@ -378,13 +373,13 @@ public class SVMStructApiPerf extends SVMStructApi {
 		return (((double) (b + c)) / (double) (a + b + c + d));
 	}
 
+	/**
+	 * Returns percentage of swapped pos/neg pairs (i.e. 100 - ROC Area) for
+	 * prediction vectors that encode the number of misranked examples for each
+	 * particular example. WARNING: Works only for labels in the compressed
+	 * representation
+	 */
 	double swappedpairs(LABEL y, LABEL ybar) {
-		/*
-		 * Returns percentage of swapped pos/neg pairs (i.e. 100 - ROC Area) for
-		 * prediction vectors that encode the number of misranked examples for
-		 * each particular example.
-		 */
-		/* WARNING: Works only for labels in the compressed representation */
 		int i;
 		double sum = 0;
 		for (i = 0; i < y.totdoc; i++)
@@ -447,6 +442,5 @@ public class SVMStructApiPerf extends SVMStructApi {
 		return 100;
 		// return(100.0-avgprec_compressed(y,ybar));
 	}
-
 
 }

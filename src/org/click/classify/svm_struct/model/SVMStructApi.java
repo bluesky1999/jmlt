@@ -168,7 +168,7 @@ public abstract class SVMStructApi {
 		MODEL model = sm.svm_model;
 		if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 
-			sm.svm_model = SVMCommon.compact_linear_model(model);
+			sm.svm_model = CommonSVM.compact_linear_model(model);
 			sm.w = sm.svm_model.lin_weights; /* short cut to weight vector */
 
 		}
@@ -338,7 +338,7 @@ public abstract class SVMStructApi {
 			SVECTOR v;
 
 			modelfl.print("SVM-multiclass Version "
-					+ SVMStructCommon.INST_VERSION + "\n");
+					+ CommonSVMStruct.INST_VERSION + "\n");
 			modelfl.print(sparm.num_classes + "# number of classes\n");
 			modelfl.print(sparm.num_features + "# number of base features\n");
 			modelfl.print(sparm.loss_function + " # loss function\n");
@@ -413,7 +413,7 @@ public abstract class SVMStructApi {
 		WORD[] words;
 		String version_buffer;
 		MODEL model;
-		SVMCommon sc = new SVMCommon();
+		CommonSVM sc = new CommonSVM();
 
 		ReadSummary summary = null;
 		summary = sc.nol_ll(file); /* scan size of model file */
@@ -434,7 +434,7 @@ public abstract class SVMStructApi {
 				fr = new FileReader(modelfl);
 				br = new BufferedReader(fr);
 			} catch (FileNotFoundException e2) {
-				InputStream model_is = SVMCommon.class.getResourceAsStream("/"
+				InputStream model_is = CommonSVM.class.getResourceAsStream("/"
 						+ file);
 				InputStreamReader model_isr = new InputStreamReader(model_is);
 				br = new BufferedReader(model_isr);
@@ -445,7 +445,7 @@ public abstract class SVMStructApi {
 			version_buffer = SSO.afterStr(line, "SVM-multiclass Version")
 					.trim();
 
-			if (!(version_buffer.equals(SVMStructCommon.INST_VERSION))) {
+			if (!(version_buffer.equals(CommonSVMStruct.INST_VERSION))) {
 				System.err
 						.println("Version of model-file does not match version of svm_struct_classify!");
 

@@ -14,7 +14,7 @@ import org.jmlp.math.random.SimFunc;
  * 
  */
 
-public class SVMHideo {
+public class HideoSVM {
 
 	public static final int PRIMAL_OPTIMAL = 1;
 	public static final int DUAL_OPTIMAL = 2;
@@ -50,7 +50,7 @@ public class SVMHideo {
 	public short verbosity = 0;
 
 	public double progress;
-	private static Logger logger = Logger.getLogger(SVMHideo.class);
+	private static Logger logger = Logger.getLogger(HideoSVM.class);
 
 	public double[] optimize_qp(QP qp, double epsilon_crit, int nx,
 			double threshold, LEARN_PARM learn_param) {
