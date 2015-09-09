@@ -303,8 +303,7 @@ public class SVMCommon {
 		kernel_parm.custom = "empty";
 	}
 
-	public static DOC[] read_documents(String docfile, double[] label,
-			ReadStruct struct) {
+	public static DOC[] read_documents(String docfile, ReadStruct struct) {
 		String line, comment;
 
 		DOC[] docs;
@@ -339,7 +338,7 @@ public class SVMCommon {
 		WORD[] words;
 		
 		System.err.println("struct.read_max_docs:"+struct.read_max_docs);
-		label = new double[struct.read_max_docs]; // target values
+		double[] label = new double[struct.read_max_docs]; // target values
 		// System.out.println("docs length:"+docs.length);
 		words = new WORD[struct.read_max_words_doc + 10];
 		for (int j = 0; j < words.length; j++) {

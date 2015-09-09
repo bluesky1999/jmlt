@@ -131,17 +131,15 @@ public class SVMStructApiPerf extends SVMStructApi {
 		// Using the read_documents function from SVM-light
 		ReadStruct rs = new ReadStruct();
 
-		examples[0].x.docs = SVMCommon.read_documents(file,
-				examples[0].y.class_indexs, rs);
-		examples[0].y.class_indexs=rs.read_target;
-		
-		System.err.println("examples[0].y.class_indexs:"+examples[0].y.class_indexs.length);
+		examples[0].x.docs = SVMCommon.read_documents(file, rs);
+		examples[0].y.class_indexs=rs.read_target;		
 		examples[0].x.totdoc = rs.read_totdocs;
 		examples[0].y.totdoc = rs.read_totdocs;
-		sample.n = 1;
-		sample.examples = examples;
 		n = rs.read_totdocs;
 		totwords = rs.read_totwords;
+		
+		sample.n = 1;
+		sample.examples = examples;
 
 		if (sparm.preimage_method == 9) {
 			for (i = 0; i < n; i++) {
@@ -158,7 +156,7 @@ public class SVMStructApiPerf extends SVMStructApi {
 				nump++;
 			else
 				numn++;
-			// for(w=sample.examples[0].x.docs[i].fvec.words;ww.wnum;w++) {
+
 			for (j = 0; j < sample.examples[0].x.docs[i].fvec.words.length; j++) {
 				w = sample.examples[0].x.docs[i].fvec.words[j];
 				length++;

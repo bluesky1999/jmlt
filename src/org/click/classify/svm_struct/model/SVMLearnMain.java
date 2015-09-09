@@ -387,7 +387,7 @@ public class SVMLearnMain {
 		}
 
 		ReadStruct rs=new ReadStruct();
-		docs = SVMCommon.read_documents(docfile, target,rs);
+		docs = SVMCommon.read_documents(docfile, rs);
 
 		target = rs.read_target;
 		System.out.println("docs length in main:" + docs.length);

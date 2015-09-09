@@ -96,7 +96,7 @@ public class SVMClassify {
 		}
 		
 	
-			    System.out.println("Accuracy on test set:"+(float)(correct)*100.0/totdoc+" ("+correct+" correct, "+incorrect+" incorrect,"+totdoc+" total)\n");
+		System.out.println("Accuracy on test set:"+(float)(correct)*100.0/totdoc+" ("+correct+" correct, "+incorrect+" incorrect,"+totdoc+" total)\n");
 			   
 			  
 

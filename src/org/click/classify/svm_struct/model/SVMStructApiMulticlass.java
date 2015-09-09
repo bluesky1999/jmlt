@@ -230,7 +230,7 @@ public class SVMStructApiMulticlass extends SVMStructApi {
 		int totwords, i, num_classes = 0;
 
 		ReadStruct rs=new ReadStruct();
-		docs = SVMCommon.read_documents(file, target,rs);
+		docs = SVMCommon.read_documents(file,rs);
 
 		target = rs.read_target;
 		totwords = rs.read_totwords;

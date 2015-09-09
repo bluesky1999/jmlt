@@ -472,7 +472,7 @@ public class svm_struct_api_old {
 		/* Using the read_documents function from SVM-light */
 		
 		ReadStruct rs=new ReadStruct();
-		docs = SVMCommon.read_documents(file, target,rs);
+		docs = SVMCommon.read_documents(file, rs);
 	
 		// logger.info("in read struct examples: docs.length:"+docs.length);
 		target = rs.read_target;
