@@ -560,7 +560,7 @@ public class svm_struct_classify {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-		svm_struct_api_factory.api_type = 2;
+		svm_struct_api_factory.api_type = 0;
 		svm_struct_api ssa = svm_struct_api_factory.get_svm_struct_api();
 		ssa.svm_struct_classify_api_init(args.length + 1, args);
 
