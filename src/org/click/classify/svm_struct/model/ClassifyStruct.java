@@ -25,7 +25,7 @@ public class ClassifyStruct {
 	public static String predictionsfile = "";
 	private STRUCTMODEL model;
 	private STRUCT_LEARN_PARM sparm;
-	Struct ssa = null;
+	public Struct ssa = null;
 	private static Logger logger = Logger.getLogger(ClassifyStruct.class);
 
 	public void init_svm_struct(String model_file) {
@@ -45,8 +45,8 @@ public class ClassifyStruct {
 		ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		readInputParameters(args.length + 1, args, sparm,
-				Common.verbosity, CommonStruct.struct_verbosity);
+		readInputParameters(args.length + 1, args, sparm, Common.verbosity,
+				CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
 			logger.info("Reading model ...");
@@ -67,8 +67,9 @@ public class ClassifyStruct {
 	}
 
 	public LABEL classifyWordString(String sample) {
-		return ssa.classifyStructExample(ssa.sample2pattern(sample), model,
-				sparm);
+		// return ssa.classifyStructExample(ssa.sample2pattern(sample), model,
+		// sparm);
+		return ssa.classifyStructDoc(ssa.sample2doc(sample), model, sparm);
 	}
 
 	/**
@@ -92,8 +93,8 @@ public class ClassifyStruct {
 		ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		readInputParameters(args.length + 1, args, sparm,
-				Common.verbosity, CommonStruct.struct_verbosity);
+		readInputParameters(args.length + 1, args, sparm, Common.verbosity,
+				CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
 			logger.info("Reading model ...");
@@ -153,14 +154,12 @@ public class ClassifyStruct {
 						+ docwords);
 			}
 
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		logger.info("begin read_struct_examples_from_arraylist");
-		testsample = ssa
-				.readStructExamplesFromArraylist(sample_list, sparm);
+		testsample = ssa.readStructExamplesFromArraylist(sample_list, sparm);
 		logger.info("end read_struct_examples_from_arraylist");
 		if (CommonStruct.struct_verbosity >= 1) {
 			logger.info("done.");
@@ -258,8 +257,8 @@ public class ClassifyStruct {
 		ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		readInputParameters(args.length + 1, args, sparm,
-				Common.verbosity, CommonStruct.struct_verbosity);
+		readInputParameters(args.length + 1, args, sparm, Common.verbosity,
+				CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
 			logger.info("Reading model ...");
@@ -324,8 +323,7 @@ public class ClassifyStruct {
 		}
 
 		logger.info("begin read_struct_examples_from_arraylist");
-		testsample = ssa
-				.readStructExamplesFromArraylist(sample_list, sparm);
+		testsample = ssa.readStructExamplesFromArraylist(sample_list, sparm);
 		logger.info("end read_struct_examples_from_arraylist");
 		if (CommonStruct.struct_verbosity >= 1) {
 			logger.info("done.");
@@ -456,9 +454,8 @@ public class ClassifyStruct {
 
 	public static void printHelp() {
 		System.out.println("\nSVM-struct classification module: "
-				+ CommonStruct.INST_NAME + ", "
-				+ CommonStruct.INST_VERSION + ", "
-				+ CommonStruct.INST_VERSION_DATE + "\n");
+				+ CommonStruct.INST_NAME + ", " + CommonStruct.INST_VERSION
+				+ ", " + CommonStruct.INST_VERSION_DATE + "\n");
 		System.out.println("   includes SVM-struct "
 				+ CommonStruct.STRUCT_VERSION
 				+ " for learning complex outputs, "
@@ -490,8 +487,8 @@ public class ClassifyStruct {
 		Struct ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		readInputParameters(args.length + 1, args, sparm,
-				Common.verbosity, CommonStruct.struct_verbosity);
+		readInputParameters(args.length + 1, args, sparm, Common.verbosity,
+				CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
 			logger.info("Reading model ...");
@@ -544,7 +541,7 @@ public class ClassifyStruct {
 			}
 
 			if (FactoryStruct.api_type == 2) {
-				ssa.writeLabel(pw, y,testsample.examples[i].y);
+				ssa.writeLabel(pw, y, testsample.examples[i].y);
 			}
 			// logger.info("y:" + y.class_index + "  testsample.examples[" + i
 			// + "].y:" + testsample.examples[i].y.class_index);

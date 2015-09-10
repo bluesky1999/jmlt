@@ -36,15 +36,15 @@ public class Perf extends Struct {
 	}
 
 	@Override
-	public LABEL findMostViolatedConstraintSlackrescaling(PATTERN x,
-			LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
+	public LABEL findMostViolatedConstraintSlackrescaling(PATTERN x, LABEL y,
+			STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public LABEL findMostViolatedConstraintMarginrescaling(PATTERN x,
-			LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
+	public LABEL findMostViolatedConstraintMarginrescaling(PATTERN x, LABEL y,
+			STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -75,7 +75,8 @@ public class Perf extends Struct {
 
 		}
 		// Return the loss according to the selected loss function.
-		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss: 0/1loss
+		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss:
+															// 0/1loss
 
 			// return 0, if y==ybar. return 1 else
 			loss = zerooneLoss(a, b, c, d);
@@ -140,8 +141,8 @@ public class Perf extends Struct {
 		sample.n = 1;
 		sample.examples = examples;
 
-		System.err.println("totwords in perf:"+totwords);
-		
+		System.err.println("totwords in perf:" + totwords);
+
 		if (sparm.preimage_method == 9) {
 			for (i = 0; i < n; i++) {
 				examples[0].x.docs[i].fvec.next = Common
@@ -181,8 +182,8 @@ public class Perf extends Struct {
 				words[j].wnum = sparm.bias_featurenum; // bias
 				words[j].weight = sparm.bias;
 
-				sample.examples[0].x.docs[i].fvec = Common.createSvector(
-						words, "", 1.0);
+				sample.examples[0].x.docs[i].fvec = Common.createSvector(words,
+						"", 1.0);
 			}
 		}
 
@@ -274,19 +275,20 @@ public class Perf extends Struct {
 		 * weight vector
 		 */
 		for (i = 0; i < x.totdoc; i++) {
-			y.class_indexs[i] =Common.classifyExample(sm.svm_model,
-					x.docs[i]);
+			y.class_indexs[i] = Common.classifyExample(sm.svm_model, x.docs[i]);
 		}
 		return (y);
 	}
-	
+
 	@Override
 	public LABEL classifyStructDoc(DOC d, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		LABEL y = new LABEL();
 
+		y.dou_index = Common.classifyExample(sm.svm_model, d);
+
+		return (y);
+	}
 
 	@Override
 	public PATTERN sample2pattern(String wordString) {
@@ -316,9 +318,10 @@ public class Perf extends Struct {
 		words = string2words(wordString);
 		DOC doc = Common.createExample(dnum, queryid, slackid, costfactor,
 				Common.createSvector(words, read_comment, 1.0));
-		
+
 		return doc;
 	}
+
 	/**
 	 * Reads structural model sm from file file. This function is used only in
 	 * the prediction module, not in the learning module.
@@ -479,7 +482,5 @@ public class Perf extends Struct {
 		return 100;
 		// return(100.0-avgprec_compressed(y,ybar));
 	}
-
-	
 
 }
