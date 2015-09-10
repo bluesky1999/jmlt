@@ -1820,7 +1820,7 @@ public class Common {
 			fr.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 
 		return model;
