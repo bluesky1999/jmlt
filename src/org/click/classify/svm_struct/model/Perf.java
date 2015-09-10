@@ -264,8 +264,20 @@ public class Perf extends Struct {
 	@Override
 	public LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
-	
-		return null;
+		LABEL y = new LABEL();
+		int i;
+
+		y.totdoc = x.totdoc;
+		y.class_indexs = new double[y.totdoc];
+		/*
+		 * simply classify by sign of inner product between example vector and
+		 * weight vector
+		 */
+		for (i = 0; i < x.totdoc; i++) {
+			y.class_indexs[i] =Common.classifyExample(sm.svm_model,
+					x.docs[i]);
+		}
+		return (y);
 	}
 	
 	@Override
