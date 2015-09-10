@@ -1711,9 +1711,18 @@ public class Common {
 		FileReader fr = null;
 		BufferedReader br = null;
 		try {
+			
+			try{
 			fr = new FileReader(modelfile);
 			br = new BufferedReader(fr);
-
+			}
+			catch(Exception e2)
+			{
+				InputStream model_is = Common.class.getResourceAsStream("/"
+						+ modelfile);
+				InputStreamReader model_isr = new InputStreamReader(model_is);
+				br = new BufferedReader(model_isr);
+			}
 			int i, queryid, slackid;
 			double costfactor;
 			int max_sv, max_words, wpos;
@@ -1806,6 +1815,9 @@ public class Common {
 						Common.createSvector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
 			}
+			
+			br.close();
+			fr.close();
 
 		} catch (Exception e) {
 			e.printStackTrace();
