@@ -30,6 +30,8 @@ next work
   
 2 implement the svm-perf algorithm
 
+3 two different model can not works in parallel
+=========================
 
 
 
