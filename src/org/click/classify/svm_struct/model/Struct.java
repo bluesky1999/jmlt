@@ -514,6 +514,10 @@ public abstract class Struct {
 	 */
 	public abstract LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm);
+	
+	public abstract LABEL classifyStructDoc(DOC d, STRUCTMODEL sm,
+			STRUCT_LEARN_PARM sparm);
+	
 
 	public void writeLabel(PrintWriter fp, LABEL y) {
 		int i;
@@ -547,6 +551,8 @@ public abstract class Struct {
 	}
 
 	public abstract PATTERN sample2pattern(String words);
+	
+	public abstract DOC sample2doc(String words);
 
 	public WORD[] string2words(String sample) {
 		WORD[] words = null;

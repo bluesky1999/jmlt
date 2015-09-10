@@ -17,6 +17,8 @@ public class LABEL {
 	
 	//label的类型，一层、二层等
 	public double[] class_indexs;
+	public double dou_index;
+	
 	public int label_type=0;
 	public int totdoc=0;
 	public String toString()

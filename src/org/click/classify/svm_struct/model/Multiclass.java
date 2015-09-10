@@ -220,6 +220,14 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
+	public LABEL classifyStructDoc(DOC d, STRUCTMODEL sm,
+			STRUCT_LEARN_PARM sparm) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+	@Override
 	public SAMPLE readStructExamples(String file, STRUCT_LEARN_PARM sparm) {
 
 		SAMPLE sample = new SAMPLE();
@@ -387,11 +395,18 @@ public class Multiclass extends Struct {
 
 		return pat;
 	}
+	
+	@Override
+	public DOC sample2doc(String words) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public void writeLabel(PrintWriter fp, LABEL y, LABEL ybar) {
 		// TODO Auto-generated method stub
 		
 	}
+
 
 }

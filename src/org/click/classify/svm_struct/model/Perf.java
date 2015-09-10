@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import org.click.classify.svm_struct.data.DOC;
 import org.click.classify.svm_struct.data.EXAMPLE;
 import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LABEL;
@@ -263,28 +264,49 @@ public class Perf extends Struct {
 	@Override
 	public LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
-		LABEL y = new LABEL();
-		int i;
-
-		y.totdoc = x.totdoc;
-		y.class_indexs = new double[y.totdoc];
-
-		// simply classify by sign of inner product between example vector and
-		// weight vector
-		for (i = 0; i < x.totdoc; i++) {
-			y.class_indexs[i] = Common.classifyExample(sm.svm_model,
-					x.docs[i]);
-		}
-		return (y);
-
+	
+		return null;
 	}
-
+	
 	@Override
-	public PATTERN sample2pattern(String words) {
+	public LABEL classifyStructDoc(DOC d, STRUCTMODEL sm,
+			STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+
+	@Override
+	public PATTERN sample2pattern(String wordString) {
+		int dnum = 0;
+		int queryid = 0;
+		int slackid = 0;
+		double costfactor = 0;
+		String read_comment = "";
+		WORD[] words = null;
+		words = string2words(wordString);
+		DOC doc = Common.createExample(dnum, queryid, slackid, costfactor,
+				Common.createSvector(words, read_comment, 1.0));
+		PATTERN pat = new PATTERN();
+		pat.doc = doc;
+
+		return pat;
+	}
+
+	@Override
+	public DOC sample2doc(String wordString) {
+		int dnum = 0;
+		int queryid = 0;
+		int slackid = 0;
+		double costfactor = 0;
+		String read_comment = "";
+		WORD[] words = null;
+		words = string2words(wordString);
+		DOC doc = Common.createExample(dnum, queryid, slackid, costfactor,
+				Common.createSvector(words, read_comment, 1.0));
+		
+		return doc;
+	}
 	/**
 	 * Reads structural model sm from file file. This function is used only in
 	 * the prediction module, not in the learning module.
@@ -445,5 +467,7 @@ public class Perf extends Struct {
 		return 100;
 		// return(100.0-avgprec_compressed(y,ybar));
 	}
+
+	
 
 }
