@@ -186,8 +186,7 @@ public class Common {
 		return vector;
 	}
 
-	public static void addVectorNs(double[] vec_n, SVECTOR vec_s,
-			double faktor) {
+	public static void addVectorNs(double[] vec_n, SVECTOR vec_s, double faktor) {
 		WORD[] ai;
 		ai = vec_s.words;
 		for (int i = 0; i < ai.length; i++) {
@@ -215,8 +214,7 @@ public class Common {
 		return sum;
 	}
 
-	public static void multVectorNs(double[] vec_n, SVECTOR vec_s,
-			double faktor) {
+	public static void multVectorNs(double[] vec_n, SVECTOR vec_s, double faktor) {
 		WORD[] ai;
 		ai = vec_s.words;
 		for (int i = 0; i < ai.length; i++) {
@@ -292,7 +290,7 @@ public class Common {
 	}
 
 	public static DOC[] readDocuments(String docfile, ReadStruct struct) {
-		
+
 		String line, comment;
 
 		DOC[] docs;
@@ -310,24 +308,25 @@ public class Common {
 		ReadSummary summary = nol_ll(docfile); // scan size of input file
 		struct.read_max_words_doc = summary.read_max_words_doc + 2;
 		struct.read_max_docs = summary.read_max_docs + 2;
-		
-		System.err.println("struct.read_max_words_doc:"+struct.read_max_words_doc);
-		System.err.println("struct.read_max_docs:"+struct.read_max_docs);	
+
+		System.err.println("struct.read_max_words_doc:"
+				+ struct.read_max_words_doc);
+		System.err.println("struct.read_max_docs:" + struct.read_max_docs);
 		if (verbosity >= 1) {
 			System.out.println("done\n");
 		}
-		
+
 		try {
 			fr = new FileReader(new File(docfile));
 			br = new BufferedReader(fr);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		
-		docs = new DOC[struct.read_max_docs]; 
+
+		docs = new DOC[struct.read_max_docs];
 
 		WORD[] words;
-		
+
 		double[] label = new double[struct.read_max_docs]; // target values
 
 		words = new WORD[struct.read_max_words_doc + 10];
@@ -336,11 +335,11 @@ public class Common {
 			words[j].wnum = 0;
 			words[j].weight = 0;
 		}
-		
+
 		if (verbosity >= 1) {
 			System.out.println("Reading examples into memory...");
 		}
-		
+
 		dnum = 0;
 		struct.read_totwords = 0;
 		try {
@@ -371,7 +370,7 @@ public class Common {
 						rs.read_slackid, rs.read_costfactor,
 						createSvector(words, rs.read_comment, 1.0));
 				dnum++;
-                System.err.println("dnum:"+dnum);
+				System.err.println("dnum:" + dnum);
 			}
 
 			fr.close();
@@ -387,8 +386,8 @@ public class Common {
 		return docs;
 	}
 
-	public static DOC[] readDocumentsFromStream(InputStream is,
-			double[] label, ReadStruct struct) {
+	public static DOC[] readDocumentsFromStream(InputStream is, double[] label,
+			ReadStruct struct) {
 		String line, comment;
 
 		DOC[] docs;
@@ -402,15 +401,16 @@ public class Common {
 		}
 
 		ReadSummary summary = new ReadSummary();
-		ArrayList<String> list = nol_ll_stream(is, summary); // scan size of input file
-															 
+		ArrayList<String> list = nol_ll_stream(is, summary); // scan size of
+																// input file
+
 		struct.read_max_words_doc = summary.read_max_words_doc + 2;
 		struct.read_max_docs = summary.read_max_docs + 2;
 		if (verbosity >= 1) {
 			System.out.println("done\n");
 		}
 
-		docs = new DOC[struct.read_max_docs]; // feature vectors 
+		docs = new DOC[struct.read_max_docs]; // feature vectors
 
 		WORD[] words;
 		label = new double[struct.read_max_docs]; /* target values */
@@ -481,17 +481,15 @@ public class Common {
 		int max_words_doc, ll;
 		double doc_label, costfactor;
 
-
 		ReadSummary summary = nol_ll_list(list);// scan size of input file
 
 		struct.read_max_words_doc = summary.read_max_words_doc + 2;
 		struct.read_max_docs = summary.read_max_docs + 2;
 
-
 		docs = new DOC[struct.read_max_docs]; // feature vectors
 
 		WORD[] words;
-		label = new double[struct.read_max_docs]; // target values 
+		label = new double[struct.read_max_docs]; // target values
 
 		words = new WORD[struct.read_max_words_doc + 10];
 		for (int j = 0; j < words.length; j++) {
@@ -693,7 +691,7 @@ public class Common {
 		try {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
-	
+
 				temp_docs++;
 				seg_arr = line.split("\\s+");
 				if (seg_arr.length > temp_words) {
@@ -992,10 +990,10 @@ public class Common {
 		}
 	}
 
-	public static SVECTOR createSvectorN(double[] nonsparsevec,
-			int maxfeatnum, String userdefined, double factor) {
-		return (createSvectorNR(nonsparsevec, maxfeatnum, userdefined,
-				factor, 0));
+	public static SVECTOR createSvectorN(double[] nonsparsevec, int maxfeatnum,
+			String userdefined, double factor) {
+		return (createSvectorNR(nonsparsevec, maxfeatnum, userdefined, factor,
+				0));
 	}
 
 	public static SVECTOR createSvectorNR(double[] nonsparsevec,
@@ -1442,9 +1440,8 @@ public class Common {
 		for (i = 1; i < model.sv_num; i++) {
 
 			newmodel.alpha[i] = model.alpha[i];
-			newmodel.supvec[i] = Common.createExample(
-					model.supvec[i].docnum, model.supvec[i].queryid, 0,
-					model.supvec[i].costfactor,
+			newmodel.supvec[i] = Common.createExample(model.supvec[i].docnum,
+					model.supvec[i].queryid, 0, model.supvec[i].costfactor,
 					Common.copySvector(model.supvec[i].fvec));
 
 		}
@@ -1585,8 +1582,7 @@ public class Common {
 		return (randarray);
 	}
 
-	public static void addListNNS(double[] vec_n, SVECTOR vec_s,
-			double faktor) {
+	public static void addListNNS(double[] vec_n, SVECTOR vec_s, double faktor) {
 		SVECTOR f;
 		for (f = vec_s; f != null; f = f.next)
 			addVectorNs(vec_n, f, f.factor * faktor);
@@ -1685,8 +1681,7 @@ public class Common {
 	}
 
 	/** compute length of weight vector */
-	public static double modelLengthN(MODEL model)
-	{
+	public static double modelLengthN(MODEL model) {
 		int i, totwords = model.totwords + 1;
 		double sum;
 		double[] weight_n;
@@ -1711,13 +1706,11 @@ public class Common {
 		FileReader fr = null;
 		BufferedReader br = null;
 		try {
-			
-			try{
-			fr = new FileReader(modelfile);
-			br = new BufferedReader(fr);
-			}
-			catch(Exception e2)
-			{
+
+			try {
+				fr = new FileReader(modelfile);
+				br = new BufferedReader(fr);
+			} catch (Exception e2) {
 				InputStream model_is = Common.class.getResourceAsStream("/"
 						+ modelfile);
 				InputStreamReader model_isr = new InputStreamReader(model_is);
@@ -1745,53 +1738,58 @@ public class Common {
 			line = br.readLine();
 			model.kernel_parm.kernel_type = Short.parseShort(SSO.beforeStr(
 					line, "#"));
-			
-			System.err.println("model.kernel_parm.kernel_type:"+model.kernel_parm.kernel_type);
+
+			System.err.println("model.kernel_parm.kernel_type:"
+					+ model.kernel_parm.kernel_type);
 
 			line = br.readLine();
 			model.kernel_parm.poly_degree = Integer.parseInt(SSO.beforeStr(
 					line, "#"));
-			System.err.println("model.kernel_parm.poly_degree:"+model.kernel_parm.poly_degree);
-			
+			System.err.println("model.kernel_parm.poly_degree:"
+					+ model.kernel_parm.poly_degree);
+
 			line = br.readLine();
 			model.kernel_parm.rbf_gamma = Double.parseDouble(SSO.beforeStr(
 					line, "#"));
-			System.err.println("model.kernel_parm.rbf_gamma:"+model.kernel_parm.rbf_gamma);
-			
+			System.err.println("model.kernel_parm.rbf_gamma:"
+					+ model.kernel_parm.rbf_gamma);
+
 			line = br.readLine();
 			model.kernel_parm.coef_lin = Double.parseDouble(SSO.beforeStr(line,
 					"#"));
-			System.err.println("model.kernel_parm.coef_lin:"+model.kernel_parm.coef_lin);
-			
+			System.err.println("model.kernel_parm.coef_lin:"
+					+ model.kernel_parm.coef_lin);
+
 			line = br.readLine();
 			model.kernel_parm.coef_const = Double.parseDouble(SSO.beforeStr(
 					line, "#"));
-			System.err.println("model.kernel_parm.kernel_type:"+model.kernel_parm.kernel_type);
-			
+			System.err.println("model.kernel_parm.kernel_type:"
+					+ model.kernel_parm.kernel_type);
+
 			line = br.readLine();
 			model.kernel_parm.custom = line;
-			System.err.println("model.kernel_parm.custom:"+model.kernel_parm.custom);
-			
+			System.err.println("model.kernel_parm.custom:"
+					+ model.kernel_parm.custom);
+
 			line = br.readLine();
 			model.totwords = Integer.parseInt(SSO.beforeStr(line, "#"));
-			System.err.println("model.totwords:"+model.totwords);
-			
-			
+			System.err.println("model.totwords:" + model.totwords);
+
 			line = br.readLine();
 			model.totdoc = Integer.parseInt(SSO.beforeStr(line, "#"));
-			System.err.println("model.totdoc:"+model.totdoc);
-			
+			System.err.println("model.totdoc:" + model.totdoc);
+
 			line = br.readLine();
 			model.sv_num = Integer.parseInt(SSO.beforeStr(line, "#"));
-			System.err.println("model.sv_num:"+	model.sv_num);
-			
+			System.err.println("model.sv_num:" + model.sv_num);
+
 			line = br.readLine();
-			////line = br.readLine();
+			// //line = br.readLine();
 			model.b = Double.parseDouble(SSO.beforeStr(line, "#"));
-			System.err.println("model.b:"+model.b);
-			
-			////line = br.readLine();
-			//System.out.println("b:" + model.b);
+			System.err.println("model.b:" + model.b);
+
+			// //line = br.readLine();
+			// System.out.println("b:" + model.b);
 			model.supvec = new DOC[model.sv_num];
 			model.alpha = new double[model.sv_num];
 			model.index = null;
@@ -1799,8 +1797,8 @@ public class Common {
 			WORD[] read_words;
 			for (i = 1; i < model.sv_num; i++) {
 				line = br.readLine();
-				line=SSO.beforeStr(line, "#");
-				//System.err.println("i:"+i+" "+line);
+				line = SSO.beforeStr(line, "#");
+				// System.err.println("i:"+i+" "+line);
 				ReadStruct rs = new ReadStruct();
 				read_words = Common.parseDocument(line, max_words, rs);
 				model.alpha[i] = rs.read_doc_label;
@@ -1815,12 +1813,12 @@ public class Common {
 						Common.createSvector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
 			}
-			
+
 			br.close();
 			fr.close();
 
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		return model;
@@ -2157,7 +2155,5 @@ public class Common {
 		index = pindex;
 		return (reallocMatrix(G, rank, rank));
 	}
-	
-
 
 }

@@ -1970,7 +1970,7 @@ public class Learn {
 		// call the qp-subsolver
 		Hideo shid = new Hideo();
 
-		a_v = shid.optimize_qp(qp, epsilon_crit_target,
+		a_v = shid.optimizeQp(qp, epsilon_crit_target,
 				learn_parm.svm_maxqpsize, (model.b), learn_parm);
 
 		for (i = 0; i < varnum; i++) {

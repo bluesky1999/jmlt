@@ -52,7 +52,7 @@ public class Hideo {
 	public double progress;
 	private static Logger logger = Logger.getLogger(Hideo.class);
 
-	public double[] optimize_qp(QP qp, double epsilon_crit, int nx,
+	public double[] optimizeQp(QP qp, double epsilon_crit, int nx,
 			double threshold, LEARN_PARM learn_param) {
 
 		int i, j;
@@ -75,7 +75,7 @@ public class Hideo {
 
 	
 
-		result = optimize_hildreth_despo(qp.opt_n, qp.opt_m, opt_precision,
+		result = optimizeHildrethDespo(qp.opt_n, qp.opt_m, opt_precision,
 				epsilon_crit, learn_param.epsilon_a, maxiter, 0, 0,
 				lindep_sensitivity, qp.opt_g, qp.opt_g0, qp.opt_ce, qp.opt_ce0,
 				qp.opt_low, qp.opt_up, primal, qp.opt_xinit, dual, nonoptimal,
@@ -103,7 +103,7 @@ public class Hideo {
 			logger.info("result is not PRIMAL_OPTIMAL");
 			smallroundcount++;
 
-			result = optimize_hildreth_despo(qp.opt_n, qp.opt_m, opt_precision,
+			result = optimizeHildrethDespo(qp.opt_n, qp.opt_m, opt_precision,
 					epsilon_crit, learn_param.epsilon_a, maxiter,
 					PRIMAL_OPTIMAL, SMALLROUND, lindep_sensitivity, qp.opt_g,
 					qp.opt_g0, qp.opt_ce, qp.opt_ce0, qp.opt_low, qp.opt_up,
@@ -148,7 +148,7 @@ public class Hideo {
 		return primal;
 	}
 
-	public int optimize_hildreth_despo(int n, int m, double precision,
+	public int optimizeHildrethDespo(int n, int m, double precision,
 			double epsilon_crit, double epsilon_a, int maxiter, int goal,
 			int smallround, double lindep_sensitivity, double[] g, double[] g0,
 			double[] ce, double[] ce0, double[] low, double[] up,
@@ -389,7 +389,7 @@ public class Hideo {
 			}
 		}
 
-		lcopy_matrix(g, n, d);
+		lCopyMatrix(g, n, d);
 
 		if ((m == 1) && (add > 0.0)) {
 			for (j = 0; j < n; j++) {
@@ -404,13 +404,13 @@ public class Hideo {
 
 
 		if (n > 2) { // switch, so that variables are better mixed 
-			lswitchrk_matrix(d, n, b1, 0);
+			lSwitchrkMatrix(d, n, b1, 0);
 			if (b2 == 0) {
 				// System.out.println("switch b2 0");
-				lswitchrk_matrix(d, n, b1, 1);
+				lSwitchrkMatrix(d, n, b1, 1);
 			} else {
 				// System.out.println("switch b2 1");
-				lswitchrk_matrix(d, n, b2, 1);
+				lSwitchrkMatrix(d, n, b2, 1);
 			}
 		}
 
@@ -433,28 +433,28 @@ public class Hideo {
 
 
 
-		linvert_matrix(d, n, ig, lindep_sensitivity, lin_dependent);
+		lInvertMatrix(d, n, ig, lindep_sensitivity, lin_dependent);
 		
 		if (n > 2) { // now switch back
 			if (b2 == 0) {
-				lswitchrk_matrix(ig, n, b1, 1);
+				lSwitchrkMatrix(ig, n, b1, 1);
 				i = lin_dependent[1];
 				lin_dependent[1] = lin_dependent[b1];
 				lin_dependent[b1] = i;
 			} else {
-				lswitchrk_matrix(ig, n, b2, 1);
+				lSwitchrkMatrix(ig, n, b2, 1);
 				i = lin_dependent[1];
 				lin_dependent[1] = lin_dependent[b2];
 				lin_dependent[b2] = i;
 			}
-			lswitchrk_matrix(ig, n, b1, 0);
+			lSwitchrkMatrix(ig, n, b1, 0);
 			i = lin_dependent[0];
 			lin_dependent[0] = lin_dependent[b1];
 			lin_dependent[b1] = i;
 		}
 		
 
-		lcopy_matrix(g, n, g_new); // restore g_new matrix
+		lCopyMatrix(g, n, g_new); // restore g_new matrix
 		if (add > 0)
 			for (j = 0; j < n; j++) {
 				for (k = 0; k < n; k++) {
@@ -514,7 +514,7 @@ public class Hideo {
 		if ((changed == 0) || (n_indep > 1)) {
 
 			
-			result = solve_dual(n_indep, m, precision, epsilon_crit, maxiter,
+			result = solveDual(n_indep, m, precision, epsilon_crit, maxiter,
 					g_new, g0_new, ce_new, ce0_new, low_new, up_new, primal, d,
 					d0, ig, dual, dual_old, temp, goal);
 		} else {
@@ -532,8 +532,8 @@ public class Hideo {
 			temp[i] = primal[i];
 		}
 
-		obj_before = calculate_qp_objective(n, g, g0, init);
-		obj_after = calculate_qp_objective(n, g, g0, primal);
+		obj_before = calculateQpObjective(n, g, g0, init);
+		obj_after = calculateQpObjective(n, g, g0, primal);
 		progress = obj_before - obj_after;
 		// System.out.println("progress:"+progress);
 		verbosity = 5;
@@ -545,7 +545,7 @@ public class Hideo {
 		return ((int) result);
 	}
 
-	public int solve_dual(int n, int m, double precision, double epsilon_crit,
+	public int solveDual(int n, int m, double precision, double epsilon_crit,
 			int maxiter, double[] g, double[] g0, double[] ce, double[] ce0,
 			double[] low, double[] up, double[] primal, double[] d,
 			double[] d0, double[] ig, double[] dual, double[] dual_old,
@@ -806,14 +806,14 @@ public class Hideo {
 
 	}
 
-	public void lcopy_matrix(double[] matrix, int depth, double[] matrix2) {
+	public void lCopyMatrix(double[] matrix, int depth, double[] matrix2) {
 		int i;
 		for (i = 0; i < (depth * depth); i++) {
 			matrix2[i] = matrix[i];
 		}
 	}
 
-	public void lswitchrk_matrix(double[] matrix, int depth, int rk1, int rk2) {
+	public void lSwitchrkMatrix(double[] matrix, int depth, int rk1, int rk2) {
 		int i;
 		double temp;
 		for (i = 0; i < depth; i++) {
@@ -829,7 +829,7 @@ public class Hideo {
 		}
 	}
 
-	public void linvert_matrix(double[] matrix, int depth, double[] inverse,
+	public void lInvertMatrix(double[] matrix, int depth, double[] inverse,
 			double lindep_sensitivity, int[] lin_dependent) {
 		int i, j, k;
 		double factor;
@@ -878,7 +878,7 @@ public class Hideo {
 		
 	}
 
-	public double calculate_qp_objective(int opt_n, double[] opt_g,
+	public double calculateQpObjective(int opt_n, double[] opt_g,
 			double[] opt_g0, double[] alpha) {
 		double obj;
 		int i, j;
