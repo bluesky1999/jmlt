@@ -565,6 +565,7 @@ public class Perf extends Struct {
 			sump[i + 1] = sump[i] + scorep.get(i).score;
 		}
 		if (numn != 0) {
+			Collections.sort(scoren);
 			// qsort(scoren,numn,sizeof(STRUCT_ID_SCORE),compareup);
 		}
 		sumn[0] = 0;
@@ -639,6 +640,7 @@ public class Perf extends Struct {
 		}
 
 		if (CommonStruct.struct_verbosity >= 2) {
+			
 			if (loss_type == LearnStruct.SLACK_RESCALING)
 				System.out
 						.printf("\n max_ybar {loss(y_i,ybar)+loss(y_i,ybar)[w*Psi(x,ybar)-w*Psi(x,y)]}=%f\n",
