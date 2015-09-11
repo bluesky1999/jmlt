@@ -364,8 +364,7 @@ public class Perf extends Struct {
 		}
 
 		// Return the loss according to the selected loss function.
-		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss:
-															// 0/1loss
+		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss: 0/1loss
 			// return 0, if y==ybar. return 1 else
 			loss = zerooneLoss(a, b, c, d);
 		} else if (sparm.loss_function == ModelConstant.FONE) {
