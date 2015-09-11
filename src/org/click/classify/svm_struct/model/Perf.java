@@ -10,6 +10,7 @@ import org.click.classify.svm_struct.data.EXAMPLE;
 import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LABEL;
 import org.click.classify.svm_struct.data.LEARN_PARM;
+import org.click.classify.svm_struct.data.MATRIX;
 import org.click.classify.svm_struct.data.MODEL;
 import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.PATTERN;
@@ -24,9 +25,242 @@ import org.click.classify.svm_struct.data.WORD;
 public class Perf extends Struct {
 
 	@Override
+	/** Initialize structmodel sm. The weight vector w does not need to be
+	initialized, but you need to provide the maximum size of the
+	feature space in sizePsi. This is the maximum number of different
+	weights that can be learned. Later, the weight vector w will
+	contain the learned weights for the model. */
 	public void initStructModel(SAMPLE sample, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm) {
-		// TODO Auto-generated method stub
+		int i, j, k, totwords = 0, totdoc = 0, totexp = 0, nump = 0, numn = 0, new_size = 0;
+		int[] select = null;
+		WORD[] words;
+		WORD w;
+		DOC[] orgdoc, basis;
+		double[] dummy;
+		MATRIX G, L;
+		double[] indep;
+		double ii, weight;
+		totdoc = sample.examples[0].x.totdoc;
+		if (sparm.sparse_kernel_method > 0) { // use nystrom or inc cholesky
+			sparm.sparse_kernel_type = kparm.kernel_type;
+		} else
+			sparm.sparse_kernel_type = 0;
+		sm.sparse_kernel_type = sparm.sparse_kernel_type;
+		sm.invL = null;
+		sm.expansion = null;
+
+		// When using sparse kernel approximation, this replaces the
+		// original feature vector with the kernel values of the original
+		// feature vector and the expansion.
+		if (sm.sparse_kernel_type > 0) {
+			kparm.kernel_type = (short) sm.sparse_kernel_type;
+
+			if (!(sparm.sparse_kernel_file.equals(""))) {
+				if (CommonStruct.struct_verbosity > 0)
+					System.out
+							.printf("Reading basis functions for sparse kernel expansion from '%s'...",
+									sparm.sparse_kernel_file);
+
+				ReadStruct rs = new ReadStruct();
+				// Common.read_documents(sparm.sparse_kernel_file,basis,dummy,totwords,totexp);
+				basis = Common.readDocuments(sparm.sparse_kernel_file, rs);
+				dummy = rs.read_target;
+				if (CommonStruct.struct_verbosity > 0)
+					System.out.printf("done.\n");
+			} else {
+				basis = new DOC[totdoc];
+				for (i = 0; i < totdoc; i++) {
+					basis[i] = new DOC();
+					basis[i] = sample.examples[0].x.docs[i];
+					basis[i].fvec = Common
+							.copySvector(sample.examples[0].x.docs[i].fvec);
+				}
+				totexp = totdoc;
+			}
+			if (sparm.sparse_kernel_size > totexp)
+				sparm.sparse_kernel_size = totexp;
+
+			// determine basis functions to use in expansion: B
+			if (sparm.sparse_kernel_method == 1) {
+				// select expansion via random sampling
+				if (CommonStruct.struct_verbosity > 0)
+					System.out
+							.printf("Selecting random sample of basis functions...");
+				sm.expansion = new DOC[totexp];
+				sm.expansion_size = 0;
+				for (ii = 0.5; ii < totexp; ii += ((double) totexp / sparm.sparse_kernel_size)) {
+					sm.expansion[sm.expansion_size] = new DOC();
+					sm.expansion[sm.expansion_size] = basis[(int) ii];
+					sm.expansion[sm.expansion_size].fvec = Common
+							.copySvector(basis[(int) ii].fvec);
+					sm.expansion_size++;
+				}
+				if (CommonStruct.struct_verbosity > 0)
+					System.out.printf("done.\n");
+
+				/*
+				 * Make sure they are all independent. If not, select
+				 * independent subset.
+				 */
+				if (CommonStruct.struct_verbosity > 0)
+					System.out
+							.printf("Finding independent subset of vectors...");
+				G = Common.createMatrix(sm.expansion_size, sm.expansion_size);
+				for (i = 0; i < sm.expansion_size; i++) { // need only upper
+															// triangle
+					for (j = i; j < sm.expansion_size; j++) {
+						G.element[i][j] = Common.kernel(kparm, sm.expansion[i],
+								sm.expansion[j]);
+					}
+				}
+				indep = Common.findIndepSubsetOfMatrix(G, 0.000001);
+
+				new_size = 0;
+				for (i = 0; i < sm.expansion_size; i++) {
+					if (indep[i] != 0) {
+						sm.expansion[new_size] = sm.expansion[i];
+						new_size++;
+					} else {
+						// free_example(sm.expansion[i],1);
+					}
+				}
+
+				if (CommonStruct.struct_verbosity > 0)
+					System.out.printf("found %ld of %ld...", new_size,
+							sm.expansion_size);
+				sm.expansion_size = new_size;
+				if (CommonStruct.struct_verbosity > 0)
+					System.out.printf("done.\n");
+
+				// compute matrix B^T*B
+				if (CommonStruct.struct_verbosity > 0)
+					System.out
+							.printf("Computing Gram matrix for kernel expansion...");
+				G = Common.createMatrix(sm.expansion_size, sm.expansion_size);
+				for (i = 0; i < sm.expansion_size; i++) {// need upper triangle
+															// for cholesky
+					for (j = i; j < sm.expansion_size; j++) {
+						G.element[i][j] = Common.kernel(kparm, sm.expansion[i],
+								sm.expansion[j]);
+					}
+				}
+				if (CommonStruct.struct_verbosity > 0)
+					System.out.printf("done.\n");
+				if (CommonStruct.struct_verbosity > 0)
+					System.out
+							.printf("Computing Cholesky decomposition and inverting...");
+				L = Common.choleskyMatrix(G);
+				sm.invL = Common.invert_ltriangle_matrix(L);
+
+				if (CommonStruct.struct_verbosity > 0)
+					System.out.printf("done.\n");
+			}
+
+			else if (sparm.sparse_kernel_method == 2) {
+				// select expansion via incomplete cholesky
+				if (CommonStruct.struct_verbosity > 0)
+					System.out
+							.printf("Computing incomplete Cholesky decomposition...");
+				L = Common.incompleteCholesky(basis, totexp,
+						sparm.sparse_kernel_size, 0.000001, kparm, select);
+				sm.invL = Common.invert_ltriangle_matrix(L);
+
+				sm.expansion = new DOC[totexp];
+				sm.expansion_size = 0;
+				for (i = 0; select[i] >= 0; i++) {
+					sm.expansion[sm.expansion_size] = new DOC();
+					sm.expansion[sm.expansion_size] = basis[select[i]];
+					sm.expansion[sm.expansion_size].fvec = Common
+							.copySvector(basis[select[i]].fvec);
+					sm.expansion_size++;
+				}
+				if (CommonStruct.struct_verbosity > 0)
+					System.out.printf("done.\n");
+			}
+
+			// compute new features for each example x: B^T*x
+			if (CommonStruct.struct_verbosity > 0)
+				System.out.printf("Replacing feature vectors...");
+			orgdoc = sample.examples[0].x.docs;
+			sample.examples[0].x.docs = new DOC[totdoc];
+			words = new WORD[sm.expansion_size + 1];
+			for (i = 0; i < totdoc; i++) {
+				k = 0;
+				for (j = 0; j < sm.expansion_size; j++) {
+					weight = Common.kernel(kparm, orgdoc[i], sm.expansion[j]);
+					if (weight != 0) {
+						words[k].wnum = j + 1;
+						words[k].weight = weight;
+						k++;
+					}
+				}
+				words[k].wnum = 0;
+				sample.examples[0].x.docs[i] = Common.createExample(
+						orgdoc[i].docnum, orgdoc[i].queryid, orgdoc[i].slackid,
+						orgdoc[i].costfactor, Common.createSvector(words,
+								orgdoc[i].fvec.userdefined, 1.0));
+			}
+
+			kparm.kernel_type = ModelConstant.LINEAR;
+			if (CommonStruct.struct_verbosity > 0)
+				System.out.printf("done.\n");
+		}
+
+		// count number of positive and negative examples
+		for (i = 0; i < sample.examples[0].x.totdoc; i++) {
+			if (sample.examples[0].y.class_indexs[i] > 0)
+				nump++;
+			else
+				numn++;
+		}
+
+		totwords = 0;
+		for (i = 0; i < totdoc; i++)
+			// find highest feature number 
+			for (int m = 0; m < sample.examples[0].x.docs[i].fvec.words.length; m++) {
+				w = sample.examples[0].x.docs[i].fvec.words[m];
+				if (totwords < w.wnum)
+					totwords = w.wnum;
+			}
+		sparm.num_features = totwords;
+		if (CommonStruct.struct_verbosity > 0)
+			System.out
+					.printf("Training set properties: %d features, %ld examples (%ld pos / %ld neg)\n",
+							sparm.num_features, totdoc, nump, numn);
+		sm.sizePsi = sparm.num_features;
+		if (CommonStruct.struct_verbosity >= 2)
+			System.out.printf("Size of Phi: %ld\n", sm.sizePsi);
+
+		// fill in default value for k when using Prec@k or Rec@k
+		if (sparm.loss_function == ModelConstant.PREC_K) {
+			if (sparm.prec_rec_k_frac == 0) {
+				sparm.prec_rec_k_frac = 0.5;
+			} else if (sparm.prec_rec_k_frac > 1) {
+				System.out
+						.printf("\nERROR: The value of option --k for Prec@k must not be larger than 1.0!\n\n");
+				System.exit(0);
+			}
+		}
+		if (sparm.loss_function == ModelConstant.REC_K) {
+			if (sparm.prec_rec_k_frac == 0) {
+				sparm.prec_rec_k_frac = 2;
+			} else if (sparm.prec_rec_k_frac < 1) {
+				System.out
+						.printf("\nERROR: The value of option --k for Rec@k must not be smaller than 1.0!\n\n");
+				System.exit(0);
+			}
+		}
+
+		// make sure that the bias feature is not used with kernels
+		if (((kparm.kernel_type != ModelConstant.LINEAR) || (sparm.sparse_kernel_type != ModelConstant.LINEAR))
+				&& (sparm.bias != 0)) {
+			System.out
+					.printf("\nThe value of option --b must be zero when kernels are used.\n");
+			System.out
+					.printf("The option to use a bias for non-linear kernels is not implemented yet!\n\n");
+			System.exit(0);
+		}
 
 	}
 
@@ -75,9 +309,10 @@ public class Perf extends Struct {
 				d++;
 			}
 		}
-		
+
 		// Return the loss according to the selected loss function.
-		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss: 0/1loss
+		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss:
+															// 0/1loss
 			// return 0, if y==ybar. return 1 else
 			loss = zerooneLoss(a, b, c, d);
 		} else if (sparm.loss_function == ModelConstant.FONE) {
@@ -215,7 +450,8 @@ public class Perf extends Struct {
 			}
 		}
 
-		// change label value for easy computation of rankmetrics (i.e. ROC-area)
+		// change label value for easy computation of rankmetrics (i.e.
+		// ROC-area)
 		if (sparm.loss_function == ModelConstant.SWAPPEDPAIRS) {
 			for (i = 0; i < sample.examples[0].x.totdoc; i++) {
 
@@ -269,8 +505,9 @@ public class Perf extends Struct {
 
 		y.totdoc = x.totdoc;
 		y.class_indexs = new double[y.totdoc];
-	
-		// simply classify by sign of inner product between example vector and weight vector
+
+		// simply classify by sign of inner product between example vector and
+		// weight vector
 		for (i = 0; i < x.totdoc; i++) {
 			y.class_indexs[i] = Common.classifyExample(sm.svm_model, x.docs[i]);
 		}
@@ -335,7 +572,8 @@ public class Perf extends Struct {
 			sparm.truncate_fvec = 1;
 		else
 			sparm.truncate_fvec = 0;
-		if (sm.svm_model.kernel_parm.kernel_type == ModelConstant.CUSTOM) // double kernel
+		if (sm.svm_model.kernel_parm.kernel_type == ModelConstant.CUSTOM) // double
+																			// kernel
 			sparm.preimage_method = 9;
 		sm.invL = null;
 		sm.expansion = null;
@@ -488,11 +726,11 @@ public class Perf extends Struct {
 		LABEL ybar = new LABEL();
 		int i, nump, numn, start, prec_rec_k, totwords;
 		double[] score, sump, sumn;
-		//STRUCT_ID_SCORE[] scorep, scoren;
-		
-		ArrayList<STRUCT_ID_SCORE> scorep=new ArrayList<STRUCT_ID_SCORE>();
-		ArrayList<STRUCT_ID_SCORE> scoren=new ArrayList<STRUCT_ID_SCORE>();
-		
+		// STRUCT_ID_SCORE[] scorep, scoren;
+
+		ArrayList<STRUCT_ID_SCORE> scorep = new ArrayList<STRUCT_ID_SCORE>();
+		ArrayList<STRUCT_ID_SCORE> scoren = new ArrayList<STRUCT_ID_SCORE>();
+
 		int threshp = 0, threshn = 0;
 		int a, d;
 		double val = 0, valmax, loss, score_y;
@@ -503,14 +741,14 @@ public class Perf extends Struct {
 		ybar.totdoc = x.totdoc;
 		ybar.class_indexs = new double[x.totdoc];
 		score = new double[ybar.totdoc + 1];
-		//scorep = new STRUCT_ID_SCORE[ybar.totdoc + 1];
+		// scorep = new STRUCT_ID_SCORE[ybar.totdoc + 1];
 		for (int j = 0; j < ybar.totdoc + 1; j++) {
-			scorep.add( new STRUCT_ID_SCORE());
+			scorep.add(new STRUCT_ID_SCORE());
 		}
-		//scoren = new STRUCT_ID_SCORE[ybar.totdoc + 1];
+		// scoren = new STRUCT_ID_SCORE[ybar.totdoc + 1];
 		for (int j = 0; j < ybar.totdoc + 1; j++) {
-		 //	scoren[j] = new STRUCT_ID_SCORE();
-			scoren.add( new STRUCT_ID_SCORE());
+			// scoren[j] = new STRUCT_ID_SCORE();
+			scoren.add(new STRUCT_ID_SCORE());
 		}
 
 		sump = new double[ybar.totdoc + 1];
@@ -549,7 +787,7 @@ public class Perf extends Struct {
 			}
 		}
 
-		// compute score of target label 
+		// compute score of target label
 		score_y = 0;
 		if (loss_type == LearnStruct.SLACK_RESCALING) {
 			for (i = 0; i < x.totdoc; i++)
@@ -557,7 +795,7 @@ public class Perf extends Struct {
 		}
 
 		if (nump != 0) {
-		    Collections.sort(scorep);
+			Collections.sort(scorep);
 			// qsort(scorep,nump,sizeof(STRUCT_ID_SCORE),comparedown);
 		}
 		sump[0] = 0;
@@ -573,7 +811,6 @@ public class Perf extends Struct {
 			sumn[i + 1] = sumn[i] + scoren.get(i).score;
 		}
 
-	
 		// find max of loss(ybar,y)+score(ybar) for margin rescaling or max of
 		// loss(ybar,y)+loss*(score(ybar)-score(y)) for slack rescaling
 		valmax = 0;
@@ -625,22 +862,26 @@ public class Perf extends Struct {
 			}
 		}
 
-		// assign labels that maximize score 
+		// assign labels that maximize score
 		for (i = 0; i < nump; i++) {
 			if (i < threshp)
-				ybar.class_indexs[scorep.get(i).id] = y.class_indexs[scorep.get(i).id];
+				ybar.class_indexs[scorep.get(i).id] = y.class_indexs[scorep
+						.get(i).id];
 			else
-				ybar.class_indexs[scorep.get(i).id] = -y.class_indexs[scorep.get(i).id];
+				ybar.class_indexs[scorep.get(i).id] = -y.class_indexs[scorep
+						.get(i).id];
 		}
 		for (i = 0; i < numn; i++) {
 			if (i < threshn)
-				ybar.class_indexs[scoren.get(i).id] = y.class_indexs[scoren.get(i).id];
+				ybar.class_indexs[scoren.get(i).id] = y.class_indexs[scoren
+						.get(i).id];
 			else
-				ybar.class_indexs[scoren.get(i).id] = -y.class_indexs[scoren.get(i).id];
+				ybar.class_indexs[scoren.get(i).id] = -y.class_indexs[scoren
+						.get(i).id];
 		}
 
 		if (CommonStruct.struct_verbosity >= 2) {
-			
+
 			if (loss_type == LearnStruct.SLACK_RESCALING)
 				System.out
 						.printf("\n max_ybar {loss(y_i,ybar)+loss(y_i,ybar)[w*Psi(x,ybar)-w*Psi(x,y)]}=%f\n",

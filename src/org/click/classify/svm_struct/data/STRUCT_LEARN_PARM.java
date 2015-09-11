@@ -56,7 +56,7 @@ public class STRUCT_LEARN_PARM {
 	public int sparse_kernel_size; // Number of basis functions to select from the set
 								// of basis functions for training with
 								// approximate kernel expansion.
-	String sparse_kernel_file;// File that contains set of basis functions for
+	public String sparse_kernel_file;// File that contains set of basis functions for
 								// training with approximate kernel expansion.
 	public  int sparse_kernel_method; // method for selecting sparse kerne subspace (1
 								// random sampling, 2 incomplete cholesky)

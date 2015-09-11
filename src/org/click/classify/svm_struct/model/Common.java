@@ -2178,4 +2178,89 @@ public class Common {
 		return (w);
 	}
 
+	/**
+	 * Given a positive-semidefinite symmetric matrix A[0..n-1][0..n-1], this
+	 * routine finds a subset of rows and colums that is linear independent. To
+	 * do this, it constructs the Cholesky decomposition, A = L ?LT. On input,
+	 * only the upper triangle of A need be given; A is not modified. The
+	 * routine returns a vector in which non-zero elements indicate the linear
+	 * independent subset. epsilon is the amount by which the diagonal entry of
+	 * L has to be greater than zero.
+	 */
+	public static double[] findIndepSubsetOfMatrix(MATRIX A, double epsilon) {
+		int i, j, k, n;
+		double sum;
+		double[] indep;
+		MATRIX L;
+
+		if (A.m != A.n) {
+			System.out
+					.printf("ERROR: Matrix not quadratic. Cannot compute Cholesky!\n");
+			System.exit(1);
+		}
+		n = A.n;
+		L = copy_matrix(A);
+
+		for (i = 0; i < n; i++) {
+			for (j = i; j < n; j++) {
+				for (sum = L.element[i][j], k = i - 1; k >= 0; k--)
+					sum -= L.element[i][k] * L.element[j][k];
+				if (i == j) {
+					if (sum <= epsilon)
+						sum = 0;
+					L.element[i][i] = Math.sqrt(sum);
+				} else if (L.element[i][i] == 0)
+					L.element[j][i] = 0;
+				else
+					L.element[j][i] = sum / L.element[i][i];
+			}
+		}
+		// Gather non-zero diagonal elements
+		indep = createNvector(n);
+		for (i = 0; i < n; i++)
+			indep[i] = L.element[i][i];
+
+		return (indep);
+	}
+
+	/**
+	 * Given a positive-definite symmetric matrix A[0..n-1][0..n-1], this
+	 * routine constructs its Cholesky decomposition, A = L ?LT . On input, only
+	 * the upper triangle of A need be given; A is not modified. The Cholesky
+	 * factor L is returned in the lower triangle.
+	 */
+	public static MATRIX choleskyMatrix(MATRIX A) {
+		int i, j, k, n;
+		double sum;
+		MATRIX L;
+
+		if (A.m != A.n) {
+			System.out
+					.printf("ERROR: Matrix not quadratic. Cannot compute Cholesky!\n");
+			System.exit(1);
+		}
+		n = A.n;
+		L = copy_matrix(A);
+
+		for (i = 0; i < n; i++) {
+			for (j = i; j < n; j++) {
+				for (sum = L.element[i][j], k = i - 1; k >= 0; k--)
+					sum -= L.element[i][k] * L.element[j][k];
+				if (i == j) {
+					if (sum <= 0.0)
+						System.out
+								.printf("Cholesky: Matrix not positive definite");
+					L.element[i][i] = Math.sqrt(sum);
+				} else
+					L.element[j][i] = sum / L.element[i][i];
+			}
+		}
+		// set upper triangle to zero
+		for (i = 0; i < n; i++)
+			for (j = i + 1; j < n; j++)
+				L.element[i][j] = 0;
+
+		return (L);
+	}
+
 }
