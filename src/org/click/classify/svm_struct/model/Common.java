@@ -2156,4 +2156,26 @@ public class Common {
 		return (reallocMatrix(G, rank, rank));
 	}
 
+	/**
+	 * For column vector v and a lower triangular matrix A (assumed to match in
+	 * size), computes w^T=v^T*A
+	 */
+	public static double[] prod_nvector_ltmatrix(double[] v, MATRIX A) {
+		int i, j;
+		double sum;
+		double[] w;
+
+		w = createNvector(A.m);
+
+		for (i = 0; i < A.m; i++) {
+			sum = 0.0;
+			for (j = i; j < A.n; j++) {
+				sum += v[j] * A.element[j][i];
+			}
+			w[i] = sum;
+		}
+
+		return (w);
+	}
+
 }

@@ -9,6 +9,7 @@ import org.click.classify.svm_struct.data.EXAMPLE;
 import org.click.classify.svm_struct.data.KERNEL_PARM;
 import org.click.classify.svm_struct.data.LABEL;
 import org.click.classify.svm_struct.data.LEARN_PARM;
+import org.click.classify.svm_struct.data.MODEL;
 import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.PATTERN;
 import org.click.classify.svm_struct.data.ReadStruct;
@@ -481,6 +482,181 @@ public class Perf extends Struct {
 	double avgprecLoss(LABEL y, LABEL ybar) {
 		return 100;
 		// return(100.0-avgprec_compressed(y,ybar));
+	}
+
+	/**
+	 * Finds the most violated constraint for metrics that are based on a
+	 * threshold.
+	 */
+	LABEL find_most_violated_constraint_thresholdmetric(PATTERN x, LABEL y,
+			STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, int loss_type) {
+		LABEL ybar = new LABEL();
+		int i, nump, numn, start, prec_rec_k, totwords;
+		double[] score, sump, sumn;
+		STRUCT_ID_SCORE[] scorep, scoren;
+		int threshp = 0, threshn = 0;
+		int a, d;
+		double val = 0, valmax, loss, score_y;
+		double[] ortho_weights;
+
+		MODEL svm_model;
+
+		ybar.totdoc = x.totdoc;
+		ybar.class_indexs = new double[x.totdoc];
+		score = new double[ybar.totdoc + 1];
+		scorep = new STRUCT_ID_SCORE[ybar.totdoc + 1];
+		for (int j = 0; j < scorep.length; j++) {
+			scorep[j] = new STRUCT_ID_SCORE();
+		}
+		scoren = new STRUCT_ID_SCORE[ybar.totdoc + 1];
+		for (int j = 0; j < scoren.length; j++) {
+			scoren[j] = new STRUCT_ID_SCORE();
+		}
+
+		sump = new double[ybar.totdoc + 1];
+		sumn = new double[ybar.totdoc + 1];
+
+		totwords = sm.svm_model.totwords;
+		svm_model = sm.svm_model; // is copy
+
+		// For sparse kernel, replace weight vector with beta=gamma^T*L^-1
+		if (sm.sparse_kernel_type > 0) {
+			svm_model.lin_weights = new double[totwords + 1];
+			// how weight add one
+			ortho_weights = Common.prod_nvector_ltmatrix(
+					sm.svm_model.lin_weights, sm.invL);
+			for (i = 0; i < sm.invL.m; i++)
+				svm_model.lin_weights[i + 1] = ortho_weights[i];
+			svm_model.lin_weights[0] = 0;
+
+		}
+
+		nump = 0;
+		numn = 0;
+		for (i = 0; i < x.totdoc; i++) {
+			score[i] = Math.abs(y.class_indexs[i])
+					* Common.classifyExample(svm_model, x.docs[i]);
+			if (y.class_indexs[i] > 0) {
+				scorep[nump].score = score[i];
+				scorep[nump].tiebreak = 0;
+				scorep[nump].id = i;
+				nump++;
+			} else {
+				scoren[numn].score = score[i];
+				scoren[numn].tiebreak = 0;
+				scoren[numn].id = i;
+				numn++;
+			}
+		}
+
+		// compute score of target label 
+		score_y = 0;
+		if (loss_type == LearnStruct.SLACK_RESCALING) {
+			for (i = 0; i < x.totdoc; i++)
+				score_y += score[i];
+		}
+
+		if (nump != 0) {
+			// qsort(scorep,nump,sizeof(STRUCT_ID_SCORE),comparedown);
+		}
+		sump[0] = 0;
+		for (i = 0; i < nump; i++) {
+			sump[i + 1] = sump[i] + scorep[i].score;
+		}
+		if (numn != 0) {
+			// qsort(scoren,numn,sizeof(STRUCT_ID_SCORE),compareup);
+		}
+		sumn[0] = 0;
+		for (i = 0; i < numn; i++) {
+			sumn[i + 1] = sumn[i] + scoren[i].score;
+		}
+
+	
+		// find max of loss(ybar,y)+score(ybar) for margin rescaling or max of
+		// loss(ybar,y)+loss*(score(ybar)-score(y)) for slack rescaling
+		valmax = 0;
+		start = 1;
+		prec_rec_k = (int) (nump * sparm.prec_rec_k_frac);
+		if (prec_rec_k < 1)
+			prec_rec_k = 1;
+		for (a = 0; a <= nump; a++) {
+			for (d = 0; d <= numn; d++) {
+				if (sparm.loss_function == ModelConstant.ZEROONE)
+					loss = zerooneLoss(a, numn - d, nump - a, d);
+				else if (sparm.loss_function == ModelConstant.FONE)
+					loss = foneLoss(a, numn - d, nump - a, d);
+				else if (sparm.loss_function == ModelConstant.ERRORRATE)
+					loss = errorrateLoss(a, numn - d, nump - a, d);
+				else if ((sparm.loss_function == ModelConstant.PRBEP)
+						&& (a + numn - d == nump))
+					loss = prbepLoss(a, numn - d, nump - a, d);
+				else if ((sparm.loss_function == ModelConstant.PREC_K)
+						&& (a + numn - d >= prec_rec_k))
+					loss = precKLoss(a, numn - d, nump - a, d);
+				else if ((sparm.loss_function == ModelConstant.REC_K)
+						&& (a + numn - d <= prec_rec_k))
+					loss = recKLoss(a, numn - d, nump - a, d);
+				else {
+					loss = 0;
+				}
+				if (loss > 0) {
+					if (loss_type == LearnStruct.SLACK_RESCALING) {
+						val = loss
+								+ loss
+								* (sump[a] - (sump[nump] - sump[a]) - sumn[d] + (sumn[numn]
+										- sumn[d] - score_y));
+					} else if (loss_type == LearnStruct.MARGIN_RESCALING) {
+						val = loss + sump[a] - (sump[nump] - sump[a]) - sumn[d]
+								+ (sumn[numn] - sumn[d]);
+					} else {
+						System.err.printf("ERROR: Unknown loss type '%d'.\n",
+								loss_type);
+						System.exit(1);
+					}
+					if ((val > valmax) || (start != 0)) {
+						start = 0;
+						valmax = val;
+						threshp = a;
+						threshn = d;
+					}
+				}
+			}
+		}
+
+		// assign labels that maximize score 
+		for (i = 0; i < nump; i++) {
+			if (i < threshp)
+				ybar.class_indexs[scorep[i].id] = y.class_indexs[scorep[i].id];
+			else
+				ybar.class_indexs[scorep[i].id] = -y.class_indexs[scorep[i].id];
+		}
+		for (i = 0; i < numn; i++) {
+			if (i < threshn)
+				ybar.class_indexs[scoren[i].id] = y.class_indexs[scoren[i].id];
+			else
+				ybar.class_indexs[scoren[i].id] = -y.class_indexs[scoren[i].id];
+		}
+
+		if (CommonStruct.struct_verbosity >= 2) {
+			if (loss_type == LearnStruct.SLACK_RESCALING)
+				System.out
+						.printf("\n max_ybar {loss(y_i,ybar)+loss(y_i,ybar)[w*Psi(x,ybar)-w*Psi(x,y)]}=%f\n",
+								valmax);
+			else
+				System.out.printf(
+						"\n max_ybar {loss(y_i,ybar)+w*Psi(x,ybar)}=%f\n",
+						valmax);
+			SVECTOR fy = psi(x, y, sm, sparm);
+			SVECTOR fybar = psi(x, ybar, sm, sparm);
+			DOC exy = Common.createExample(0, 0, 1, 1, fy);
+			DOC exybar = Common.createExample(0, 0, 1, 1, fybar);
+			System.out.printf(" -> w*Psi(x,y_i)=%f, w*Psi(x,ybar)=%f\n",
+					Common.classifyExample(sm.svm_model, exy),
+					Common.classifyExample(sm.svm_model, exybar));
+
+		}
+
+		return (ybar);
 	}
 
 }
