@@ -99,10 +99,9 @@ public class Perf extends Struct {
 				if (CommonStruct.struct_verbosity > 0)
 					System.out.printf("done.\n");
 
-				/*
-				 * Make sure they are all independent. If not, select
-				 * independent subset.
-				 */
+				// Make sure they are all independent. If not, select
+				// independent subset.
+
 				if (CommonStruct.struct_verbosity > 0)
 					System.out
 							.printf("Finding independent subset of vectors...");
@@ -217,7 +216,7 @@ public class Perf extends Struct {
 
 		totwords = 0;
 		for (i = 0; i < totdoc; i++)
-			// find highest feature number 
+			// find highest feature number
 			for (int m = 0; m < sample.examples[0].x.docs[i].fvec.words.length; m++) {
 				w = sample.examples[0].x.docs[i].fvec.words[m];
 				if (totwords < w.wnum)
@@ -265,10 +264,64 @@ public class Perf extends Struct {
 	}
 
 	@Override
+	/*
+	 * Returns a feature vector describing the match between pattern x and label
+	 * y. The feature vector is returned as a list of SVECTOR's. Each SVECTOR is
+	 * in a sparse representation of pairs <featurenumber:featurevalue>, where
+	 * the last pair has featurenumber 0 as a terminator. Featurenumbers start
+	 * with 1 and end with sizePsi. Featuresnumbers that are not specified
+	 * default to value 0. As mentioned before, psi() actually returns a list of
+	 * SVECTOR's. Each SVECTOR has a field 'factor' and 'next'. 'next' specifies
+	 * the next element in the list, terminated by a NULL pointer. The list can
+	 * be though of as a linear combination of vectors, where each vector is
+	 * weighted by its 'factor'. This linear combination of feature vectors is
+	 * multiplied with the learned (kernelized) weight vector to score label y
+	 * for pattern x. Without kernels, there will be one weight in sm.w for each
+	 * feature. Note that psi has to match find_most_violated_constraint_???(x,
+	 * y, sm) and vice versa. In particular,
+	 * find_most_violated_constraint_???(x, y, sm) finds that ybar!=y that
+	 * maximizes psi(x,ybar,sm)*sm.w (where * is the inner vector product) and
+	 * the appropriate function of the loss + margin/slack rescaling method. See
+	 * that paper for details.
+	 */
 	public SVECTOR psi(PATTERN x, LABEL y, STRUCTMODEL sm,
 			STRUCT_LEARN_PARM sparm) {
-		// TODO Auto-generated method stub
-		return null;
+		SVECTOR fvec = null, fvec2;
+		double[] sum, sum2;
+		int i, totwords;
+
+		// The following special case speeds up computation for the linear
+		// kernel. The lines add the feature vectors for all examples into
+		// a single vector. This is more efficient for the linear kernel,
+		// but is invalid for all other kernels.
+		if (sm.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
+			totwords = sparm.num_features;
+			sum = new double[totwords + 1];
+			Common.clearNvector(sum, totwords);
+			for (i = 0; i < y.totdoc; i++)
+				Common.addVectorNs(sum, x.docs[i].fvec, y.class_indexs[i]);
+
+			// For sparse kernel, replace feature vector Psi with k=L^-1*Psi
+			if (sm.sparse_kernel_type > 0) {
+				// sum+1==sum[1]? how add one add one ?
+				sum2 = Common.prod_ltmatrix_nvector(sm.invL, sum);
+				for (i = 0; i < totwords; i++)
+					sum[i + 1] = sum2[i];
+
+			}
+
+			fvec = Common.createSvectorN(sum, totwords, "", 1);
+		} else { // general kernel
+			for (i = 0; i < y.totdoc; i++) {
+				fvec2 = Common.copySvector(x.docs[i].fvec);
+				fvec2.next = fvec;
+				fvec2.factor = y.class_indexs[i];
+				// printf("class %d: %f\n",i,y.class[i]);
+				fvec = fvec2;
+			}
+		}
+
+		return (fvec);
 	}
 
 	@Override
@@ -760,7 +813,7 @@ public class Perf extends Struct {
 		// For sparse kernel, replace weight vector with beta=gamma^T*L^-1
 		if (sm.sparse_kernel_type > 0) {
 			svm_model.lin_weights = new double[totwords + 1];
-			// how weight add one
+			// how weight add one add one?
 			ortho_weights = Common.prod_nvector_ltmatrix(
 					sm.svm_model.lin_weights, sm.invL);
 			for (i = 0; i < sm.invL.m; i++)

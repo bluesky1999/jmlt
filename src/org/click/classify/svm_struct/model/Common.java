@@ -2263,4 +2263,26 @@ public class Common {
 		return (L);
 	}
 
+	/**
+	 * For column vector v and lower triangular matrix A (assumed to match in
+	 * size), computes w=A*v
+	 */
+	public static double[] prod_ltmatrix_nvector(MATRIX A, double[] v) {
+		int i, j;
+		double sum;
+		double[] w;
+
+		w = createNvector(A.n);
+
+		for (i = 0; i < A.n; i++) {
+			sum = 0.0;
+			for (j = 0; j <= i; j++) {
+				sum += v[j] * A.element[i][j];
+			}
+			w[i] = sum;
+		}
+
+		return (w);
+	}
+
 }
