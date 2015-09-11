@@ -3,6 +3,7 @@ package org.click.classify.svm_struct.model;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import org.click.classify.svm_struct.data.DOC;
 import org.click.classify.svm_struct.data.EXAMPLE;
@@ -73,12 +74,10 @@ public class Perf extends Struct {
 			if ((y.class_indexs[i] < 0) && (ybar.class_indexs[i] <= 0)) {
 				d++;
 			}
-
 		}
+		
 		// Return the loss according to the selected loss function.
-		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss:
-															// 0/1loss
-
+		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss: 0/1loss
 			// return 0, if y==ybar. return 1 else
 			loss = zerooneLoss(a, b, c, d);
 		} else if (sparm.loss_function == ModelConstant.FONE) {
@@ -216,8 +215,7 @@ public class Perf extends Struct {
 			}
 		}
 
-		// change label value for easy computation of rankmetrics (i.e.
-		// ROC-area)
+		// change label value for easy computation of rankmetrics (i.e. ROC-area)
 		if (sparm.loss_function == ModelConstant.SWAPPEDPAIRS) {
 			for (i = 0; i < sample.examples[0].x.totdoc; i++) {
 
@@ -271,10 +269,8 @@ public class Perf extends Struct {
 
 		y.totdoc = x.totdoc;
 		y.class_indexs = new double[y.totdoc];
-		/*
-		 * simply classify by sign of inner product between example vector and
-		 * weight vector
-		 */
+	
+		// simply classify by sign of inner product between example vector and weight vector
 		for (i = 0; i < x.totdoc; i++) {
 			y.class_indexs[i] = Common.classifyExample(sm.svm_model, x.docs[i]);
 		}
@@ -339,8 +335,7 @@ public class Perf extends Struct {
 			sparm.truncate_fvec = 1;
 		else
 			sparm.truncate_fvec = 0;
-		if (sm.svm_model.kernel_parm.kernel_type == ModelConstant.CUSTOM) // double
-																			// kernel
+		if (sm.svm_model.kernel_parm.kernel_type == ModelConstant.CUSTOM) // double kernel
 			sparm.preimage_method = 9;
 		sm.invL = null;
 		sm.expansion = null;
@@ -493,7 +488,11 @@ public class Perf extends Struct {
 		LABEL ybar = new LABEL();
 		int i, nump, numn, start, prec_rec_k, totwords;
 		double[] score, sump, sumn;
-		STRUCT_ID_SCORE[] scorep, scoren;
+		//STRUCT_ID_SCORE[] scorep, scoren;
+		
+		ArrayList<STRUCT_ID_SCORE> scorep=new ArrayList<STRUCT_ID_SCORE>();
+		ArrayList<STRUCT_ID_SCORE> scoren=new ArrayList<STRUCT_ID_SCORE>();
+		
 		int threshp = 0, threshn = 0;
 		int a, d;
 		double val = 0, valmax, loss, score_y;
@@ -504,13 +503,14 @@ public class Perf extends Struct {
 		ybar.totdoc = x.totdoc;
 		ybar.class_indexs = new double[x.totdoc];
 		score = new double[ybar.totdoc + 1];
-		scorep = new STRUCT_ID_SCORE[ybar.totdoc + 1];
-		for (int j = 0; j < scorep.length; j++) {
-			scorep[j] = new STRUCT_ID_SCORE();
+		//scorep = new STRUCT_ID_SCORE[ybar.totdoc + 1];
+		for (int j = 0; j < ybar.totdoc + 1; j++) {
+			scorep.add( new STRUCT_ID_SCORE());
 		}
-		scoren = new STRUCT_ID_SCORE[ybar.totdoc + 1];
-		for (int j = 0; j < scoren.length; j++) {
-			scoren[j] = new STRUCT_ID_SCORE();
+		//scoren = new STRUCT_ID_SCORE[ybar.totdoc + 1];
+		for (int j = 0; j < ybar.totdoc + 1; j++) {
+		 //	scoren[j] = new STRUCT_ID_SCORE();
+			scoren.add( new STRUCT_ID_SCORE());
 		}
 
 		sump = new double[ybar.totdoc + 1];
@@ -537,14 +537,14 @@ public class Perf extends Struct {
 			score[i] = Math.abs(y.class_indexs[i])
 					* Common.classifyExample(svm_model, x.docs[i]);
 			if (y.class_indexs[i] > 0) {
-				scorep[nump].score = score[i];
-				scorep[nump].tiebreak = 0;
-				scorep[nump].id = i;
+				scorep.get(nump).score = score[i];
+				scorep.get(nump).tiebreak = 0;
+				scorep.get(nump).id = i;
 				nump++;
 			} else {
-				scoren[numn].score = score[i];
-				scoren[numn].tiebreak = 0;
-				scoren[numn].id = i;
+				scoren.get(numn).score = score[i];
+				scoren.get(numn).tiebreak = 0;
+				scoren.get(numn).id = i;
 				numn++;
 			}
 		}
@@ -557,18 +557,19 @@ public class Perf extends Struct {
 		}
 
 		if (nump != 0) {
+		    Collections.sort(scorep);
 			// qsort(scorep,nump,sizeof(STRUCT_ID_SCORE),comparedown);
 		}
 		sump[0] = 0;
 		for (i = 0; i < nump; i++) {
-			sump[i + 1] = sump[i] + scorep[i].score;
+			sump[i + 1] = sump[i] + scorep.get(i).score;
 		}
 		if (numn != 0) {
 			// qsort(scoren,numn,sizeof(STRUCT_ID_SCORE),compareup);
 		}
 		sumn[0] = 0;
 		for (i = 0; i < numn; i++) {
-			sumn[i + 1] = sumn[i] + scoren[i].score;
+			sumn[i + 1] = sumn[i] + scoren.get(i).score;
 		}
 
 	
@@ -626,15 +627,15 @@ public class Perf extends Struct {
 		// assign labels that maximize score 
 		for (i = 0; i < nump; i++) {
 			if (i < threshp)
-				ybar.class_indexs[scorep[i].id] = y.class_indexs[scorep[i].id];
+				ybar.class_indexs[scorep.get(i).id] = y.class_indexs[scorep.get(i).id];
 			else
-				ybar.class_indexs[scorep[i].id] = -y.class_indexs[scorep[i].id];
+				ybar.class_indexs[scorep.get(i).id] = -y.class_indexs[scorep.get(i).id];
 		}
 		for (i = 0; i < numn; i++) {
 			if (i < threshn)
-				ybar.class_indexs[scoren[i].id] = y.class_indexs[scoren[i].id];
+				ybar.class_indexs[scoren.get(i).id] = y.class_indexs[scoren.get(i).id];
 			else
-				ybar.class_indexs[scoren[i].id] = -y.class_indexs[scoren[i].id];
+				ybar.class_indexs[scoren.get(i).id] = -y.class_indexs[scoren.get(i).id];
 		}
 
 		if (CommonStruct.struct_verbosity >= 2) {
