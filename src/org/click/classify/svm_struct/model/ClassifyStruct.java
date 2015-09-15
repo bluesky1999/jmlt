@@ -27,6 +27,8 @@ public class ClassifyStruct {
 	private STRUCT_LEARN_PARM sparm;
 	public Struct ssa = null;
 	private static Logger logger = Logger.getLogger(ClassifyStruct.class);
+	
+	private Common com=null;
 
 	public void init_svm_struct(String model_file) {
 
@@ -59,7 +61,7 @@ public class ClassifyStruct {
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			logger.info("begin add_weight_vector_to_linear_model");
-			Common.addWeightVectorToLinearModel(model.svm_model);
+			com.addWeightVectorToLinearModel(model.svm_model);
 			logger.info("after add_weight_vector_to_linear_model");
 			model.w = model.svm_model.lin_weights;
 		}
@@ -109,7 +111,7 @@ public class ClassifyStruct {
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			logger.info("begin add_weight_vector_to_linear_model");
-			Common.addWeightVectorToLinearModel(model.svm_model);
+			com.addWeightVectorToLinearModel(model.svm_model);
 			logger.info("after add_weight_vector_to_linear_model");
 			model.w = model.svm_model.lin_weights;
 
@@ -174,7 +176,7 @@ public class ClassifyStruct {
 		logger.info("predict result ===============================");
 		for (i = 0; i < testsample.n; i++) {
 
-			t1 = Common.getRuntime();
+			t1 = com.getRuntime();
 			// logger.info("doc [" + i + "] "
 			// + testsample.examples[i].x.doc.fvec.toString());
 			y = ssa.classifyStructExample(testsample.examples[i].x, model,
@@ -186,7 +188,7 @@ public class ClassifyStruct {
 			// + "].y:" + testsample.examples[i].y.class_index);
 			logger.info(testsample.examples[i].y.class_index + " "
 					+ y.class_index);
-			runtime += (Common.getRuntime() - t1);
+			runtime += (com.getRuntime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 			System.out.println(identifier_list.get(i) + " " + y.toString());
 
@@ -274,7 +276,7 @@ public class ClassifyStruct {
 		}
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
-			Common.addWeightVectorToLinearModel(model.svm_model);
+			com.addWeightVectorToLinearModel(model.svm_model);
 			model.w = model.svm_model.lin_weights;
 		}
 
@@ -337,7 +339,7 @@ public class ClassifyStruct {
 
 		for (i = 0; i < testsample.n; i++) {
 
-			t1 = Common.getRuntime();
+			t1 = com.getRuntime();
 			logger.info("doc [" + i + "] "
 					+ testsample.examples[i].x.doc.fvec.toString());
 			y = ssa.classifyStructExample(testsample.examples[i].x, model,
@@ -347,7 +349,7 @@ public class ClassifyStruct {
 			}
 			logger.info("y:" + y.class_index + "  testsample.examples[" + i
 					+ "].y:" + testsample.examples[i].y.class_index);
-			runtime += (Common.getRuntime() - t1);
+			runtime += (com.getRuntime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 			System.out.println(identifier_list.get(i) + " " + y.toString());
 
@@ -394,7 +396,7 @@ public class ClassifyStruct {
 
 	}
 
-	public static void readInputParameters(int argc, String[] argv,
+	public  void readInputParameters(int argc, String[] argv,
 			STRUCT_LEARN_PARM struct_parm, int verbosity, int struct_verbosity) {
 		// System.err.println("in read_input_parameters");
 		int i;
@@ -452,7 +454,7 @@ public class ClassifyStruct {
 		ssa.parseStructParametersClassify(struct_parm);
 	}
 
-	public static void printHelp() {
+	public  void printHelp() {
 		System.out.println("\nSVM-struct classification module: "
 				+ CommonStruct.INST_NAME + ", " + CommonStruct.INST_VERSION
 				+ ", " + CommonStruct.INST_VERSION_DATE + "\n");
@@ -462,7 +464,7 @@ public class ClassifyStruct {
 				+ CommonStruct.STRUCT_VERSION_DATE + "\n");
 		System.out.println("   includes SVM-light " + ModelConstant.VERSION
 				+ " quadratic optimizer, " + ModelConstant.VERSION_DATE + "\n");
-		Common.copyright_notice();
+		com.copyright_notice();
 		System.out
 				.println("   usage: svm_struct_classify [options] example_file model_file output_file\n\n");
 		System.out.println("options: -h         -> this help\n");
@@ -473,6 +475,9 @@ public class ClassifyStruct {
 	}
 
 	public static void main(String[] args) throws Exception {
+		
+		ClassifyStruct cs=new ClassifyStruct();
+		cs.com=new Common();
 		int correct = 0, incorrect = 0, no_accuracy = 0;
 		int i;
 		double t1, runtime = 0;
@@ -483,11 +488,11 @@ public class ClassifyStruct {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-		FactoryStruct.api_type = 0;
+		FactoryStruct.api_type = 2;
 		Struct ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		readInputParameters(args.length + 1, args, sparm, Common.verbosity,
+		cs.readInputParameters(args.length + 1, args, sparm, Common.verbosity,
 				CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
@@ -505,7 +510,7 @@ public class ClassifyStruct {
 		}
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
-			Common.addWeightVectorToLinearModel(model.svm_model);
+			cs.com.addWeightVectorToLinearModel(model.svm_model);
 			model.w = model.svm_model.lin_weights;
 		}
 
@@ -530,7 +535,7 @@ public class ClassifyStruct {
 
 		for (i = 0; i < testsample.n; i++) {
 
-			t1 = Common.getRuntime();
+			t1 = cs.com.getRuntime();
 			// logger.info("doc [" + i + "] "
 			// + testsample.examples[i].x.doc.fvec.toString());
 			y = ssa.classifyStructExample(testsample.examples[i].x, model,
@@ -551,7 +556,7 @@ public class ClassifyStruct {
 				pw.println(testsample.examples[i].y.class_index + " "
 						+ y.class_index);
 			}
-			runtime += (Common.getRuntime() - t1);
+			runtime += (cs.com.getRuntime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 
 			l = ssa.loss(testsample.examples[i].y, y, sparm);

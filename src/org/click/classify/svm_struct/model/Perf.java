@@ -24,6 +24,11 @@ import org.click.classify.svm_struct.data.WORD;
 
 public class Perf extends Struct {
 
+	public Perf() {
+		super();
+		//com = new Common();
+	}
+
 	@Override
 	/** Initialize structmodel sm. The weight vector w does not need to be
 	initialized, but you need to provide the maximum size of the
@@ -63,8 +68,8 @@ public class Perf extends Struct {
 									sparm.sparse_kernel_file);
 
 				ReadStruct rs = new ReadStruct();
-				// Common.read_documents(sparm.sparse_kernel_file,basis,dummy,totwords,totexp);
-				basis = Common.readDocuments(sparm.sparse_kernel_file, rs);
+				// com.read_documents(sparm.sparse_kernel_file,basis,dummy,totwords,totexp);
+				basis = com.readDocuments(sparm.sparse_kernel_file, rs);
 				dummy = rs.read_target;
 				if (CommonStruct.struct_verbosity > 0)
 					System.out.printf("done.\n");
@@ -73,7 +78,7 @@ public class Perf extends Struct {
 				for (i = 0; i < totdoc; i++) {
 					basis[i] = new DOC();
 					basis[i] = sample.examples[0].x.docs[i];
-					basis[i].fvec = Common
+					basis[i].fvec = com
 							.copySvector(sample.examples[0].x.docs[i].fvec);
 				}
 				totexp = totdoc;
@@ -92,7 +97,7 @@ public class Perf extends Struct {
 				for (ii = 0.5; ii < totexp; ii += ((double) totexp / sparm.sparse_kernel_size)) {
 					sm.expansion[sm.expansion_size] = new DOC();
 					sm.expansion[sm.expansion_size] = basis[(int) ii];
-					sm.expansion[sm.expansion_size].fvec = Common
+					sm.expansion[sm.expansion_size].fvec = com
 							.copySvector(basis[(int) ii].fvec);
 					sm.expansion_size++;
 				}
@@ -105,15 +110,15 @@ public class Perf extends Struct {
 				if (CommonStruct.struct_verbosity > 0)
 					System.out
 							.printf("Finding independent subset of vectors...");
-				G = Common.createMatrix(sm.expansion_size, sm.expansion_size);
+				G = com.createMatrix(sm.expansion_size, sm.expansion_size);
 				for (i = 0; i < sm.expansion_size; i++) { // need only upper
 															// triangle
 					for (j = i; j < sm.expansion_size; j++) {
-						G.element[i][j] = Common.kernel(kparm, sm.expansion[i],
+						G.element[i][j] = com.kernel(kparm, sm.expansion[i],
 								sm.expansion[j]);
 					}
 				}
-				indep = Common.findIndepSubsetOfMatrix(G, 0.000001);
+				indep = com.findIndepSubsetOfMatrix(G, 0.000001);
 
 				new_size = 0;
 				for (i = 0; i < sm.expansion_size; i++) {
@@ -136,11 +141,11 @@ public class Perf extends Struct {
 				if (CommonStruct.struct_verbosity > 0)
 					System.out
 							.printf("Computing Gram matrix for kernel expansion...");
-				G = Common.createMatrix(sm.expansion_size, sm.expansion_size);
+				G = com.createMatrix(sm.expansion_size, sm.expansion_size);
 				for (i = 0; i < sm.expansion_size; i++) {// need upper triangle
 															// for cholesky
 					for (j = i; j < sm.expansion_size; j++) {
-						G.element[i][j] = Common.kernel(kparm, sm.expansion[i],
+						G.element[i][j] = com.kernel(kparm, sm.expansion[i],
 								sm.expansion[j]);
 					}
 				}
@@ -149,8 +154,8 @@ public class Perf extends Struct {
 				if (CommonStruct.struct_verbosity > 0)
 					System.out
 							.printf("Computing Cholesky decomposition and inverting...");
-				L = Common.choleskyMatrix(G);
-				sm.invL = Common.invert_ltriangle_matrix(L);
+				L = com.choleskyMatrix(G);
+				sm.invL = com.invert_ltriangle_matrix(L);
 
 				if (CommonStruct.struct_verbosity > 0)
 					System.out.printf("done.\n");
@@ -161,16 +166,16 @@ public class Perf extends Struct {
 				if (CommonStruct.struct_verbosity > 0)
 					System.out
 							.printf("Computing incomplete Cholesky decomposition...");
-				L = Common.incompleteCholesky(basis, totexp,
+				L = com.incompleteCholesky(basis, totexp,
 						sparm.sparse_kernel_size, 0.000001, kparm, select);
-				sm.invL = Common.invert_ltriangle_matrix(L);
+				sm.invL = com.invert_ltriangle_matrix(L);
 
 				sm.expansion = new DOC[totexp];
 				sm.expansion_size = 0;
 				for (i = 0; select[i] >= 0; i++) {
 					sm.expansion[sm.expansion_size] = new DOC();
 					sm.expansion[sm.expansion_size] = basis[select[i]];
-					sm.expansion[sm.expansion_size].fvec = Common
+					sm.expansion[sm.expansion_size].fvec = com
 							.copySvector(basis[select[i]].fvec);
 					sm.expansion_size++;
 				}
@@ -187,7 +192,7 @@ public class Perf extends Struct {
 			for (i = 0; i < totdoc; i++) {
 				k = 0;
 				for (j = 0; j < sm.expansion_size; j++) {
-					weight = Common.kernel(kparm, orgdoc[i], sm.expansion[j]);
+					weight = com.kernel(kparm, orgdoc[i], sm.expansion[j]);
 					if (weight != 0) {
 						words[k].wnum = j + 1;
 						words[k].weight = weight;
@@ -195,9 +200,9 @@ public class Perf extends Struct {
 					}
 				}
 				words[k].wnum = 0;
-				sample.examples[0].x.docs[i] = Common.createExample(
+				sample.examples[0].x.docs[i] = com.createExample(
 						orgdoc[i].docnum, orgdoc[i].queryid, orgdoc[i].slackid,
-						orgdoc[i].costfactor, Common.createSvector(words,
+						orgdoc[i].costfactor, com.createSvector(words,
 								orgdoc[i].fvec.userdefined, 1.0));
 			}
 
@@ -297,23 +302,23 @@ public class Perf extends Struct {
 		if (sm.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			totwords = sparm.num_features;
 			sum = new double[totwords + 1];
-			Common.clearNvector(sum, totwords);
+			com.clearNvector(sum, totwords);
 			for (i = 0; i < y.totdoc; i++)
-				Common.addVectorNs(sum, x.docs[i].fvec, y.class_indexs[i]);
+				com.addVectorNs(sum, x.docs[i].fvec, y.class_indexs[i]);
 
 			// For sparse kernel, replace feature vector Psi with k=L^-1*Psi
 			if (sm.sparse_kernel_type > 0) {
 				// sum+1==sum[1]? how add one add one ?
-				sum2 = Common.prod_ltmatrix_nvector(sm.invL, sum);
+				sum2 = com.prod_ltmatrix_nvector(sm.invL, sum);
 				for (i = 0; i < totwords; i++)
 					sum[i + 1] = sum2[i];
 
 			}
 
-			fvec = Common.createSvectorN(sum, totwords, "", 1);
+			fvec = com.createSvectorN(sum, totwords, "", 1);
 		} else { // general kernel
 			for (i = 0; i < y.totdoc; i++) {
-				fvec2 = Common.copySvector(x.docs[i].fvec);
+				fvec2 = com.copySvector(x.docs[i].fvec);
 				fvec2.next = fvec;
 				fvec2.factor = y.class_indexs[i];
 				// printf("class %d: %f\n",i,y.class[i]);
@@ -364,7 +369,8 @@ public class Perf extends Struct {
 		}
 
 		// Return the loss according to the selected loss function.
-		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss: 0/1loss
+		if (sparm.loss_function == ModelConstant.ZEROONE) { // type 0 loss:
+															// 0/1loss
 			// return 0, if y==ybar. return 1 else
 			loss = zerooneLoss(a, b, c, d);
 		} else if (sparm.loss_function == ModelConstant.FONE) {
@@ -418,7 +424,7 @@ public class Perf extends Struct {
 		// Using the read_documents function from SVM-light
 		ReadStruct rs = new ReadStruct();
 
-		examples[0].x.docs = Common.readDocuments(file, rs);
+		examples[0].x.docs = com.readDocuments(file, rs);
 		examples[0].y.class_indexs = rs.read_target;
 		examples[0].x.totdoc = rs.read_totdocs;
 		examples[0].y.totdoc = rs.read_totdocs;
@@ -432,7 +438,7 @@ public class Perf extends Struct {
 
 		if (sparm.preimage_method == 9) {
 			for (i = 0; i < n; i++) {
-				examples[0].x.docs[i].fvec.next = Common
+				examples[0].x.docs[i].fvec.next = com
 						.copySvector(examples[0].x.docs[i].fvec);
 				examples[0].x.docs[i].fvec.kernel_id = 0;
 				examples[0].x.docs[i].fvec.next.kernel_id = 2;
@@ -469,7 +475,7 @@ public class Perf extends Struct {
 				words[j].wnum = sparm.bias_featurenum; // bias
 				words[j].weight = sparm.bias;
 
-				sample.examples[0].x.docs[i].fvec = Common.createSvector(words,
+				sample.examples[0].x.docs[i].fvec = com.createSvector(words,
 						"", 1.0);
 			}
 		}
@@ -561,7 +567,7 @@ public class Perf extends Struct {
 		// simply classify by sign of inner product between example vector and
 		// weight vector
 		for (i = 0; i < x.totdoc; i++) {
-			y.class_indexs[i] = Common.classifyExample(sm.svm_model, x.docs[i]);
+			y.class_indexs[i] = com.classifyExample(sm.svm_model, x.docs[i]);
 		}
 		return (y);
 	}
@@ -571,7 +577,7 @@ public class Perf extends Struct {
 			STRUCT_LEARN_PARM sparm) {
 		LABEL y = new LABEL();
 
-		y.dou_index = Common.classifyExample(sm.svm_model, d);
+		y.dou_index = com.classifyExample(sm.svm_model, d);
 
 		return (y);
 	}
@@ -585,8 +591,8 @@ public class Perf extends Struct {
 		String read_comment = "";
 		WORD[] words = null;
 		words = string2words(wordString);
-		DOC doc = Common.createExample(dnum, queryid, slackid, costfactor,
-				Common.createSvector(words, read_comment, 1.0));
+		DOC doc = com.createExample(dnum, queryid, slackid, costfactor,
+				com.createSvector(words, read_comment, 1.0));
 		PATTERN pat = new PATTERN();
 		pat.doc = doc;
 
@@ -602,8 +608,8 @@ public class Perf extends Struct {
 		String read_comment = "";
 		WORD[] words = null;
 		words = string2words(wordString);
-		DOC doc = Common.createExample(dnum, queryid, slackid, costfactor,
-				Common.createSvector(words, read_comment, 1.0));
+		DOC doc = com.createExample(dnum, queryid, slackid, costfactor,
+				com.createSvector(words, read_comment, 1.0));
 
 		return doc;
 	}
@@ -615,7 +621,7 @@ public class Perf extends Struct {
 	@Override
 	public STRUCTMODEL readStructModel(String file, STRUCT_LEARN_PARM sparm) {
 		STRUCTMODEL sm = new STRUCTMODEL();
-		sm.svm_model = Common.read_model(file);
+		sm.svm_model = com.read_model(file);
 		sparm.loss_function = ModelConstant.ERRORRATE;
 		sparm.bias = 0;
 		sparm.bias_featurenum = 0;
@@ -635,7 +641,7 @@ public class Perf extends Struct {
 		sm.sizePsi = sm.svm_model.totwords;
 		// if((sm.svm_model.kernel_parm.kernel_type!= ModelConstant.LINEAR) &&
 		// sparm.classify_dense!=0)
-		// svm_common.add_dense_vectors_to_model(sm.svm_model);
+		// svm_com.add_dense_vectors_to_model(sm.svm_model);
 		return (sm);
 	}
 
@@ -813,8 +819,8 @@ public class Perf extends Struct {
 		if (sm.sparse_kernel_type > 0) {
 			svm_model.lin_weights = new double[totwords + 1];
 			// how weight add one add one?
-			ortho_weights = Common.prod_nvector_ltmatrix(
-					sm.svm_model.lin_weights, sm.invL);
+			ortho_weights = com.prod_nvector_ltmatrix(sm.svm_model.lin_weights,
+					sm.invL);
 			for (i = 0; i < sm.invL.m; i++)
 				svm_model.lin_weights[i + 1] = ortho_weights[i];
 			svm_model.lin_weights[0] = 0;
@@ -825,7 +831,7 @@ public class Perf extends Struct {
 		numn = 0;
 		for (i = 0; i < x.totdoc; i++) {
 			score[i] = Math.abs(y.class_indexs[i])
-					* Common.classifyExample(svm_model, x.docs[i]);
+					* com.classifyExample(svm_model, x.docs[i]);
 			if (y.class_indexs[i] > 0) {
 				scorep.get(nump).score = score[i];
 				scorep.get(nump).tiebreak = 0;
@@ -944,11 +950,11 @@ public class Perf extends Struct {
 						valmax);
 			SVECTOR fy = psi(x, y, sm, sparm);
 			SVECTOR fybar = psi(x, ybar, sm, sparm);
-			DOC exy = Common.createExample(0, 0, 1, 1, fy);
-			DOC exybar = Common.createExample(0, 0, 1, 1, fybar);
+			DOC exy = com.createExample(0, 0, 1, 1, fy);
+			DOC exybar = com.createExample(0, 0, 1, 1, fybar);
 			System.out.printf(" -> w*Psi(x,y_i)=%f, w*Psi(x,ybar)=%f\n",
-					Common.classifyExample(sm.svm_model, exy),
-					Common.classifyExample(sm.svm_model, exybar));
+					com.classifyExample(sm.svm_model, exy),
+					com.classifyExample(sm.svm_model, exybar));
 
 		}
 

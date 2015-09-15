@@ -38,6 +38,12 @@ import org.jmlp.str.basic.SSO;
 
 public abstract class Struct {
 
+	public Common com = null;
+
+	public Struct()
+	{
+		com=new Common();
+	}
 	/**
 	 * 初始化 svm struct model
 	 * 
@@ -168,7 +174,7 @@ public abstract class Struct {
 		MODEL model = sm.svm_model;
 		if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 
-			sm.svm_model = Common.compactLinearModel(model);
+			sm.svm_model = com.compactLinearModel(model);
 			sm.w = sm.svm_model.lin_weights; /* short cut to weight vector */
 
 		}

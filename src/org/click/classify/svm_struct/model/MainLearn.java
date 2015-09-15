@@ -21,13 +21,14 @@ public class MainLearn {
 
 	private static Logger logger = Logger.getLogger(MainLearn.class);
 
-	public static void read_input_parameters(int argc, String argv[],
+	public Common com=null;
+	public  void read_input_parameters(int argc, String argv[],
 			short verbosity, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm) {
 		int i;
 		String type;
 
-		/* set default */
-		Common.setLearningDefaults(learn_parm, kernel_parm);
+		// set default
+		com.setLearningDefaults(learn_parm, kernel_parm);
 		modelfile = "svm_model";
 		restartfile = "";
 		Common.verbosity = 5;
@@ -191,18 +192,18 @@ public class MainLearn {
 			print_help();
 			System.exit(0);
 		}
-		if (!Common.checkLearningParms(learn_parm, kernel_parm)) {
+		if (!(com.checkLearningParms(learn_parm, kernel_parm))) {
 			wait_any_key();
 			print_help();
 			System.exit(0);
 		}
 	}
 
-	public static void print_help() {
+	public  void print_help() {
 		System.out.println("\nSVM-light " +  ModelConstant.VERSION
 				+ ": Support Vector Machine, learning module  "
 				+  ModelConstant.VERSION_DATE);
-		Common.copyright_notice();
+		com.copyright_notice();
 		System.out
 				.println("   usage: svm_learn [options] example_file model_file\n\n");
 		System.out.println("Arguments:\n");
@@ -371,10 +372,13 @@ public class MainLearn {
 		LEARN_PARM learn_parm;
 		KERNEL_PARM kernel_parm;
 
+		MainLearn ml=new MainLearn();
+		ml.com=new Common();
+		
 		MODEL model = new MODEL();
 		learn_parm = new LEARN_PARM();
 		kernel_parm = new KERNEL_PARM();
-		read_input_parameters(args.length + 1, args,
+		ml.read_input_parameters(args.length + 1, args,
 				(short) Common.verbosity, learn_parm, kernel_parm);
 		PrintWriter pw = null;
 		FileWriter fw = null;
@@ -387,7 +391,7 @@ public class MainLearn {
 		}
 
 		ReadStruct rs=new ReadStruct();
-		docs = Common.readDocuments(docfile, rs);
+		docs = ml.com.readDocuments(docfile, rs);
 
 		target = rs.read_target;
 		System.out.println("docs length in main:" + docs.length);
@@ -395,7 +399,7 @@ public class MainLearn {
 		totdoc = rs.read_totdocs;
 
 		if (restartfile != null) {
-			alpha_in = Common.readAlphas(restartfile,
+			alpha_in = ml.com.readAlphas(restartfile,
 					rs.read_totdocs);
 		}
 		if (kernel_parm.kernel_type ==  ModelConstant.LINEAR) {
@@ -418,7 +422,7 @@ public class MainLearn {
 			sl.svm_learn_optimization(docs, target, totdoc, totwords,
 					learn_parm, kernel_parm, kernel_cache, model, alpha_in);
 		}
-		Common.writeModel(modelfile, model);
+		ml.com.writeModel(modelfile, model);
 	}
 
 }

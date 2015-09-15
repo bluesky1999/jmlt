@@ -27,6 +27,13 @@ public class Multiclass extends Struct {
 
 	private static Logger logger = Logger
 			.getLogger(Multiclass.class);
+	
+	//public Common com=null;
+	public Multiclass()
+	{
+		super();
+		//com=new Common();
+	}
 
 	@Override
 	public void initStructModel(SAMPLE sample, STRUCTMODEL sm,
@@ -70,7 +77,7 @@ public class Multiclass extends Struct {
 			STRUCT_LEARN_PARM sparm) {
 		SVECTOR fvec;
 
-		fvec = Common.shiftS(x.doc.fvec, (y.class_index - 1)
+		fvec =com.shiftS(x.doc.fvec, (y.class_index - 1)
 				* sparm.num_features);
 
 		fvec.kernel_id = y.class_index;
@@ -92,7 +99,7 @@ public class Multiclass extends Struct {
 		// computing a new PSI vector.
 		doc = (x.doc);
 		doc.fvec = psi(x, y, sm, sparm);
-		score_y = Common.classifyExample(sm.svm_model, doc);
+		score_y = com.classifyExample(sm.svm_model, doc);
 
 		ybar.scores = null;
 		ybar.num_classes = sparm.num_classes;
@@ -100,7 +107,7 @@ public class Multiclass extends Struct {
 		for (ci = 1; ci <= sparm.num_classes; ci++) {
 			ybar.class_index = ci;
 			doc.fvec = psi(x, ybar, sm, sparm);
-			score_ybar = Common.classifyExample(sm.svm_model, doc);
+			score_ybar = com.classifyExample(sm.svm_model, doc);
 			score = loss(y, ybar, sparm) * (1.0 - score_y + score_ybar);
 			if ((bestscore < score) || (first != 0)) {
 				bestscore = score;
@@ -136,7 +143,7 @@ public class Multiclass extends Struct {
 			ybar.class_index = ci;
 
 			doc.fvec = psi(x, ybar, sm, sparm);
-			score = Common.classifyExample(sm.svm_model, doc);
+			score =com.classifyExample(sm.svm_model, doc);
 			score += loss(y, ybar, sparm);
 			if ((bestscore < score) || (first != 0)) {
 				bestscore = score;
@@ -205,7 +212,7 @@ public class Multiclass extends Struct {
 			y.class_index = class_index;
 			doc.fvec = psi(x, y, sm, sparm);
 
-			score = Common.classifyExample(sm.svm_model, doc);
+			score = com.classifyExample(sm.svm_model, doc);
 			y.scores[class_index] = score;
 			if ((bestscore < score) || first) {
 				bestscore = score;
@@ -238,7 +245,7 @@ public class Multiclass extends Struct {
 		int totwords, i, num_classes = 0;
 
 		ReadStruct rs=new ReadStruct();
-		docs = Common.readDocuments(file,rs);
+		docs = com.readDocuments(file,rs);
 
 		target = rs.read_target;
 		totwords = rs.read_totwords;
@@ -288,7 +295,7 @@ public class Multiclass extends Struct {
 		int totwords, i, num_classes = 0;
 		
 		ReadStruct rs=new ReadStruct();
-		docs = Common.readDocumentsFromStream(is, target,rs);
+		docs = com.readDocumentsFromStream(is, target,rs);
 
 		target = rs.read_target;
 		totwords = rs.read_totwords;
@@ -340,7 +347,7 @@ public class Multiclass extends Struct {
 
 		logger.info("begin read documents");
 		ReadStruct rs=new ReadStruct();
-		docs = Common.readDocumentsFromArraylist(list, target,rs);
+		docs =com.readDocumentsFromArraylist(list, target,rs);
 		logger.info("end read documents");
 
 		target = rs.read_target;
@@ -388,8 +395,8 @@ public class Multiclass extends Struct {
 		String read_comment = "";
 		WORD[] words = null;
 		words = string2words(wordString);
-		DOC doc = Common.createExample(dnum, queryid, slackid, costfactor,
-				Common.createSvector(words, read_comment, 1.0));
+		DOC doc =com.createExample(dnum, queryid, slackid, costfactor,
+				com.createSvector(words, read_comment, 1.0));
 		PATTERN pat = new PATTERN();
 		pat.doc = doc;
 

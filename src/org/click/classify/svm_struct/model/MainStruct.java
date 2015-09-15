@@ -21,8 +21,10 @@ public class MainStruct {
 	public static int alg_type;
 
 	private static Logger logger = Logger.getLogger(MainStruct.class);
+	
+	public Common com=null;
 
-	public static void read_input_parameters(int argc, String argv[],
+	public  void read_input_parameters(int argc, String argv[],
 			STRUCT_LEARN_PARM struct_parm, LEARN_PARM learn_parm,
 			KERNEL_PARM kernel_parm) {
 		
@@ -345,7 +347,7 @@ public class MainStruct {
 	}
 
 
-	public static void train(String[] args)
+	public  void train(String[] args)
 	{
 		if(args.length<2)
 		{
@@ -432,11 +434,15 @@ public class MainStruct {
 	
 	public static void main(String[] args) {
 		
+		MainStruct ms=new MainStruct();
+		
 		if(args.length<2)
 		{
-			print_help();
+			ms.print_help();
 			System.exit(1);
 		}
+		
+		ms.com=new Common();
 		
 		SAMPLE sample; // training sample 
 		LEARN_PARM learn_parm = new LEARN_PARM();
@@ -447,7 +453,7 @@ public class MainStruct {
 		ssa.svmStructLearnApiInit(args);
 		long start_time = TimeOpera.getCurrentTimeLong();
 		
-		read_input_parameters(args.length + 1, args, struct_parm, learn_parm,
+		ms.read_input_parameters(args.length + 1, args, struct_parm, learn_parm,
 				kernel_parm);
 
 		if (struct_verbosity >= 1) {
@@ -598,7 +604,7 @@ public class MainStruct {
 			
 	}
 
-	public static void print_help() {
+	public  void print_help() {
 		System.out.print("\nSVM-struct learning module: "
 				+ CommonStruct.INST_NAME + ", "
 				+ CommonStruct.INST_VERSION + ", "
@@ -609,7 +615,7 @@ public class MainStruct {
 				+ CommonStruct.STRUCT_VERSION_DATE + "\n");
 		System.out.print("   includes SVM-light " + ModelConstant.VERSION
 				+ " quadratic optimizer, " +  ModelConstant.VERSION_DATE + "\n");
-		Common.copyright_notice();
+		com.copyright_notice();
 		System.out
 				.print("   usage: svm_struct_learn [options] example_file model_file\n\n");
 		System.out.print("Arguments:\n");

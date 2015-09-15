@@ -32,13 +32,13 @@ import org.jmlp.time.utils.TimeOpera;
 public class Common {
 
 	public static int kernel_cache_statistic = 0;
-	public static int verbosity = 0;
+	public  static int verbosity = 0;
 
 	public static int progress_n;
 
 	private static Logger logger = Logger.getLogger(Common.class);
 
-	public static SVECTOR createSvector(WORD[] words, String userdefined,
+	public  SVECTOR createSvector(WORD[] words, String userdefined,
 			double factor) {
 		SVECTOR vec;
 		int fnum, i;
@@ -66,7 +66,7 @@ public class Common {
 		return vec;
 	}
 
-	public static DOC createExample(int docnum, int queryid, int slackid,
+	public DOC createExample(int docnum, int queryid, int slackid,
 			double costfactor, SVECTOR fvec) {
 
 		DOC example = new DOC();
@@ -82,7 +82,7 @@ public class Common {
 		return example;
 	}
 
-	public static double kernel(KERNEL_PARM kernel_parm, DOC a, DOC b) {
+	public double kernel(KERNEL_PARM kernel_parm, DOC a, DOC b) {
 		// System.out.println("in kernel");
 		double sum = 0;
 		SVECTOR fa, fb;
@@ -112,7 +112,7 @@ public class Common {
 		return sum;
 	}
 
-	public static double singleKernel(KERNEL_PARM kernel_parm, SVECTOR a,
+	public  double singleKernel(KERNEL_PARM kernel_parm, SVECTOR a,
 			SVECTOR b) {
 		kernel_cache_statistic++;
 
@@ -145,7 +145,7 @@ public class Common {
 		return 0;
 	}
 
-	public static double sprodSs(SVECTOR a, SVECTOR b) {
+	public  double sprodSs(SVECTOR a, SVECTOR b) {
 		double sum = 0;
 		WORD[] ai, bj;
 		ai = a.words;
@@ -173,20 +173,20 @@ public class Common {
 		return sum;
 	}
 
-	public static void clearNvector(double[] vec, int n) {
+	public  void clearNvector(double[] vec, int n) {
 		int i;
 		for (i = 0; i <= n; i++) {
 			vec[i] = 0;
 		}
 	}
 
-	public static double[] createNvector(int n) {
+	public double[] createNvector(int n) {
 		double[] vector;
 		vector = new double[n + 1];
 		return vector;
 	}
 
-	public static void addVectorNs(double[] vec_n, SVECTOR vec_s, double faktor) {
+	public  void addVectorNs(double[] vec_n, SVECTOR vec_s, double faktor) {
 		WORD[] ai;
 		ai = vec_s.words;
 		for (int i = 0; i < ai.length; i++) {
@@ -198,7 +198,7 @@ public class Common {
 		}
 	}
 
-	public static double sprodNs(double[] vec_n, SVECTOR vec_s) {
+	public  double sprodNs(double[] vec_n, SVECTOR vec_s) {
 		double sum = 0;
 		WORD[] ai;
 		ai = vec_s.words;
@@ -214,7 +214,7 @@ public class Common {
 		return sum;
 	}
 
-	public static void multVectorNs(double[] vec_n, SVECTOR vec_s, double faktor) {
+	public  void multVectorNs(double[] vec_n, SVECTOR vec_s, double faktor) {
 		WORD[] ai;
 		ai = vec_s.words;
 		for (int i = 0; i < ai.length; i++) {
@@ -226,7 +226,7 @@ public class Common {
 
 	}
 
-	public static double getRuntime() {
+	public  double getRuntime() {
 		int c = (int) TimeOpera.getCurrentTimeLong();
 		double hc = 0;
 		hc = ((double) c) * 10;
@@ -234,7 +234,7 @@ public class Common {
 	}
 
 	/** compute length of weight vector */
-	public static double modelLengthS(MODEL model) {
+	public double modelLengthS(MODEL model) {
 		int i, j;
 		double sum = 0, alphai;
 		DOC supveci;
@@ -251,7 +251,7 @@ public class Common {
 		return (Math.sqrt(sum));
 	}
 
-	public static void setLearningDefaults(LEARN_PARM learn_parm,
+	public  void setLearningDefaults(LEARN_PARM learn_parm,
 			KERNEL_PARM kernel_parm) {
 		learn_parm.type = ModelConstant.CLASSIFICATION;
 		learn_parm.predfile = "trans_predictions";
@@ -289,7 +289,7 @@ public class Common {
 		kernel_parm.custom = "empty";
 	}
 
-	public static DOC[] readDocuments(String docfile, ReadStruct struct) {
+	public DOC[] readDocuments(String docfile, ReadStruct struct) {
 
 		String line, comment;
 
@@ -386,7 +386,7 @@ public class Common {
 		return docs;
 	}
 
-	public static DOC[] readDocumentsFromStream(InputStream is, double[] label,
+	public  DOC[] readDocumentsFromStream(InputStream is, double[] label,
 			ReadStruct struct) {
 		String line, comment;
 
@@ -472,7 +472,7 @@ public class Common {
 		return docs;
 	}
 
-	public static DOC[] readDocumentsFromArraylist(ArrayList<String> list,
+	public  DOC[] readDocumentsFromArraylist(ArrayList<String> list,
 			double[] label, ReadStruct struct) {
 		String line, comment;
 		DOC[] docs;
@@ -544,7 +544,7 @@ public class Common {
 		return docs;
 	}
 
-	public static WORD[] parseDocument(String line, int max_words_doc,
+	public WORD[] parseDocument(String line, int max_words_doc,
 			ReadStruct struct) {
 		int wpos = 0, pos;
 		int wnum;
@@ -664,7 +664,7 @@ public class Common {
 		return read_words;
 	}
 
-	public static ReadSummary nol_ll(String input_file) {
+	public  ReadSummary nol_ll(String input_file) {
 
 		ReadSummary summary = new ReadSummary();
 		BufferedReader br = null;
@@ -711,7 +711,7 @@ public class Common {
 
 	}
 
-	public static ArrayList<String> nol_ll_stream(InputStream is,
+	public  ArrayList<String> nol_ll_stream(InputStream is,
 			ReadSummary summary) {
 
 		FileReader fr = null;
@@ -754,7 +754,7 @@ public class Common {
 
 	}
 
-	public static ReadSummary nol_ll_list(ArrayList<String> list) {
+	public  ReadSummary nol_ll_list(ArrayList<String> list) {
 
 		ReadSummary summary = new ReadSummary();
 		logger.info("in nol_ll_list");
@@ -855,7 +855,7 @@ public class Common {
 	 * reads the alpha vector from a file as written by the write_alphas
 	 * function
 	 */
-	public static double[] readAlphas(String alphafile, int totdoc) {
+	public  double[] readAlphas(String alphafile, int totdoc) {
 		FileReader fr = null;
 		BufferedReader br = null;
 		double[] alpha = null;
@@ -880,7 +880,7 @@ public class Common {
 	}
 
 	/****************************** IO routines ***************************/
-	public static void writeModel(String modelfile, MODEL model) {
+	public  void writeModel(String modelfile, MODEL model) {
 		FileWriter fw = null;
 		PrintWriter pw = null;
 
@@ -954,7 +954,7 @@ public class Common {
 	 * single linear weight vector. NOTE: It adds the linear weight vector also
 	 * to newmodel->lin_weights WARNING: This is correct only for linear models!
 	 */
-	public static MODEL compactLinearModel(MODEL model) {
+	public  MODEL compactLinearModel(MODEL model) {
 		MODEL newmodel;
 		newmodel = new MODEL();
 		newmodel = model.copyMODEL();
@@ -978,7 +978,7 @@ public class Common {
 	}
 
 	/** compute weight vector in linear case and add to model */
-	public static void addWeightVectorToLinearModel(MODEL model) {
+	public  void addWeightVectorToLinearModel(MODEL model) {
 		int i;
 		SVECTOR f;
 		// logger.info("model.totwords:" + model.totwords);
@@ -990,13 +990,13 @@ public class Common {
 		}
 	}
 
-	public static SVECTOR createSvectorN(double[] nonsparsevec, int maxfeatnum,
+	public  SVECTOR createSvectorN(double[] nonsparsevec, int maxfeatnum,
 			String userdefined, double factor) {
 		return (createSvectorNR(nonsparsevec, maxfeatnum, userdefined, factor,
 				0));
 	}
 
-	public static SVECTOR createSvectorNR(double[] nonsparsevec,
+	public  SVECTOR createSvectorNR(double[] nonsparsevec,
 			int maxfeatnum, String userdefined, double factor,
 			double min_non_zero) {
 		// logger.info("begin create_svector_n_r");
@@ -1039,7 +1039,7 @@ public class Common {
 		return (vec);
 	}
 
-	public static void copyright_notice() {
+	public void copyright_notice() {
 		System.out
 				.println("\nCopyright: Thorsten Joachims, thorsten@joachims.org");
 		System.out
@@ -1051,7 +1051,7 @@ public class Common {
 		System.out.println("software.\n\n");
 	}
 
-	public static boolean checkLearningParms(LEARN_PARM learn_parm,
+	public  boolean checkLearningParms(LEARN_PARM learn_parm,
 			KERNEL_PARM kernel_parm) {
 		System.out.println("check_learning_parms");
 		if ((learn_parm.skip_final_opt_check != 0)
@@ -1128,7 +1128,7 @@ public class Common {
 		return true;
 	}
 
-	public static SVECTOR shiftS(SVECTOR a, int shift) {
+	public  SVECTOR shiftS(SVECTOR a, int shift) {
 		SVECTOR vec;
 		WORD[] sum;
 		WORD[] sumi;
@@ -1154,12 +1154,12 @@ public class Common {
 
 		}
 
-		vec = Common.createSvectorShallow(sumi, userdefined, a.factor);
+		vec = createSvectorShallow(sumi, userdefined, a.factor);
 		// logger.info("vec in sv:"+vec.toString());
 		return vec;
 	}
 
-	public static SVECTOR createSvectorShallow(WORD[] words,
+	public SVECTOR createSvectorShallow(WORD[] words,
 			String userdefined, double factor) {
 		SVECTOR vec;
 		vec = new SVECTOR();
@@ -1183,7 +1183,7 @@ public class Common {
 		return vec;
 	}
 
-	public static SVECTOR addListSs(SVECTOR a) {
+	public SVECTOR addListSs(SVECTOR a) {
 		return (addListSsR(a, 0));
 	}
 
@@ -1191,7 +1191,7 @@ public class Common {
 	 * computes the linear combination of the SVECTOR list weighted by the
 	 * factor of each SVECTOR
 	 */
-	public static SVECTOR addListSsR(SVECTOR a, double min_non_zero) {
+	public  SVECTOR addListSsR(SVECTOR a, double min_non_zero) {
 		SVECTOR oldsum, sum, f;
 		WORD[] empty = new WORD[2];
 		for (int k = 0; k < 2; k++) {
@@ -1216,7 +1216,7 @@ public class Common {
 	}
 
 	/** scale sparse vector a by factor */
-	public static SVECTOR smultS(SVECTOR a, double factor) {
+	public  SVECTOR smultS(SVECTOR a, double factor) {
 		SVECTOR vec;
 		WORD[] sum, sumi;
 		WORD[] ai;
@@ -1264,7 +1264,7 @@ public class Common {
 	 * @param min_non_zero
 	 * @return
 	 */
-	public static SVECTOR multaddSsR(SVECTOR a, SVECTOR b, double fa,
+	public  SVECTOR multaddSsR(SVECTOR a, SVECTOR b, double fa,
 			double fb, double min_non_zero) {
 		SVECTOR vec;
 		WORD[] sum, sumi;
@@ -1363,7 +1363,7 @@ public class Common {
 	}
 
 	/** classifies one example */
-	public static double classifyExample(MODEL model, DOC ex) {
+	public  double classifyExample(MODEL model, DOC ex) {
 		int i;
 		double dist;
 
@@ -1388,7 +1388,7 @@ public class Common {
 	 * important: the feature numbers in the example to classify must not be
 	 * larger than the weight vector!
 	 */
-	public static double classifyExampleLinear(MODEL model, DOC ex) {
+	public  double classifyExampleLinear(MODEL model, DOC ex) {
 		double sum = 0;
 		SVECTOR f;
 
@@ -1398,7 +1398,7 @@ public class Common {
 		return (sum - model.b);
 	}
 
-	public static SVECTOR copySvector(SVECTOR vec) {
+	public  SVECTOR copySvector(SVECTOR vec) {
 		SVECTOR newvec = null;
 		if (vec != null) {
 			newvec = createSvector(vec.words, vec.userdefined, vec.factor);
@@ -1409,7 +1409,7 @@ public class Common {
 	}
 
 	/** appends SVECTOR b to the end of SVECTOR a. */
-	public static void appendSvectorList(SVECTOR a, SVECTOR b) {
+	public  void appendSvectorList(SVECTOR a, SVECTOR b) {
 		SVECTOR f;
 
 		for (f = a; f.next != null; f = f.next)
@@ -1421,11 +1421,11 @@ public class Common {
 	 * compute the sum a+b of two sparse vectors Note: SVECTOR lists are not
 	 * followed, but only the first SVECTOR is used
 	 */
-	public static SVECTOR addSs(SVECTOR a, SVECTOR b) {
+	public SVECTOR addSs(SVECTOR a, SVECTOR b) {
 		return (multaddSsR(a, b, 1.0, 1.0, 0));
 	}
 
-	public static MODEL copyModel(MODEL model) {
+	public  MODEL copyModel(MODEL model) {
 		MODEL newmodel;
 		int i;
 
@@ -1440,9 +1440,9 @@ public class Common {
 		for (i = 1; i < model.sv_num; i++) {
 
 			newmodel.alpha[i] = model.alpha[i];
-			newmodel.supvec[i] = Common.createExample(model.supvec[i].docnum,
+			newmodel.supvec[i] = createExample(model.supvec[i].docnum,
 					model.supvec[i].queryid, 0, model.supvec[i].costfactor,
-					Common.copySvector(model.supvec[i].fvec));
+					copySvector(model.supvec[i].fvec));
 
 		}
 		if (model.lin_weights != null) {
@@ -1457,7 +1457,7 @@ public class Common {
 	}
 
 	/** create matrix with n rows and m colums */
-	public static MATRIX createMatrix(int n, int m) {
+	public  MATRIX createMatrix(int n, int m) {
 		int i;
 		MATRIX matrix;
 
@@ -1473,7 +1473,7 @@ public class Common {
 	 * Like add_list_sort_ss(SVECTOR *a), but rounds values smaller than
 	 * min_non_zero to zero.
 	 */
-	public static SVECTOR addListSortSsR(SVECTOR a, double min_non_zero) {
+	public  SVECTOR addListSortSsR(SVECTOR a, double min_non_zero) {
 		SVECTOR sum, f;
 		WORD[] empty = new WORD[2];
 		WORD[] ai, concat, concati, concat_read, concat_write;
@@ -1550,7 +1550,7 @@ public class Common {
 		return (sum);
 	}
 
-	public static WORD[] copyWordArr(int start_index, WORD[] oarr) {
+	public  WORD[] copyWordArr(int start_index, WORD[] oarr) {
 		WORD[] warr = new WORD[oarr.length - start_index];
 		if (start_index > (oarr.length - 1)) {
 			return null;
@@ -1564,7 +1564,7 @@ public class Common {
 	}
 
 	/** creates an array of the integers [0..n-1] in random order */
-	public static int[] randomOrder(int n) {
+	public int[] randomOrder(int n) {
 		int[] randarray = new int[n];
 		RANDPAIR[] randpair = new RANDPAIR[n];
 		int i;
@@ -1582,7 +1582,7 @@ public class Common {
 		return (randarray);
 	}
 
-	public static void addListNNS(double[] vec_n, SVECTOR vec_s, double faktor) {
+	public void addListNNS(double[] vec_n, SVECTOR vec_s, double faktor) {
 		SVECTOR f;
 		for (f = vec_s; f != null; f = f.next)
 			addVectorNs(vec_n, f, f.factor * faktor);
@@ -1593,7 +1593,7 @@ public class Common {
 	 * symbol every percentperdot calls, assuming that maximum is the max number
 	 * of calls
 	 */
-	public static void printPercentProgress(int maximum, int percentperdot,
+	public void printPercentProgress(int maximum, int percentperdot,
 			String symbol) {
 		if ((percentperdot * ((double) progress_n - 1) / maximum) != (percentperdot
 				* ((double) progress_n) / maximum)) {
@@ -1603,7 +1603,7 @@ public class Common {
 	}
 
 	/** multiplies the factor of each element in vector list with factor */
-	public static void multSvectorList(SVECTOR a, double factor) {
+	public  void multSvectorList(SVECTOR a, double factor) {
 		SVECTOR f;
 
 		for (f = a; f != null; f = f.next)
@@ -1615,7 +1615,7 @@ public class Common {
 	 * factor of each SVECTOR. assumes that the number of features is small
 	 * compared to the number of elements in the list
 	 */
-	public static SVECTOR addListNsR(SVECTOR a, double min_non_zero) {
+	public  SVECTOR addListNsR(SVECTOR a, double min_non_zero) {
 		SVECTOR vec, f;
 		WORD[] ai;
 		int totwords;
@@ -1645,7 +1645,7 @@ public class Common {
 	 * extends/shrinks matrix to n rows and m colums. Not that added elements
 	 * are not initialized.
 	 */
-	public static MATRIX reallocMatrix(MATRIX matrix, int n, int m) {
+	public  MATRIX reallocMatrix(MATRIX matrix, int n, int m) {
 		int i;
 
 		if (matrix == null)
@@ -1658,7 +1658,7 @@ public class Common {
 		return (matrix);
 	}
 
-	public static double[][] reallocMatrixRow(double[][] ddarr, int n,
+	public  double[][] reallocMatrixRow(double[][] ddarr, int n,
 			int old_m, int m) {
 		double[][] ndarr = new double[n][m];
 		for (int i = 0; i < ddarr.length; i++) {
@@ -1681,7 +1681,7 @@ public class Common {
 	}
 
 	/** compute length of weight vector */
-	public static double modelLengthN(MODEL model) {
+	public  double modelLengthN(MODEL model) {
 		int i, totwords = model.totwords + 1;
 		double sum;
 		double[] weight_n;
@@ -1700,7 +1700,7 @@ public class Common {
 		return (Math.sqrt(sum));
 	}
 
-	public static MODEL read_model(String modelfile) {
+	public  MODEL read_model(String modelfile) {
 
 		MODEL model = new MODEL();
 		FileReader fr = null;
@@ -1727,7 +1727,7 @@ public class Common {
 				logger.info("Reading model...");
 			}
 
-			ReadSummary summary = Common.nol_ll(modelfile);
+			ReadSummary summary =nol_ll(modelfile);
 			max_words = summary.read_max_words_doc;
 			max_words += 2;
 			line = br.readLine();
@@ -1800,7 +1800,7 @@ public class Common {
 				line = SSO.beforeStr(line, "#");
 				// System.err.println("i:"+i+" "+line);
 				ReadStruct rs = new ReadStruct();
-				read_words = Common.parseDocument(line, max_words, rs);
+				read_words =parseDocument(line, max_words, rs);
 				model.alpha[i] = rs.read_doc_label;
 				queryid = rs.read_queryid;
 				slackid = rs.read_slackid;
@@ -1809,8 +1809,8 @@ public class Common {
 				comment = rs.read_comment;
 				// words = svm_common.read_words;
 				words = read_words;
-				model.supvec[i] = Common.createExample(-1, 0, 0, 0.0,
-						Common.createSvector(words, comment, 1.0));
+				model.supvec[i] = createExample(-1, 0, 0, 0.0,
+						createSvector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
 			}
 
@@ -1824,7 +1824,7 @@ public class Common {
 		return model;
 	}
 
-	public static int size_svector(SVECTOR fvec) {
+	public int size_svector(SVECTOR fvec) {
 		int len = 0;
 		WORD[] words = fvec.words;
 		int i = 0;
@@ -1832,14 +1832,14 @@ public class Common {
 
 	}
 
-	public static int size_arr(double[] arr) {
+	public  int size_arr(double[] arr) {
 		int len = 0;
 		len = arr.length;
 		return len;
 	}
 
 	/* create deep copy of matrix */
-	public static MATRIX copy_matrix(MATRIX matrix) {
+	public MATRIX copy_matrix(MATRIX matrix) {
 		int i, j;
 		MATRIX copy;
 		copy = createMatrix(matrix.n, matrix.m);
@@ -1852,7 +1852,7 @@ public class Common {
 	}
 
 	/* Given a lower triangular matrix L, computes inverse L^-1 */
-	public static MATRIX invert_ltriangle_matrix(MATRIX L) {
+	public  MATRIX invert_ltriangle_matrix(MATRIX L) {
 		int i, j, k, n;
 		double sum;
 		MATRIX I;
@@ -1879,7 +1879,7 @@ public class Common {
 		return (I);
 	}
 
-	public static double[] reallocDoubleArr(double[] arr, int nsize) {
+	public  double[] reallocDoubleArr(double[] arr, int nsize) {
 
 		double[] narr = new double[nsize];
 		if (arr == null) {
@@ -1912,7 +1912,7 @@ public class Common {
 		return narr;
 	}
 
-	public static int[] reallocIntArr(int[] arr, int nsize) {
+	public  int[] reallocIntArr(int[] arr, int nsize) {
 
 		int[] narr = new int[nsize];
 		if (arr == null) {
@@ -1941,7 +1941,7 @@ public class Common {
 		return narr;
 	}
 
-	public static String douarr2str(double[] arr) {
+	public  String douarr2str(double[] arr) {
 		String str = "";
 		if (arr == null) {
 			return "";
@@ -1969,7 +1969,7 @@ public class Common {
 		return str;
 	}
 
-	public static DOC[] reallocDOCS(DOC[] ods, int n) {
+	public  DOC[] reallocDOCS(DOC[] ods, int n) {
 
 		DOC[] ndoc = new DOC[n];
 		if (ods == null) {
@@ -1995,7 +1995,7 @@ public class Common {
 	 * @param m
 	 * @return
 	 */
-	public static double[] reallocAlpha(double[] alpha, int m) {
+	public double[] reallocAlpha(double[] alpha, int m) {
 		double[] oalpha = alpha;
 		alpha = new double[m];
 		for (int i = 0; i < (m - 1); i++) {
@@ -2013,7 +2013,7 @@ public class Common {
 	 * @param m
 	 * @return
 	 */
-	public static int[] reallocAlphaList(int[] alpha_list, int m) {
+	public int[] reallocAlphaList(int[] alpha_list, int m) {
 		int[] oalpha_list = alpha_list;
 		alpha_list = new int[m];
 		for (int i = 0; i < (m - 1); i++) {
@@ -2029,7 +2029,7 @@ public class Common {
 	 * 
 	 * @param cset
 	 */
-	public static void realSmalllocLhs(CONSTSET cset) {
+	public  void realSmalllocLhs(CONSTSET cset) {
 		DOC[] olhs = cset.lhs;
 		cset.lhs = new DOC[cset.m];
 		for (int i = 0; i < (cset.m); i++) {
@@ -2042,7 +2042,7 @@ public class Common {
 	 * 
 	 * @param cset
 	 */
-	public static void realSmalllocRhs(CONSTSET cset) {
+	public  void realSmalllocRhs(CONSTSET cset) {
 		double[] orhs = cset.rhs;
 		cset.rhs = new double[cset.m];
 		for (int i = 0; i < (cset.m); i++) {
@@ -2055,7 +2055,7 @@ public class Common {
 	 * 
 	 * @param cset
 	 */
-	public static void realloc(CONSTSET cset) {
+	public  void realloc(CONSTSET cset) {
 		DOC[] olhs = cset.lhs;
 		cset.lhs = new DOC[cset.m];
 		for (int i = 0; i < (cset.m - 1); i++) {
@@ -2069,7 +2069,7 @@ public class Common {
 	 * 
 	 * @param cset
 	 */
-	public static void reallocRhs(CONSTSET cset) {
+	public  void reallocRhs(CONSTSET cset) {
 		double[] orhs = cset.rhs;
 		cset.rhs = new double[cset.m];
 		for (int i = 0; i < (cset.m - 1); i++) {
@@ -2086,7 +2086,7 @@ public class Common {
 	 * portion. index returns an array with the indices of the vectors in x that
 	 * were selected in the decomposition (terminated by -1).
 	 */
-	public static MATRIX incompleteCholesky(DOC[] x, int n, int rank,
+	public  MATRIX incompleteCholesky(DOC[] x, int n, int rank,
 			double epsilon, KERNEL_PARM kparm, int[] index) {
 		int i, j, k, pivot, temp2;
 		int[] pindex;
@@ -2160,7 +2160,7 @@ public class Common {
 	 * For column vector v and a lower triangular matrix A (assumed to match in
 	 * size), computes w^T=v^T*A
 	 */
-	public static double[] prod_nvector_ltmatrix(double[] v, MATRIX A) {
+	public  double[] prod_nvector_ltmatrix(double[] v, MATRIX A) {
 		int i, j;
 		double sum;
 		double[] w;
@@ -2187,7 +2187,7 @@ public class Common {
 	 * independent subset. epsilon is the amount by which the diagonal entry of
 	 * L has to be greater than zero.
 	 */
-	public static double[] findIndepSubsetOfMatrix(MATRIX A, double epsilon) {
+	public  double[] findIndepSubsetOfMatrix(MATRIX A, double epsilon) {
 		int i, j, k, n;
 		double sum;
 		double[] indep;
@@ -2229,7 +2229,7 @@ public class Common {
 	 * the upper triangle of A need be given; A is not modified. The Cholesky
 	 * factor L is returned in the lower triangle.
 	 */
-	public static MATRIX choleskyMatrix(MATRIX A) {
+	public  MATRIX choleskyMatrix(MATRIX A) {
 		int i, j, k, n;
 		double sum;
 		MATRIX L;
@@ -2267,7 +2267,7 @@ public class Common {
 	 * For column vector v and lower triangular matrix A (assumed to match in
 	 * size), computes w=A*v
 	 */
-	public static double[] prod_ltmatrix_nvector(MATRIX A, double[] v) {
+	public  double[] prod_ltmatrix_nvector(MATRIX A, double[] v) {
 		int i, j;
 		double sum;
 		double[] w;
