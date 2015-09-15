@@ -1955,7 +1955,7 @@ public class Common {
 		return str;
 	}
 
-	public static String intarr2str(int[] arr) {
+	public  String intarr2str(int[] arr) {
 		String str = "";
 		if (arr == null) {
 			return "";

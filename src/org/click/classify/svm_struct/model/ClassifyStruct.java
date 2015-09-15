@@ -488,7 +488,7 @@ public class ClassifyStruct {
 		STRUCT_TEST_STATS teststats = null;
 		SAMPLE testsample;
 		LABEL y = new LABEL();
-		FactoryStruct.api_type = 2;
+		FactoryStruct.api_type = 0;
 		Struct ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
