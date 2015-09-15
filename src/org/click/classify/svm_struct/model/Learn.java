@@ -1087,19 +1087,10 @@ public class Learn {
 			model.b = 0;
 			b_calculated = 1;
 		}
-		String supvec_str = "";
-		String alpha_str = "";
-		String index_str = "";
-		String svm_cost_str = "";
-
-		supvec_str = "";
-		alpha_str = "";
-		index_str = "";
-		svm_cost_str = "";
 
 		for (ii = 0; (i = working2dnum[ii]) >= 0; ii++) {
 			if ((a_old[i] > 0) && (a[i] == 0)) {
-				/** remove from model **/
+				// remove from model 
 				pos = model.index[i];
 				model.index[i] = -1;
 				(model.sv_num)--;
@@ -1135,11 +1126,6 @@ public class Learn {
 				model.b = ((double) label[i]) * learn_parm.eps - c[i] + lin[i];
 				b_calculated = 1;
 			}
-
-			supvec_str += (ii + ":" + i + ":" + model.supvec[i] + " ");
-			alpha_str += (ii + ":" + i + ":" + model.alpha[i] + " ");
-			index_str += (ii + ":" + i + ":" + model.index[i] + " ");
-			svm_cost_str += (ii + ":" + i + ":" + learn_parm.svm_cost[i] + " ");
 
 		}
 
@@ -1888,8 +1874,7 @@ public class Learn {
 		int choosenum, i, j, k, activedoc, inum;
 		double s = 0;
 
-		for (inum = 0; working2dnum[inum] >= 0; inum++)
-			;
+		for (inum = 0; working2dnum[inum] >= 0; inum++);
 		choosenum = 0;
 		activedoc = 0;
 
@@ -1931,6 +1916,7 @@ public class Learn {
 		}
 
 		select_top_n(selcrit, activedoc, select, (qp_size / 2));
+		
 		for (k = 0; (choosenum < qp_size) && (k < (qp_size / 2))
 				&& (k < activedoc); k++) {
 			i = key[select[k]];
