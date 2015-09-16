@@ -3,7 +3,7 @@ package org.click.bug;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.click.classify.svm_struct.data.STRUCT_ID_SCORE;
+import org.click.classify.svmstruct.data.STRUCT_ID_SCORE;
 
 public class T {
 
