@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.click.classify.svm_struct.data.LEARN_PARM;
 import org.click.classify.svm_struct.data.QP;
 import org.click.classify.svm_struct.data.WU;
-import org.jmlp.math.random.SimFunc;
+import org.click.math.SimFunc;
 
 /**
  * 解决下面的二次规划问题 minimize g0 * x + 1/2 x' * G * x s.t. ce*x - ce0 = 0 l <= x <= u

@@ -28,7 +28,7 @@ import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
 import org.click.classify.svm_struct.data.STRUCT_TEST_STATS;
 import org.click.classify.svm_struct.data.SVECTOR;
 import org.click.classify.svm_struct.data.WORD;
-import org.jmlp.str.basic.SSO;
+import org.click.lib.string.SSO;
 
 /**
  * svm struct api 的抽象类 不同的分类模型，如多类、多层分类实现各自的svm_struct_api 但是都要继承该基类

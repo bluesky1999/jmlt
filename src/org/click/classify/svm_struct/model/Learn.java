@@ -19,7 +19,7 @@ import org.click.classify.svm_struct.data.TIMING;
 import org.click.classify.svm_struct.data.WORD;
 import org.click.classify.svm_struct.data.WU;
 import org.click.classify.svm_struct.model.Common;
-import org.jmlp.time.utils.TimeOpera;
+import org.click.lib.time.TimeOpera;
 
 /**
  * Learning module of Support Vector Machine

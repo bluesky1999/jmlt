@@ -6,8 +6,7 @@ import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.ReadStruct;
 import org.click.classify.svm_struct.data.ReadSummary;
 import org.click.classify.svm_struct.data.WORD;
-import org.jmlp.file.utils.FileToArray;
-import org.jmlp.str.basic.SSO;
+import org.click.lib.string.FileToArray;
 
 public class Classify {
 

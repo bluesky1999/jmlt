@@ -3,9 +3,6 @@ package org.click.classify.svm_struct.data;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.jmlp.sort.utils.SortStrArray.SortElement;
-import org.jmlp.str.basic.SSO;
-
 
 
 public class SortWordArr {

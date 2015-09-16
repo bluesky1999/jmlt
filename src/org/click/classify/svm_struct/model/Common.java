@@ -26,8 +26,8 @@ import org.click.classify.svm_struct.data.ReadSummary;
 import org.click.classify.svm_struct.data.SVECTOR;
 import org.click.classify.svm_struct.data.SortWordArr;
 import org.click.classify.svm_struct.data.WORD;
-import org.jmlp.str.basic.SSO;
-import org.jmlp.time.utils.TimeOpera;
+import org.click.lib.string.SSO;
+import org.click.lib.time.TimeOpera;
 
 public class Common {
 

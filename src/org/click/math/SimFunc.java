@@ -1,4 +1,5 @@
-package org.jmlp.math.random;
+package  org.click.math;
+
 /**
  * 简单的数学函数
  * @author lq

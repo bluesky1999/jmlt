@@ -15,8 +15,7 @@ import org.click.classify.svm_struct.data.SAMPLE;
 import org.click.classify.svm_struct.data.STRUCTMODEL;
 import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
 import org.click.classify.svm_struct.data.STRUCT_TEST_STATS;
-import org.jmlp.file.utils.FileWriterUtil;
-import org.jmlp.str.basic.SSO;
+import org.click.lib.string.SSO;
 
 public class ClassifyStruct {
 

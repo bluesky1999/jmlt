@@ -10,7 +10,7 @@ import org.click.classify.svm_struct.data.ModelConstant;
 import org.click.classify.svm_struct.data.SAMPLE;
 import org.click.classify.svm_struct.data.STRUCTMODEL;
 import org.click.classify.svm_struct.data.STRUCT_LEARN_PARM;
-import org.jmlp.time.utils.TimeOpera;
+import org.click.lib.time.TimeOpera;
 
 public class MainStruct {
 
