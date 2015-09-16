@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Map;
 
-
 import org.click.classify.svmstruct.data.LABEL;
 import org.click.classify.svmstruct.data.ModelConstant;
 import org.click.classify.svmstruct.data.SAMPLE;
@@ -26,10 +25,10 @@ public class ClassifyStruct {
 	private STRUCT_LEARN_PARM sparm;
 	public Struct ssa = null;
 
-	private Common com=null;
+	private Common com = null;
 
 	public void init_svm_struct(String model_file) {
-
+		com = new Common();
 		// System.err.println("in init_svm_struct");
 		String[] args = { "no.txt", model_file, "no.txt" };
 		int correct = 0, incorrect = 0, no_accuracy = 0;
@@ -49,18 +48,18 @@ public class ClassifyStruct {
 				CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("Reading model ...");
+			// logger.info("Reading model ...");
 		}
 
-		//logger.info("testfile:" + testfile);
-		//logger.info("modelfile:" + modelfile);
-		//logger.info("predictionsfile:" + predictionsfile);
+		// logger.info("testfile:" + testfile);
+		// logger.info("modelfile:" + modelfile);
+		// logger.info("predictionsfile:" + predictionsfile);
 		model = ssa.readStructModel(modelfile, sparm);
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
-			//logger.info("begin add_weight_vector_to_linear_model");
+			// logger.info("begin add_weight_vector_to_linear_model");
 			com.addWeightVectorToLinearModel(model.svm_model);
-			//logger.info("after add_weight_vector_to_linear_model");
+			// logger.info("after add_weight_vector_to_linear_model");
 			model.w = model.svm_model.lin_weights;
 		}
 		ssa = FactoryStruct.get_svm_struct_api();
@@ -69,7 +68,13 @@ public class ClassifyStruct {
 	public LABEL classifyWordString(String sample) {
 		// return ssa.classifyStructExample(ssa.sample2pattern(sample), model,
 		// sparm);
-		return ssa.classifyStructDoc(ssa.sample2doc(sample), model, sparm);
+		if (FactoryStruct.api_type == 2)
+			return ssa.classifyStructDoc(ssa.sample2doc(sample), model, sparm);
+		else if (FactoryStruct.api_type == 0)
+			return ssa.classifyStructExample(ssa.sample2pattern(sample), model,
+					sparm);
+
+		return null;
 	}
 
 	/**
@@ -97,27 +102,27 @@ public class ClassifyStruct {
 				CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("Reading model ...");
+			// logger.info("Reading model ...");
 		}
 
-		//logger.info("testfile:" + testfile);
-		//logger.info("modelfile:" + modelfile);
-		//logger.info("predictionsfile:" + predictionsfile);
-		//logger.info("begin read model:");
+		// logger.info("testfile:" + testfile);
+		// logger.info("modelfile:" + modelfile);
+		// logger.info("predictionsfile:" + predictionsfile);
+		// logger.info("begin read model:");
 		model = ssa.readStructModel(modelfile, sparm);
-		//logger.info("after read model:");
+		// logger.info("after read model:");
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
-			//logger.info("begin add_weight_vector_to_linear_model");
+			// logger.info("begin add_weight_vector_to_linear_model");
 			com.addWeightVectorToLinearModel(model.svm_model);
-			//logger.info("after add_weight_vector_to_linear_model");
+			// logger.info("after add_weight_vector_to_linear_model");
 			model.w = model.svm_model.lin_weights;
 
 		}
 
 		Struct ssa = FactoryStruct.get_svm_struct_api();
 		// testsample=ssa.read_struct_examples(testfile, sparm);
-		//logger.info("after get svm struct api");
+		// logger.info("after get svm struct api");
 		ArrayList<String> sample_list = new ArrayList<String>();
 		ArrayList<String> identifier_list = new ArrayList<String>();
 		String linestd = "";
@@ -126,7 +131,7 @@ public class ClassifyStruct {
 		String docid = "";
 		String doclabel = "5";
 		String docwords = "";
-		//logger.info("reading samples to arraylist");
+		// logger.info("reading samples to arraylist");
 		try {
 
 			for (int k = 0; k < input_list.size(); k++) {
@@ -134,7 +139,7 @@ public class ClassifyStruct {
 				if (SSO.tioe(linestd)) {
 					continue;
 				}
-				////logger.info("k=" + k + " " + linestd);
+				// //logger.info("k=" + k + " " + linestd);
 
 				tokens = linestd.split("\\s+");
 				if (tokens.length < 2) {
@@ -150,28 +155,28 @@ public class ClassifyStruct {
 				docwords = docwords.trim();
 				identifier_list.add(docid);
 				sample_list.add(doclabel + " " + docwords);
-				//logger.info("docid:" + docid + " sample:" + doclabel + " "
-				//		+ docwords);
+				// logger.info("docid:" + docid + " sample:" + doclabel + " "
+				// + docwords);
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		//logger.info("begin read_struct_examples_from_arraylist");
+		// logger.info("begin read_struct_examples_from_arraylist");
 		testsample = ssa.readStructExamplesFromArraylist(sample_list, sparm);
-		//logger.info("end read_struct_examples_from_arraylist");
+		// logger.info("end read_struct_examples_from_arraylist");
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("done.");
+			// logger.info("done.");
 		}
 
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("Classifying test examples ...");
+			// logger.info("Classifying test examples ...");
 		}
 
 		// predfl = FileWriterUtil.getPW(predictionsfile);
 
-		//logger.info("predict result ===============================");
+		// logger.info("predict result ===============================");
 		for (i = 0; i < testsample.n; i++) {
 
 			t1 = com.getRuntime();
@@ -184,8 +189,8 @@ public class ClassifyStruct {
 			}
 			// //logger.info("y:" + y.class_index + "  testsample.examples[" + i
 			// + "].y:" + testsample.examples[i].y.class_index);
-			//logger.info(testsample.examples[i].y.class_index + " "
-				//	+ y.class_index);
+			// logger.info(testsample.examples[i].y.class_index + " "
+			// + y.class_index);
 			runtime += (com.getRuntime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 			System.out.println(identifier_list.get(i) + " " + y.toString());
@@ -208,7 +213,7 @@ public class ClassifyStruct {
 
 			if (CommonStruct.struct_verbosity >= 2) {
 				if ((i + 1) % 100 == 0) {
-					//logger.info(i + 1);
+					// logger.info(i + 1);
 				}
 			}
 
@@ -216,17 +221,17 @@ public class ClassifyStruct {
 
 		avgloss /= testsample.n;
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("done");
-			//logger.info("Runtime (without IO) in cpu-seconds:"
-				//	+ (float) (runtime / 100.0));
+			// logger.info("done");
+			// logger.info("Runtime (without IO) in cpu-seconds:"
+			// + (float) (runtime / 100.0));
 		}
 
 		// if((no_accuracy==0)&&(svm_struct_common.struct_verbosity>=1))
 		// {
-		//logger.info("Average loss on test set:" + (float) avgloss);
-		//logger.info("Zero/one-error on test set " + (float) 100.0 * incorrect
-			//	/ testsample.n + "(" + correct + " correct, " + incorrect
-			//	+ " incorrect," + testsample.n + ", total");
+		// logger.info("Average loss on test set:" + (float) avgloss);
+		// logger.info("Zero/one-error on test set " + (float) 100.0 * incorrect
+		// / testsample.n + "(" + correct + " correct, " + incorrect
+		// + " incorrect," + testsample.n + ", total");
 		System.err.println("Average loss on test set:" + (float) avgloss);
 		System.err.println("Zero/one-error on test set " + (float) 100.0
 				* incorrect / testsample.n + "(" + correct + " correct, "
@@ -261,16 +266,16 @@ public class ClassifyStruct {
 				CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("Reading model ...");
+			// logger.info("Reading model ...");
 		}
 
-		//logger.info("testfile:" + testfile);
-		//logger.info("modelfile:" + modelfile);
-		//logger.info("predictionsfile:" + predictionsfile);
+		// logger.info("testfile:" + testfile);
+		// logger.info("modelfile:" + modelfile);
+		// logger.info("predictionsfile:" + predictionsfile);
 
 		model = ssa.readStructModel(modelfile, sparm);
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("done");
+			// logger.info("done");
 		}
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
@@ -279,7 +284,7 @@ public class ClassifyStruct {
 		}
 
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("Reading test examples ...");
+			// logger.info("Reading test examples ...");
 			// System.out.println("Reading test examples ...");
 		}
 
@@ -314,23 +319,23 @@ public class ClassifyStruct {
 				docwords = docwords.trim();
 				identifier_list.add(docid);
 				sample_list.add(doclabel + " " + docwords);
-				//logger.info("docid:" + docid + " sample:" + doclabel + " "
-				//		+ docwords);
+				// logger.info("docid:" + docid + " sample:" + doclabel + " "
+				// + docwords);
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		//logger.info("begin read_struct_examples_from_arraylist");
+		// logger.info("begin read_struct_examples_from_arraylist");
 		testsample = ssa.readStructExamplesFromArraylist(sample_list, sparm);
-		//logger.info("end read_struct_examples_from_arraylist");
+		// logger.info("end read_struct_examples_from_arraylist");
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("done.");
+			// logger.info("done.");
 		}
 
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("Classifying test examples ...");
+			// logger.info("Classifying test examples ...");
 		}
 
 		// predfl = FileWriterUtil.getPW(predictionsfile);
@@ -338,15 +343,15 @@ public class ClassifyStruct {
 		for (i = 0; i < testsample.n; i++) {
 
 			t1 = com.getRuntime();
-			//logger.info("doc [" + i + "] "
-				//	+ testsample.examples[i].x.doc.fvec.toString());
+			// logger.info("doc [" + i + "] "
+			// + testsample.examples[i].x.doc.fvec.toString());
 			y = ssa.classifyStructExample(testsample.examples[i].x, model,
 					sparm);
 			if (y == null) {
 				continue;
 			}
-			//logger.info("y:" + y.class_index + "  testsample.examples[" + i
-			//		+ "].y:" + testsample.examples[i].y.class_index);
+			// logger.info("y:" + y.class_index + "  testsample.examples[" + i
+			// + "].y:" + testsample.examples[i].y.class_index);
 			runtime += (com.getRuntime() - t1);
 			// svm_struct_api.write_label(predfl, y);
 			System.out.println(identifier_list.get(i) + " " + y.toString());
@@ -369,7 +374,7 @@ public class ClassifyStruct {
 
 			if (CommonStruct.struct_verbosity >= 2) {
 				if ((i + 1) % 100 == 0) {
-					//logger.info(i + 1);
+					// logger.info(i + 1);
 				}
 			}
 
@@ -377,24 +382,24 @@ public class ClassifyStruct {
 
 		avgloss /= testsample.n;
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("done");
-			//logger.info("Runtime (without IO) in cpu-seconds:"
-				//	+ (float) (runtime / 100.0));
+			// logger.info("done");
+			// logger.info("Runtime (without IO) in cpu-seconds:"
+			// + (float) (runtime / 100.0));
 		}
 
 		// if((no_accuracy==0)&&(svm_struct_common.struct_verbosity>=1))
 		// {
-		//logger.info("Average loss on test set:" + (float) avgloss);
-		//logger.info("Zero/one-error on test set " + (float) 100.0 * incorrect
-		//		/ testsample.n + "(" + correct + " correct, " + incorrect
-		//		+ " incorrect," + testsample.n + ", total");
+		// logger.info("Average loss on test set:" + (float) avgloss);
+		// logger.info("Zero/one-error on test set " + (float) 100.0 * incorrect
+		// / testsample.n + "(" + correct + " correct, " + incorrect
+		// + " incorrect," + testsample.n + ", total");
 		// }
 
 		ssa.printStructTestingStats(testsample, model, sparm, teststats);
 
 	}
 
-	public  void readInputParameters(int argc, String[] argv,
+	public void readInputParameters(int argc, String[] argv,
 			STRUCT_LEARN_PARM struct_parm, int verbosity, int struct_verbosity) {
 		// System.err.println("in read_input_parameters");
 		int i;
@@ -452,7 +457,7 @@ public class ClassifyStruct {
 		ssa.parseStructParametersClassify(struct_parm);
 	}
 
-	public  void printHelp() {
+	public void printHelp() {
 		System.out.println("\nSVM-struct classification module: "
 				+ CommonStruct.INST_NAME + ", " + CommonStruct.INST_VERSION
 				+ ", " + CommonStruct.INST_VERSION_DATE + "\n");
@@ -473,9 +478,9 @@ public class ClassifyStruct {
 	}
 
 	public static void main(String[] args) throws Exception {
-		
-		ClassifyStruct cs=new ClassifyStruct();
-		cs.com=new Common();
+
+		ClassifyStruct cs = new ClassifyStruct();
+		cs.com = new Common();
 		int correct = 0, incorrect = 0, no_accuracy = 0;
 		int i;
 		double t1, runtime = 0;
@@ -494,17 +499,17 @@ public class ClassifyStruct {
 				CommonStruct.struct_verbosity);
 
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("Reading model ...");
+			// logger.info("Reading model ...");
 		}
 
-		//logger.info("testfile:" + testfile);
-		//logger.info("modelfile:" + modelfile);
-		//logger.info("predictionsfile:" + predictionsfile);
+		// logger.info("testfile:" + testfile);
+		// logger.info("modelfile:" + modelfile);
+		// logger.info("predictionsfile:" + predictionsfile);
 
 		PrintWriter pw = new PrintWriter(predictionsfile);
 		model = ssa.readStructModel(modelfile, sparm);
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("done");
+			// logger.info("done");
 		}
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
@@ -513,7 +518,7 @@ public class ClassifyStruct {
 		}
 
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("Reading test examples ...");
+			// logger.info("Reading test examples ...");
 			// System.out.println("Reading test examples ...");
 		}
 
@@ -522,11 +527,11 @@ public class ClassifyStruct {
 		testsample = ssa.readStructExamples(testfile, sparm);
 
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("done.");
+			// logger.info("done.");
 		}
 
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("Classifying test examples ...");
+			// logger.info("Classifying test examples ...");
 		}
 
 		// predfl = FileWriterUtil.getPW(predictionsfile);
@@ -548,8 +553,8 @@ public class ClassifyStruct {
 			}
 			// //logger.info("y:" + y.class_index + "  testsample.examples[" + i
 			// + "].y:" + testsample.examples[i].y.class_index);
-			//logger.info(testsample.examples[i].y.class_index + " "
-				//	+ y.class_index);
+			// logger.info(testsample.examples[i].y.class_index + " "
+			// + y.class_index);
 			if (FactoryStruct.api_type != 2) {
 				pw.println(testsample.examples[i].y.class_index + " "
 						+ y.class_index);
@@ -575,7 +580,7 @@ public class ClassifyStruct {
 
 			if (CommonStruct.struct_verbosity >= 2) {
 				if ((i + 1) % 100 == 0) {
-					//logger.info(i + 1);
+					// logger.info(i + 1);
 				}
 			}
 
@@ -583,17 +588,17 @@ public class ClassifyStruct {
 
 		avgloss /= testsample.n;
 		if (CommonStruct.struct_verbosity >= 1) {
-			//logger.info("done");
-			//logger.info("Runtime (without IO) in cpu-seconds:"
-				//	+ (float) (runtime / 100.0));
+			// logger.info("done");
+			// logger.info("Runtime (without IO) in cpu-seconds:"
+			// + (float) (runtime / 100.0));
 		}
 		pw.close();
 		// if((no_accuracy==0)&&(svm_struct_common.struct_verbosity>=1))
 		// {
-		//logger.info("Average loss on test set:" + (float) avgloss);
-		//logger.info("Zero/one-error on test set " + (float) 100.0 * incorrect
-			//	/ testsample.n + "(" + correct + " correct, " + incorrect
-			//	+ " incorrect," + testsample.n + ", total");
+		// logger.info("Average loss on test set:" + (float) avgloss);
+		// logger.info("Zero/one-error on test set " + (float) 100.0 * incorrect
+		// / testsample.n + "(" + correct + " correct, " + incorrect
+		// + " incorrect," + testsample.n + ", total");
 		System.out.println("Average loss on test set:" + (float) avgloss);
 		System.out.println("Zero/one-error on test set " + (float) 100.0
 				* incorrect / testsample.n + "(" + correct + " correct, "
