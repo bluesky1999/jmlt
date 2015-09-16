@@ -1,6 +1,5 @@
 package org.click.classify.svm_struct.model;
 
-import org.apache.log4j.Logger;
 import org.click.classify.svm_struct.data.DOC;
 import org.click.classify.svm_struct.data.MODEL;
 import org.click.classify.svm_struct.data.ModelConstant;
@@ -17,7 +16,6 @@ public class Classify {
 	public static String predictionsfile;
 	public static int verbosity;
 	public static int pred_format;
-	private static Logger logger = Logger.getLogger(Classify.class); 
 
 	public static void main(String[] args) throws Exception {
 		DOC doc;
@@ -66,10 +64,8 @@ public class Classify {
 			doc = com.createExample(-1, 0, 0, 0.0,
 					com.createSvector(words, comment, 1.0));
 			if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) { 
-			    logger.info("kernel type is linear aa");
 				dist = com.classifyExampleLinear(model, doc);
 			} else { /* non-linear kernel */
-				logger.info("kernel type is nonlinear");
 				dist =com.classifyExample(model, doc);
 			}
 
