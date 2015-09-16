@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.click.string.ErasureUtils;
-import org.click.string.StringUtils;
-import org.click.util.AbstractIterator;
-import org.click.util.Generics;
-import org.click.util.StreamGobbler;
+import org.click.lib.string.ErasureUtils;
+import org.click.lib.string.StringUtils;
+import org.click.lib.util.AbstractIterator;
+import org.click.lib.util.Generics;
+import org.click.lib.util.StreamGobbler;
 /**
  * Helper Class for various I/O related things.
  *

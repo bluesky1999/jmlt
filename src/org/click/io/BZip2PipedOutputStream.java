@@ -3,8 +3,8 @@ package org.click.io;
 
 import java.io.*;
 
-import org.click.util.ByteStreamGobbler;
-import org.click.util.StreamGobbler;
+import org.click.lib.util.ByteStreamGobbler;
+import org.click.lib.util.StreamGobbler;
 
 /**
 * Opens a outputstream for writing into a bzip2 file by piping into the bzip2 command.

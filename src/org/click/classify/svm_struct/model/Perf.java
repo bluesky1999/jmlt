@@ -26,7 +26,7 @@ public class Perf extends Struct {
 
 	public Perf() {
 		super();
-		//com = new Common();
+		// com = new Common();
 	}
 
 	@Override
@@ -106,7 +106,6 @@ public class Perf extends Struct {
 
 				// Make sure they are all independent. If not, select
 				// independent subset.
-
 				if (CommonStruct.struct_verbosity > 0)
 					System.out
 							.printf("Finding independent subset of vectors...");

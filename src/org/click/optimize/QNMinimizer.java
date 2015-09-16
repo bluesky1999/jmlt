@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.click.io.RuntimeIOException;
-import org.click.math.ArrayMath;
-import org.click.math.Normalize;
+import org.click.lib.math.ArrayMath;
+import org.click.lib.math.Normalize;
 
 /**
  *
