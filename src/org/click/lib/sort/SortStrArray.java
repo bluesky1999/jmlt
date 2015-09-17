@@ -59,10 +59,26 @@ public class SortStrArray {
 	}
 	
 	/**
-	 * @param arr
-	 * @param key_index
+	 * input is an array composed of strings
+	 * 
+	 *   each string's format is :
+	 *     line .=. <field1><sep><field2><sep>.....<fieldN>
+	 *     
+	 *   key_index is the index of sort key in the line ,start with zero
+	 *   key_type  is the type of sort key: 
+	 *             support three types
+	 *               	    str:string
+	 *                      int:integer
+	 *                      dou:double
+	 *   field_num is the number of fields in each line  
+	 *   separator is the separator of each line
+	 *   
+	 *   e.g.
+	 *     	String[] sortLabels  = SortStrArray.sort_array(labels, 1, "dou", 2, ":");
+	 * @param arr : input array
+	 * @param key_index: the  index of sort key  
 	 * @param key_type
-	 * @return
+	 * @return sorted array
 	 */
 	public static String[] sort_array(String[] arr,int key_index,String key_type,int field_num,String separator)
 	{
@@ -105,10 +121,26 @@ public class SortStrArray {
 	}
 	
 	/**
-	 * @param arr
-	 * @param key_index
+	 * input is an arrayList composed of strings
+	 * 
+	 *   each string's format is :
+	 *     line .=. <field1><sep><field2><sep>.....<fieldN>
+	 *     
+	 *   key_index is the index of sort key in the line ,start with zero
+	 *   key_type  is the type of sort key: 
+	 *             support three types
+	 *               	    str:string
+	 *                      int:integer
+	 *                      dou:double
+	 *   field_num is the number of fields in each line  
+	 *   separator is the separator of each line
+	 *   
+	 *   e.g.
+	 *     	String[] sortLabels  = SortStrArray.sort_array(labelList, 1, "dou", 2, ":");
+	 * @param arr : input array
+	 * @param key_index: the  index of sort key  
 	 * @param key_type
-	 * @return
+	 * @return sorted array
 	 */
 	public static String[] sort_List(ArrayList<String> arr,int key_index,String key_type,int field_num,String separator)
 	{
