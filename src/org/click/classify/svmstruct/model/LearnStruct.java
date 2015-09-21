@@ -764,7 +764,7 @@ public class LearnStruct {
 				} // end of example loop
 
 				// create sparse vector from dense sum
-				System.out.println("kernel type is " + kparm.kernel_type);
+				//System.out.println("kernel type is " + kparm.kernel_type);
 				if (kparm.kernel_type == ModelConstant.LINEAR) {
 					lhs = com.createSvectorNR(lhs_n, sm.sizePsi, null, 1.0,
 							CommonStruct.COMPACT_ROUNDING_THRESH);

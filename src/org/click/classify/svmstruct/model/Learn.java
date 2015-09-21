@@ -865,8 +865,8 @@ public class Learn {
 		double tec;
 		SVECTOR f;
 
-		System.err
-				.println("kernel_parm.kernel_type:" + kernel_parm.kernel_type);
+		//System.err
+		//		.println("kernel_parm.kernel_type:" + kernel_parm.kernel_type);
 
 		if (kernel_parm.kernel_type == 0) {
 
@@ -3003,7 +3003,7 @@ public class Learn {
 
 			if (com.verbosity >= 0) {
 				// if (iteration % 51 == 0) {
-				System.out.println("Iteration " + iteration + ": ");
+				//System.out.println("Iteration " + iteration + ": ");
 				//logger.info("Iteration " + iteration + ": ");
 				// }
 			} else if (com.verbosity == 1) {
