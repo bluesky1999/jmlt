@@ -469,6 +469,7 @@ public class Learn {
 			if (com.verbosity >= 1) {
 				System.out.print("\nRetrain on full problem");
 			}
+			
 			optimize_to_convergence(docs, label, totdoc, totwords, learn_parm,
 					kernel_parm, kernel_cache, shrink_state, model,
 					inconsistent, unlabeled, a, lin, c, timing_profile, -1, 1,
@@ -548,6 +549,7 @@ public class Learn {
 				|| (learn_parm.svm_newvarsinqp > learn_parm.svm_maxqpsize)) {
 			learn_parm.svm_newvarsinqp = learn_parm.svm_maxqpsize;
 		}
+		
 		init_shrink_state(shrink_state, totdoc, MAXSHRINK);
 
 		label = new int[totdoc];

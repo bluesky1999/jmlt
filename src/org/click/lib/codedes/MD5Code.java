@@ -64,6 +64,7 @@ public class MD5Code {
 	{
 		String plainText="200bc51d1692";
 		System.out.println(MD5Code.Md5(plainText).length());
-		System.out.println(MD5Code.makeMD5(plainText));
+		for(int i=0;i<100;i++)
+		System.out.println(MD5Code.makeMD5(plainText+i));
 	}
 }

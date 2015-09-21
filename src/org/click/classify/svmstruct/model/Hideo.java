@@ -1,13 +1,16 @@
 package org.click.classify.svmstruct.model;
 
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 import org.click.classify.svmstruct.data.LEARN_PARM;
 import org.click.classify.svmstruct.data.QP;
 import org.click.classify.svmstruct.data.WU;
 import org.click.lib.math.SimFunc;
 
 /**
- * 解决下面的二次规划问题 minimize g0 * x + 1/2 x' * G * x s.t. ce*x - ce0 = 0 l <= x <= u
+ * 解决下面的二次规划问题 minimize g0 * x + 1/2 x' * G * x s.t. ce*x - ce0 = 0 l <= x <= u <br>
  * ce 的元素只能取值 -1 或 1
  * 
  * @author lq
@@ -51,10 +54,46 @@ public class Hideo {
 
 	public double progress;
 	//private static Logger logger = Logger.getLogger(Hideo.class);
+	
+	public static PrintWriter pw=null;
+	
+	{
+		try{
+			pw=new PrintWriter(new FileWriter("optimize.txt",true));
+		}
+		catch(Exception e)
+		{
+			
+		}
+	}
+	
+	public Hideo()
+	{
 
+	}
+
+	/**
+	 * the rank of g :
+	 *&nbsp;   0 1 2 3 4 5 6 7 8 <br>
+	 *&nbsp;     <=> <br>
+	 *&nbsp;   0 1 2 <br>
+	 *&nbsp;   3 4 5 <br>
+	 *&nbsp;   6 7 8 <br>
+	 *   
+	 * @param qp
+	 * @param epsilon_crit
+	 * @param nx
+	 * @param threshold
+	 * @param learn_param
+	 * @return
+	 */
 	public double[] optimizeQp(QP qp, double epsilon_crit, int nx,
 			double threshold, LEARN_PARM learn_param) {
 
+		//System.err.println("in optimizeQp");
+		//pw.println(qp.toString2());
+		//pw.flush();
+		
 		int i, j;
 		int result;
 		double eq;
@@ -144,6 +183,7 @@ public class Hideo {
 			threshold = 0;
 		}
 
+	
 
 		return primal;
 	}
@@ -783,7 +823,7 @@ public class Hideo {
 
 		if (m > 0) {
 			temp1 = dual[n + n + 1]; // copy the dual variables for the eq 
-			temp2 = dual[n + n]; // constraints to a handier location 
+			temp2 = dual[n + n];     // constraints to a handier location 
 			for (i = n + n + 1; i >= 2; i--) {
 				dual[i] = dual[i - 2];
 			}

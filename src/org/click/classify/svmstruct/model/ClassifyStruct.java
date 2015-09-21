@@ -65,6 +65,14 @@ public class ClassifyStruct {
 		ssa = FactoryStruct.get_svm_struct_api();
 	}
 
+	/**
+	 * the format of sample: <br>
+	 * &nbsp;  line .=. [(wordIndex:wordValue)]* <br>
+	 * &nbsp;  e.g. <br>
+	 * &nbsp;&nbsp;&nbsp;  2:0.24666666666666667 3:0.38 14:1.0 16:0.33 17:1.0 56:0.25 90:0.13 94:0.63
+	 * @param sample
+	 * @return
+	 */
 	public LABEL classifyWordString(String sample) {
 		// return ssa.classifyStructExample(ssa.sample2pattern(sample), model,
 		// sparm);

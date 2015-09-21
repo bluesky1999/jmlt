@@ -371,6 +371,7 @@ public class Common {
 						createSvector(words, rs.read_comment, 1.0));
 				dnum++;
 				System.err.println("dnum:" + dnum);
+				//rs=null;
 			}
 
 			fr.close();
