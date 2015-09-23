@@ -38,8 +38,6 @@ public class LearnStruct {
 
 	private Struct ssa = null;
 
-	// private static Logger logger = Logger.getLogger(LearnStruct.class);
-
 	public LearnStruct() {
 		com = new Common();
 		ssa = FactoryStruct.get_svm_struct_api();
@@ -82,7 +80,7 @@ public class LearnStruct {
 
 		ssa.initStructModel(sample, sm, sparm, lparm, kparm);
 		sizePsi = sm.sizePsi + 1;
-		// logger.info("the sizePsi2 is " + sizePsi);
+	
 		if (alg_type == CommonStruct.NSLACK_SHRINK_ALG) {
 			use_shrinking = 1;
 		} else {
@@ -101,11 +99,9 @@ public class LearnStruct {
 			lparm.svm_c = svmCnorm;
 			lparm.sharedslack = 1;
 		} else if (sparm.slack_norm == 2) {
-			lparm.svm_c = 999999999999999.0; // upper bound C must never be
-												// reached
+			lparm.svm_c = 999999999999999.0; // upper bound C must never be reached
 			lparm.sharedslack = 0;
 			if (kparm.kernel_type != ModelConstant.LINEAR) {
-				// logger.error("ERROR: Kernels are not implemented for L2 slack norm!");
 				System.exit(0);
 			}
 		} else {
@@ -123,8 +119,7 @@ public class LearnStruct {
 			alphahist = new int[cset.m];
 			for (i = 0; i < cset.m; i++) {
 				alpha[i] = 0;
-				alphahist[i] = -1; // -1 makes sure these constraints are never
-									// removed
+				alphahist[i] = -1; // -1 makes sure these constraints are never removed
 			}
 		}
 
@@ -136,7 +131,6 @@ public class LearnStruct {
 			kcache = sl.kernel_cache_init(Math.max(cset.m, 1), lparm.kernel_cache_size);
 		}
 
-		// logger.info("sizePsi:" + sizePsi + "   n:" + n);
 		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, kcache, svmModel, alpha);
 		com.addWeightVectorToLinearModel(svmModel);
 		sm.svm_model = svmModel;
@@ -167,13 +161,8 @@ public class LearnStruct {
 				tolerance = 0;
 			}
 
-			lparm.epsilon_crit = epsilon / 2; // svm precision must be higher
-												// than eps
+			lparm.epsilon_crit = epsilon / 2; // svm precision must be higher than eps
 
-			if (CommonStruct.struct_verbosity >= 1) {
-				// logger.info("Setting current working precision to " +
-				// epsilon);
-			}
 
 			do {
 				// iteration until (approx) all SV are found for current
@@ -188,10 +177,6 @@ public class LearnStruct {
 					// with shrinking turned on, go through examples that keep
 					// producing new constraints
 
-					if (CommonStruct.struct_verbosity >= 1) {
-						// logger.info("Iter " + (++numIt) + " (" + activenum
-						// + " active):");
-					}
 
 					ceps = 0;
 					if (activenum == n) {
@@ -219,9 +204,6 @@ public class LearnStruct {
 									activenum--;
 									opti[i] = opti_round;
 								}
-								// if (CommonStruct.struct_verbosity >= 2)
-								// logger.info("no-incorrect-found(" + i
-								// + ") ");
 								continue;
 							}
 
@@ -268,24 +250,10 @@ public class LearnStruct {
 							// if `error' add constraint and recompute
 							dist = com.classifyExample(svmModel, doc);
 							ceps = Math.max(ceps, margin - dist - slack);
-							if (slack > (margin - dist + 0.0001)) {
-								// logger.debug("\nWARNING: Slack of most violated constraint is smaller than slack of working\n");
-								// logger.debug("         set! There is probably a bug in 'find_most_violated_constraint_*'.\n");
-								// logger.debug("Ex " + i + ": slack=" + slack
-								// + ", newslack=" + (margin - dist)
-								// + "\n");
-							}
-							if ((dist + slack) < (margin - epsilon)) {
-								if (CommonStruct.struct_verbosity >= 2) {
-									// logger.info("(" + i + ",eps="
-									// + (margin - dist - slack) + ") ");
-								}
-								if (CommonStruct.struct_verbosity == 1) {
-									System.out.print(".");
-								}
 
-								// resize constraint matrix and add new
-								// constraint
+							if ((dist + slack) < (margin - epsilon)) {
+
+								// resize constraint matrix and add new constraint
 								cset.m++;
 								com.realloc(cset);
 
@@ -295,8 +263,7 @@ public class LearnStruct {
 										cset.lhs[cset.m - 1] = com.createExample(cset.m - 1, 0, i + 1, 1, com.copySvector(diff));
 									else if (sparm.slack_norm == 2) {
 
-										// add squared slack variable to feature
-										// vector
+										// add squared slack variable to feature vector
 										slackv[0].wnum = sizePsi + i;
 										slackv[0].weight = 1 / (Math.sqrt(2 * svmCnorm));
 										slackv[1].wnum = 0; // terminator
@@ -319,7 +286,6 @@ public class LearnStruct {
 								newconstraints++;
 								totconstraints++;
 							} else {
-								// //logger.info("+");
 								if (opti[i] != opti_round) {
 									activenum--;
 									opti[i] = opti_round;
@@ -363,8 +329,7 @@ public class LearnStruct {
 							}
 
 							if ((new_precision != 0) && (epsilon <= sparm.epsilon))
-								dont_stop = 1; // make sure we take one final
-												// pass
+								dont_stop = 1; // make sure we take one final pass
 
 							new_precision = 0;
 							newconstraints = 0;
@@ -372,13 +337,9 @@ public class LearnStruct {
 
 					}// exmample loop
 
-					// if (svm_struct_com.struct_verbosity >= 1)
-					// logger.info("(NumConst=" + cset.m + ", SV="
-					// + (svmModel.sv_num - 1) + ", CEps=" + ceps
-					// + ", QPEps=" + svmModel.maxdiff + ")\n");
 					System.out.println("(NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")\n");
 
-					if (CommonStruct.struct_verbosity >= 2)
+					//if (CommonStruct.struct_verbosity >= 2)
 						// logger.info("Reducing working set...");
 
 						remove_inactive_constraints(cset, alpha, optcount, alphahist, Math.max(50, optcount - lastoptcount));
@@ -418,50 +379,12 @@ public class LearnStruct {
 			modellength = com.modelLengthS(svmModel);
 			dualitygap = (0.5 * modellength * modellength + svmCnorm * (slacksum + n * ceps)) - (alphasum - 0.5 * modellength * modellength);
 
-			// logger.info("Final epsilon on KKT-Conditions: "
-			// + Math.max(svmModel.maxdiff, epsilon) + "\n");
-			// logger.info("Upper bound on duality gap: " + dualitygap + "\n");
-			// logger.info("Dual objective value: dval="
-			// + (alphasum - 0.5 * modellength * modellength) + "\n");
-			// logger.info("Total number of constraints in final working set: "
-			// + (int) cset.m + " (of " + (int) totconstraints + ")\n");
-			// logger.info("Number of iterations:" + numIt + "\n");
-			// logger.info("Number of calls to 'find_most_violated_constraint': "
-			// + argmax_count + "\n");
-			if (sparm.slack_norm == 1) {
-				// logger.info("Number of SV: " + (svmModel.sv_num - 1) +
-				// " \n");
-				// logger.info("Number of non-zero slack variables: "
-				// + svmModel.at_upper_bound + " (out of " + n + ")\n");
-				// logger.info("Norm of weight vector: |w|=" + modellength +
-				// "\n");
-			} else if (sparm.slack_norm == 2) {
-				// logger.info("Number of SV: " + (svmModel.sv_num - 1)
-				// + " (including " + svmModel.at_upper_bound
-				// + " at upper bound)\n");
-				// logger.info("Norm of weight vector (including L2-loss): |w|="
-				// + modellength + "\n");
-			}
-
-			// logger.info("Norm. sum of slack variables (on working set): sum(xi_i)/n="
-			// + slacksum / n + "\n");
-			// logger.info("Norm of longest difference vector: ||Psi(x,y)-Psi(x,ybar)||="
-			// + sl.length_of_longest_document_vector(cset.lhs, cset.m,
-			// kparm) + "\n");
 		}
-
-		// if (CommonStruct.struct_verbosity >= 4)
-		// logger.info(CommonStruct.printW(sm.w, sizePsi, n, lparm.svm_c));
 
 		if (svmModel != null) {
 			// sm.svm_model = svm_com.copy_model(svmModel);
 			sm.svm_model = svmModel;
 			sm.w = sm.svm_model.lin_weights; // short cut to weight vector
-			String wstr = "";
-			for (int wi = 0; wi < sm.w.length; wi++) {
-				wstr += (wi + ":" + sm.w[wi] + " ");
-			}
-			// logger.info("wstr:" + wstr);
 		}
 
 		ssa.printStructLearningStats(sample, sm, cset, alpha, sparm);
@@ -613,20 +536,11 @@ public class LearnStruct {
 				// viol = compute_violation_of_constraint_in_cache(epsilon_est /
 				// 2);
 
-				// logger.info("viol=" + viol + " slack=" + slack +
-				// " epsilon_est"
-				// + epsilon_est + " and sparm epsilon=" + sparm.epsilon);
-
 				if (viol - slack > Math.max(epsilon_est / 10, sparm.epsilon)) {
-
-					// logger.info("There is a sufficiently violated constraint in cache");
-
 					// There is a sufficiently violated constraint in cache, so
 					// use this constraint in this iteration.
 					cached_constraint = 1;
 				} else {
-					// logger.info("There is no violated constraint in cache");
-
 					// There is no sufficiently violated constraint in cache, so
 					// update cache byprint_percent_progress computing most
 					// violated constraint explicitly for batch_size examples
@@ -656,14 +570,7 @@ public class LearnStruct {
 					}
 
 					viol_est *= ((double) n / (double) j);
-					// logger.info("viol_est=" + viol_est + " slack=" + slack +
-					// "");
 					epsilon_est = (1 - (double) j / (double) n) * epsilon_est + (double) j / (double) n * (viol_est - slack);// epsilon_est璧嬪�
-					// logger.info("epsilon_est cal=" + epsilon_est);
-					// if ((CommonStruct.struct_verbosity >= 1) && (j != n))
-					// logger.info("(upd=" + (100.0 * j / n) + ",eps^="
-					// + (viol_est - slack) + ",eps*=" + epsilon_est
-					// + ")");
 				}
 
 				lhsXw = rhs - viol;
@@ -706,14 +613,6 @@ public class LearnStruct {
 
 			} // end of finding most violated joint constraint
 
-			// if `error', then add constraint and recompute QP
-			if (slack > (rhs - lhsXw + 0.000001)) {
-				// logger.info("\nWARNING: Slack of most violated constraint is smaller than slack of working\n");
-				// logger.info(" set! There is probably a bug in 'find_most_violated_constraint_*'.\n");
-				// logger.info("slack=" + slack + ", newslack=" + (rhs - lhsXw)
-				// + "\n");
-
-			}
 			ceps = Math.max(0, rhs - lhsXw - slack);
 			if ((ceps > sparm.epsilon) || cached_constraint != 0) {
 				// resize constraint matrix and add new constraint
@@ -795,29 +694,17 @@ public class LearnStruct {
 				}
 
 				// 在这里要将某些限制去掉
-				// //logger.info("cset.m before:"+cset.m);
 				remove_inactive_constraints(cset, alpha, optcount, alphahist, 50);
-				// //logger.info("cset.m after:"+cset.m);
-				// if (CommonStruct.struct_verbosity >= 3)
-				// logger.info("done. ");
 
 			} else {
 
 			}
 
-			// if (svm_struct_com.struct_verbosity >= 1) {
-			// logger.info("(NumConst=" + cset.m + ", SV="
-			// + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps="
-			// + svmModel.maxdiff + ")\n");
 			System.out.println("(NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")\n");
-			// }
 
 		} while (cached_constraint != 0 || (ceps > sparm.epsilon) || ssa.finalizeIteration(ceps, cached_constraint, sample, sm, cset, alpha, sparm));
 
 		if (CommonStruct.struct_verbosity >= 1) {
-			// logger.info("Final epsilon on KKT-Conditions: "
-			// + (Math.max(svmModel.maxdiff, ceps)) + "\n");
-
 			slack = 0;
 			for (j = 0; j < cset.m; j++)
 				slack = Math.max(slack, cset.rhs[j] - com.classifyExample(svmModel, cset.lhs[j]));
@@ -830,26 +717,6 @@ public class LearnStruct {
 				modellength = com.modelLengthS(svmModel);
 			dualitygap = (0.5 * modellength * modellength + sparm.C * viol) - (alphasum - 0.5 * modellength * modellength);
 
-			// logger.info("Upper bound on duality gap: " + dualitygap + "\n");
-			// logger.info("Dual objective value: dval="
-			// + (alphasum - 0.5 * modellength * modellength) + "\n");
-			// logger.info("Primal objective value: pval="
-			// + (0.5 * modellength * modellength + sparm.C * viol) + "\n");
-			// logger.info("Total number of constraints in final working set: "
-			// + ((int) cset.m) + " (of " + ((int) totconstraints) + ")\n");
-			// logger.info("Number of iterations: " + numIt + "\n");
-			// logger.info("Number of calls to 'find_most_violated_constraint': "
-			// + violStruct.argmaxCount + "\n");
-			// logger.info("Number of SV: " + (svmModel.sv_num - 1) + " \n");
-			// logger.info("Norm of weight vector: |w|=" + modellength + "\n");
-			// logger.info("Value of slack variable (on working set): xi=" +
-			// slack
-			// + "\n");
-			// logger.info("Value of slack variable (global): xi=" + viol +
-			// "\n");
-			// logger.info("Norm of longest difference vector: ||Psi(x,y)-Psi(x,ybar)||="
-			// + (sl.length_of_longest_document_vector(cset.lhs, cset.m,
-			// kparm)) + "\n");
 
 		}
 
