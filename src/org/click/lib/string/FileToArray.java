@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-
-
 /**
  * 文件数据转换成数组
  * @author zkyz
@@ -24,12 +22,10 @@ public class FileToArray {
 		  BufferedReader br=new BufferedReader(fr);
 		  String line="";
 
-		  String field_info="";
-		  String field="";
-		  
 		  line=br.readLine();
 		  if(!(SSO.tnoe(line)))
 		  {
+			  br.close();
 			  return null;
 		  }
 		  line=line.trim();
@@ -43,17 +39,17 @@ public class FileToArray {
 		  while((line=br.readLine())!=null)
 		  {
 			  line=line.trim();
-			 // System.out.println("line:"+line);
 			  if(!(SSO.tnoe(line)))
 			  {
 				  continue;
 			  }
+			  
 			  seg_arr=line.split(seprator);
-			//  System.out.println("seg_arr.length:"+seg_arr.length);
 			  if(seg_arr.length!=field_num)
 			  {
 				  continue;
 			  }
+			  
 			  dataList.add(seg_arr);			  			  
 		  }
 		  br.close();
@@ -84,7 +80,6 @@ public class FileToArray {
 		  while((line=br.readLine())!=null)
 		  {
 			  line=line.trim();
-			 // System.out.println("line:"+line);
 			  if(!(SSO.tnoe(line)))
 			  {
 				  continue;
@@ -116,7 +111,7 @@ public class FileToArray {
 		 File[] infiles=indir.listFiles();
 		 ArrayList<String> dataList=new ArrayList<String>();
 		 String[] sing_arr=null;
-		 String file_name="";
+
 		 for(int i=0;i<infiles.length;i++)
 		 {
 			
@@ -163,7 +158,7 @@ public class FileToArray {
 		  {
 			  line=line.trim();
 			  
-			// System.out.println("line:"+line);
+			 // System.out.println("line:"+line);
 			  if(!(SSO.tnoe(line)))
 			  {
 				  continue;

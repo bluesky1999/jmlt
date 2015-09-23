@@ -1,5 +1,4 @@
 package org.click.lib.string;
-
 import java.io.File;
 
 /**
