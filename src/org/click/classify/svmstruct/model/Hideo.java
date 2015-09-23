@@ -82,10 +82,6 @@ public class Hideo {
 	 */
 	public double[] optimizeQp(QP qp, double epsilon_crit, int nx, double threshold, LEARN_PARM learn_param) {
 
-		// System.err.println("in optimizeQp");
-		// pw.println(qp.toString2());
-		// pw.flush();
-
 		int i, j;
 		int result;
 		double eq;
@@ -148,10 +144,6 @@ public class Hideo {
 		if (precision_violations > 50) {
 			precision_violations = 0;
 			epsilon_crit = 10.0;
-			// if(verbosity>=1) {
-			// logger.info("\nWARNING: Relaxing epsilon on KT-Conditions "
-			// + (epsilon_crit));
-			// }
 		}
 
 		if ((qp.opt_m > 0) && (result != NAN_SOLUTION) && (!(Double.isNaN(dual[1] - dual[0])))) {
@@ -391,10 +383,8 @@ public class Hideo {
 		if (n > 2) { // switch, so that variables are better mixed
 			lSwitchrkMatrix(d, n, b1, 0);
 			if (b2 == 0) {
-				// System.out.println("switch b2 0");
 				lSwitchrkMatrix(d, n, b1, 1);
 			} else {
-				// System.out.println("switch b2 1");
 				lSwitchrkMatrix(d, n, b2, 1);
 			}
 		}
@@ -514,12 +504,7 @@ public class Hideo {
 		obj_before = calculateQpObjective(n, g, g0, init);
 		obj_after = calculateQpObjective(n, g, g0, primal);
 		progress = obj_before - obj_after;
-		// System.out.println("progress:"+progress);
 		verbosity = 5;
-		if (verbosity >= 3) {
-			// logger.info("before(" + obj_before + ")...after(" + obj_after
-			// + ")...result_sd(" + result + ")...");
-		}
 
 		return ((int) result);
 	}
@@ -531,7 +516,6 @@ public class Hideo {
 		int retrain, maxfaktor, primal_optimal = 0, at_bound, scalemaxiter;
 		double epsilon_a = 1E-15, epsilon_hideo;
 		double eq;
-		// //logger.info("in solve_dual");
 
 		if ((m < 0) || (m > 1)) {
 			System.err.println("SOLVE DUAL: inappropriate number of eq-constrains!");

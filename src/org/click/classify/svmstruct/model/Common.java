@@ -35,7 +35,6 @@ public class Common {
 
 	public static int progress_n;
 
-	// private static Logger logger = Logger.getLogger(Common.class);
 
 	public SVECTOR createSvector(WORD[] words, String userdefined, double factor) {
 		SVECTOR vec;
@@ -80,11 +79,9 @@ public class Common {
 	}
 
 	public double kernel(KERNEL_PARM kernel_parm, DOC a, DOC b) {
-		// System.out.println("in kernel");
 		double sum = 0;
 		SVECTOR fa, fb;
 		if (kernel_parm.kernel_type == ModelConstant.GRAM) {
-			// System.out.println("kernel_type:" + GRAM);
 			if ((a.kernelid >= 0) && (b.kernelid >= 0)) {
 
 				return kernel_parm.gram_matrix.element[Math.max(a.kernelid, b.kernelid)][Math.min(a.kernelid, b.kernelid)];
@@ -92,13 +89,10 @@ public class Common {
 				return 0;
 			}
 		}
-		// System.out.println("fa pro");
 		for (fa = a.fvec; fa != null; fa = fa.next) {
 			for (fb = b.fvec; fb != null; fb = fb.next) {
 
 				if (fa.kernel_id == fb.kernel_id) {
-					// if (sum > 0)
-					// System.out.println("sum:" + sum);
 					sum += fa.factor * fb.factor * singleKernel(kernel_parm, fa, fb);
 				}
 			}
@@ -112,7 +106,6 @@ public class Common {
 
 		switch (kernel_parm.kernel_type) {
 		case ModelConstant.LINEAR:
-			// System.out.println("liner kernel y");
 			return sprodSs(a, b);
 		case ModelConstant.POLY:
 			return Math.pow(kernel_parm.coef_lin * sprodSs(a, b) + kernel_parm.coef_const, kernel_parm.poly_degree);
@@ -397,7 +390,7 @@ public class Common {
 		docs = new DOC[struct.read_max_docs]; // feature vectors
 
 		WORD[] words;
-		label = new double[struct.read_max_docs]; /* target values */
+		label = new double[struct.read_max_docs]; // target values 
 		// System.out.println("docs length:"+docs.length);
 		words = new WORD[struct.read_max_words_doc + 10];
 		for (int j = 0; j < words.length; j++) {
@@ -779,9 +772,6 @@ public class Common {
 
 	public ReadSummary nol_big_ll(String input_file) {
 
-		// //logger.info("input_file:"+input_file);
-		// //logger.info("in nol ll");
-
 		ReadSummary summary = new ReadSummary();
 		FileReader fr = null;
 		BufferedReader br = null;
@@ -793,7 +783,6 @@ public class Common {
 			e.printStackTrace();
 			System.out.println("error:" + e.getMessage());
 		}
-		// //logger.info("in nol ll2");
 		String line = "";
 		int temp_docs = 0;
 		int temp_words = 0;
@@ -803,7 +792,6 @@ public class Common {
 		try {
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
-				// System.out.println("line:" + line);
 				temp_docs++;
 
 				Scanner scan = new Scanner(line);
@@ -824,9 +812,6 @@ public class Common {
 
 			summary.read_max_docs = temp_docs;
 			summary.read_max_words_doc = temp_words;
-			// System.out.println("read_max_docs:" + read_max_docs);
-			// System.out.println("read_max_words_doc:" + read_max_words_doc);
-
 			fr.close();
 			br.close();
 		} catch (Exception e) {
@@ -959,7 +944,6 @@ public class Common {
 	public void addWeightVectorToLinearModel(MODEL model) {
 		int i;
 		SVECTOR f;
-		// //logger.info("model.totwords:" + model.totwords);
 		model.lin_weights = createNvector(model.totwords);
 		clearNvector(model.lin_weights, model.totwords);
 		for (i = 1; i < model.sv_num; i++) {
@@ -973,7 +957,6 @@ public class Common {
 	}
 
 	public SVECTOR createSvectorNR(double[] nonsparsevec, int maxfeatnum, String userdefined, double factor, double min_non_zero) {
-		// //logger.info("begin create_svector_n_r");
 		SVECTOR vec;
 		int fnum, i;
 
@@ -1093,7 +1076,6 @@ public class Common {
 		for (int i = 0; i < ai.length; i++) {
 			sumi[i] = ai[i].copy_word();
 			sumi[i].wnum = ai[i].wnum + shift;
-			// //logger.info("ai.wnum:"+ai[i].wnum+" sumi wnum:"+sumi[i].wnum);
 		}
 
 		if (a.userdefined != null) {
@@ -1101,16 +1083,13 @@ public class Common {
 		}
 
 		vec = createSvectorShallow(sumi, userdefined, a.factor);
-		// //logger.info("vec in sv:"+vec.toString());
 		return vec;
 	}
 
 	public SVECTOR createSvectorShallow(WORD[] words, String userdefined, double factor) {
 		SVECTOR vec;
 		vec = new SVECTOR();
-		// //logger.info("words.length:"+words.length);
 		vec.words = new WORD[words.length];
-		// //logger.info("words.length:"+words.length);
 		for (int i = 0; i < words.length; i++) {
 			if (words[i] != null) {
 				vec.words[i] = words[i].copy_word();
@@ -1118,7 +1097,7 @@ public class Common {
 				vec.words[i] = null;
 			}
 		}
-		// //logger.info("vec in create:"+vec.toString());
+
 		vec.twonorm_sq = -1;
 		vec.userdefined = userdefined;
 		vec.kernel_id = 0;
@@ -1283,7 +1262,6 @@ public class Common {
 			sumi[s] = bj[j];
 			sumi[s].weight *= fb;
 			if (sumi[s].weight != 0)
-				// //logger.info("add 4 s="+s+" "+sumi[s].wnum+":"+sumi[s].weight);
 				s++;
 			j++;
 		}
@@ -1297,7 +1275,6 @@ public class Common {
 
 		if (true) { // potentially this wastes some memory, but saves malloc'ing
 			vec = createSvectorShallow(sumi, null, 1.0);
-			// //logger.info("vec ee:"+vec.toLongString());
 		} else { // this is more memory efficient
 			vec = createSvector(sumi, null, 1.0);
 

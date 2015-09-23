@@ -42,7 +42,6 @@ public class Classify {
 		model = com.read_model(modelfile);
 
 		if (model.kernel_parm.kernel_type == 0) { // linear kernel
-			// compute weight vector
 			com.addWeightVectorToLinearModel(model);
 		}
 
@@ -58,12 +57,11 @@ public class Classify {
 			slackid = rs.read_slackid;
 			costfactor = rs.read_costfactor;
 			comment = rs.read_comment;
-			// words = svm_common.read_words;
 			words = read_words;
 			doc = com.createExample(-1, 0, 0, 0.0, com.createSvector(words, comment, 1.0));
 			if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 				dist = com.classifyExampleLinear(model, doc);
-			} else { /* non-linear kernel */
+			} else { // non-linear kernel 
 				dist = com.classifyExample(model, doc);
 			}
 
@@ -97,7 +95,6 @@ public class Classify {
 	public static void read_input_parameters(int argc, String[] argv) {
 		int i;
 
-		/* set default */
 		modelfile = "svm_model";
 		predictionsfile = "svm_predictions";
 		verbosity = 2;
