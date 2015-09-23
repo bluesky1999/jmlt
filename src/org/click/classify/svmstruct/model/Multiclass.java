@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-
 import org.click.classify.svmstruct.data.DOC;
 import org.click.classify.svmstruct.data.EXAMPLE;
 import org.click.classify.svmstruct.data.KERNEL_PARM;
@@ -25,19 +24,17 @@ import org.click.classify.svmstruct.data.WORD;
  */
 public class Multiclass extends Struct {
 
-	//private static Logger logger = Logger
-	//		.getLogger(Multiclass.class);
-	
-	//public Common com=null;
-	public Multiclass()
-	{
+	// private static Logger logger = Logger
+	// .getLogger(Multiclass.class);
+
+	// public Common com=null;
+	public Multiclass() {
 		super();
-		//com=new Common();
+		// com=new Common();
 	}
 
 	@Override
-	public void initStructModel(SAMPLE sample, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm) {
+	public void initStructModel(SAMPLE sample, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm) {
 		// TODO Auto-generated method stub
 		int i, totwords = 0;
 		WORD w;
@@ -45,10 +42,10 @@ public class Multiclass extends Struct {
 
 		sparm.num_classes = 1;
 		for (i = 0; i < sample.n; i++)
-			// find highest class label 
+			// find highest class label
 			if (sparm.num_classes < ((sample.examples[i].y.class_index) + 0.1))
 				sparm.num_classes = (int) (sample.examples[i].y.class_index + 0.1);
-		for (i = 0; i < sample.n; i++) // find highest feature number 
+		for (i = 0; i < sample.n; i++) // find highest feature number
 		{
 			temp_words = sample.examples[i].x.doc.fvec.words;
 			for (int j = 0; j < temp_words.length; j++) {
@@ -62,8 +59,7 @@ public class Multiclass extends Struct {
 
 		sparm.num_features = totwords;
 		if (CommonStruct.struct_verbosity >= 0) {
-			System.out.println("Training set properties: " + sparm.num_features
-					+ " features " + sparm.num_classes + " classes\n");
+			System.out.println("Training set properties: " + sparm.num_features + " features " + sparm.num_classes + " classes\n");
 		}
 
 		sm.sizePsi = sparm.num_features * sparm.num_classes;
@@ -73,20 +69,17 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public SVECTOR psi(PATTERN x, LABEL y, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm) {
+	public SVECTOR psi(PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		SVECTOR fvec;
 
-		fvec =com.shiftS(x.doc.fvec, (y.class_index - 1)
-				* sparm.num_features);
+		fvec = com.shiftS(x.doc.fvec, (y.class_index - 1) * sparm.num_features);
 
 		fvec.kernel_id = y.class_index;
 		return fvec;
 	}
 
 	@Override
-	public LABEL findMostViolatedConstraintSlackrescaling(PATTERN x,
-			LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
+	public LABEL findMostViolatedConstraintSlackrescaling(PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		LABEL ybar = new LABEL();
 		DOC doc;
 		int ci;
@@ -94,8 +87,7 @@ public class Multiclass extends Struct {
 		int first = 1;
 		double score, score_y, score_ybar, bestscore = -1;
 
-		
-		//NOTE: This function could be made much more efficient by not always
+		// NOTE: This function could be made much more efficient by not always
 		// computing a new PSI vector.
 		doc = (x.doc);
 		doc.fvec = psi(x, y, sm, sparm);
@@ -122,15 +114,13 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public LABEL findMostViolatedConstraintMarginrescaling(PATTERN x,
-			LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
+	public LABEL findMostViolatedConstraintMarginrescaling(PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		LABEL ybar = new LABEL();
 		DOC doc;
 		int ci = 0;
 		int bestclass = -1;
 		int first = 1;
 		double score, bestscore = -1;
-
 
 		// NOTE: This function could be made much more efficient by not always
 		// computing a new PSI vector.
@@ -143,7 +133,7 @@ public class Multiclass extends Struct {
 			ybar.class_index = ci;
 
 			doc.fvec = psi(x, ybar, sm, sparm);
-			score =com.classifyExample(sm.svm_model, doc);
+			score = com.classifyExample(sm.svm_model, doc);
 			score += loss(y, ybar, sparm);
 			if ((bestscore < score) || (first != 0)) {
 				bestscore = score;
@@ -160,21 +150,21 @@ public class Multiclass extends Struct {
 	@Override
 	public double loss(LABEL y, LABEL ybar, STRUCT_LEARN_PARM sparm) {
 
-		if (sparm.loss_function == 0) { // type 0 loss: 0/1 loss 
+		if (sparm.loss_function == 0) { // type 0 loss: 0/1 loss
 			// System.err.println("y.class_index:"+y.class_index);
 			if (y.class_index == ybar.class_index)
 				return (0);
 			else
 				return (100);
 		}
-		if (sparm.loss_function == 1) { // type 1 loss: squared difference 
+		if (sparm.loss_function == 1) { // type 1 loss: squared difference
 			return ((y.class_index - ybar.class_index) * (y.class_index - ybar.class_index));
 		} else {
-		
+
 			// Put your code for different loss functions here. But then
-			 // find_most_violated_constraint_???(x, y, sm) has to return the
-			 // highest scoring label with the largest loss.
-			 
+			// find_most_violated_constraint_???(x, y, sm) has to return the
+			// highest scoring label with the largest loss.
+
 			System.exit(1);
 		}
 
@@ -187,8 +177,7 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm) {
+	public LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		LABEL y = new LABEL();
 		DOC doc;
 		int class_index, bestclass = -1, j;
@@ -227,13 +216,11 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public LABEL classifyStructDoc(DOC d, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm) {
+	public LABEL classifyStructDoc(DOC d, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	
 	@Override
 	public SAMPLE readStructExamples(String file, STRUCT_LEARN_PARM sparm) {
 
@@ -244,8 +231,8 @@ public class Multiclass extends Struct {
 		double[] target = null;
 		int totwords, i, num_classes = 0;
 
-		ReadStruct rs=new ReadStruct();
-		docs = com.readDocuments(file,rs);
+		ReadStruct rs = new ReadStruct();
+		docs = com.readDocuments(file, rs);
 
 		target = rs.read_target;
 		totwords = rs.read_totwords;
@@ -285,17 +272,16 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public SAMPLE readStructExamplesFromStream(InputStream is,
-			STRUCT_LEARN_PARM sparm) {
+	public SAMPLE readStructExamplesFromStream(InputStream is, STRUCT_LEARN_PARM sparm) {
 		SAMPLE sample = new SAMPLE();
 		EXAMPLE[] examples;
 		int n;
 		DOC[] docs;
 		double[] target = null;
 		int totwords, i, num_classes = 0;
-		
-		ReadStruct rs=new ReadStruct();
-		docs = com.readDocumentsFromStream(is, target,rs);
+
+		ReadStruct rs = new ReadStruct();
+		docs = com.readDocumentsFromStream(is, target, rs);
 
 		target = rs.read_target;
 		totwords = rs.read_totwords;
@@ -334,8 +320,7 @@ public class Multiclass extends Struct {
 	}
 
 	@Override
-	public SAMPLE readStructExamplesFromArraylist(ArrayList<String> list,
-			STRUCT_LEARN_PARM sparm) {
+	public SAMPLE readStructExamplesFromArraylist(ArrayList<String> list, STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 
 		SAMPLE sample = new SAMPLE();
@@ -345,10 +330,10 @@ public class Multiclass extends Struct {
 		double[] target = null;
 		int totwords, i, num_classes = 0;
 
-		//logger.info("begin read documents");
-		ReadStruct rs=new ReadStruct();
-		docs =com.readDocumentsFromArraylist(list, target,rs);
-		//logger.info("end read documents");
+		// logger.info("begin read documents");
+		ReadStruct rs = new ReadStruct();
+		docs = com.readDocumentsFromArraylist(list, target, rs);
+		// logger.info("end read documents");
 
 		target = rs.read_target;
 		totwords = rs.read_totwords;
@@ -395,14 +380,13 @@ public class Multiclass extends Struct {
 		String read_comment = "";
 		WORD[] words = null;
 		words = string2words(wordString);
-		DOC doc =com.createExample(dnum, queryid, slackid, costfactor,
-				com.createSvector(words, read_comment, 1.0));
+		DOC doc = com.createExample(dnum, queryid, slackid, costfactor, com.createSvector(words, read_comment, 1.0));
 		PATTERN pat = new PATTERN();
 		pat.doc = doc;
 
 		return pat;
 	}
-	
+
 	@Override
 	public DOC sample2doc(String words) {
 		// TODO Auto-generated method stub
@@ -412,8 +396,7 @@ public class Multiclass extends Struct {
 	@Override
 	public void writeLabel(PrintWriter fp, LABEL y, LABEL ybar) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 }

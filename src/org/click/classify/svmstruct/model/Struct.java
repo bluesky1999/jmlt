@@ -40,10 +40,10 @@ public abstract class Struct {
 
 	public Common com = null;
 
-	public Struct()
-	{
-		com=new Common();
+	public Struct() {
+		com = new Common();
 	}
+
 	/**
 	 * 初始化 svm struct model
 	 * 
@@ -53,8 +53,7 @@ public abstract class Struct {
 	 * @param lparm
 	 * @param kparm
 	 */
-	public abstract void initStructModel(SAMPLE sample, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm);
+	public abstract void initStructModel(SAMPLE sample, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm);
 
 	/**
 	 * 初始化 struct constraints
@@ -64,8 +63,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public CONSTSET initStructConstraints(SAMPLE sample, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm) {
+	public CONSTSET initStructConstraints(SAMPLE sample, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 
 		CONSTSET c = new CONSTSET();
 		int sizePsi = sm.sizePsi;
@@ -90,8 +88,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract SVECTOR psi(PATTERN x, LABEL y, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm);
+	public abstract SVECTOR psi(PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm);
 
 	/**
 	 * 在主循环中判段是否终止迭代
@@ -105,9 +102,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public boolean finalizeIteration(double ceps, int cached_constraint,
-			SAMPLE sample, STRUCTMODEL sm, CONSTSET cset, double[] alpha,
-			STRUCT_LEARN_PARM sparm) {
+	public boolean finalizeIteration(double ceps, int cached_constraint, SAMPLE sample, STRUCTMODEL sm, CONSTSET cset, double[] alpha, STRUCT_LEARN_PARM sparm) {
 
 		return false;
 	}
@@ -121,8 +116,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract LABEL findMostViolatedConstraintSlackrescaling(
-			PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm);
+	public abstract LABEL findMostViolatedConstraintSlackrescaling(PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm);
 
 	/**
 	 * 找出样本<x,y> 损失最大的 y'。即loss(<x,y>,<x,y'>)最大 ，损失函数类型是marginrescaling
@@ -133,8 +127,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract LABEL findMostViolatedConstraintMarginrescaling(
-			PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm);
+	public abstract LABEL findMostViolatedConstraintMarginrescaling(PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm);
 
 	/**
 	 * 定义y与y'的损失
@@ -163,8 +156,7 @@ public abstract class Struct {
 	 * @param alpha
 	 * @param sparm
 	 */
-	public void printStructLearningStats(SAMPLE sample, STRUCTMODEL sm,
-			CONSTSET cset, double[] alpha, STRUCT_LEARN_PARM sparm) {
+	public void printStructLearningStats(SAMPLE sample, STRUCTMODEL sm, CONSTSET cset, double[] alpha, STRUCT_LEARN_PARM sparm) {
 
 		/* Replace SV with single weight vector */
 		/*******************
@@ -202,13 +194,11 @@ public abstract class Struct {
 	public void parseStructParametersClassify(STRUCT_LEARN_PARM sparm) {
 		int i;
 
-		for (i = 0; (i < sparm.custom_argc)
-				&& ((sparm.custom_argv[i]).charAt(0) == '-'); i++) {
+		for (i = 0; (i < sparm.custom_argc) && ((sparm.custom_argv[i]).charAt(0) == '-'); i++) {
 			switch ((sparm.custom_argv[i]).charAt(2)) {
 			/* case 'x': i++; strcpy(xvalue,sparm->custom_argv[i]); break; */
 			default:
-				System.out.print("\nUnrecognized option "
-						+ sparm.custom_argv[i] + "!\n\n");
+				System.out.print("\nUnrecognized option " + sparm.custom_argv[i] + "!\n\n");
 				System.exit(0);
 			}
 		}
@@ -222,8 +212,7 @@ public abstract class Struct {
 	public void parseStructParameters(STRUCT_LEARN_PARM sparm) {
 		int i;
 
-		for (i = 0; (i < sparm.custom_argc)
-				&& ((sparm.custom_argv[i]).charAt(0) == '-'); i++) {
+		for (i = 0; (i < sparm.custom_argc) && ((sparm.custom_argv[i]).charAt(0) == '-'); i++) {
 			switch ((sparm.custom_argv[i]).charAt(2)) {
 			case 'a':
 				i++; /* strcpy(learn_parm->alphafile,argv[i]); */
@@ -245,10 +234,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract SAMPLE readStructExamples(String file,
-			STRUCT_LEARN_PARM sparm);
-
-	
+	public abstract SAMPLE readStructExamples(String file, STRUCT_LEARN_PARM sparm);
 
 	/**
 	 * 从标准输入读取svm struct样本
@@ -257,9 +243,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract SAMPLE readStructExamplesFromStream(InputStream is,
-			STRUCT_LEARN_PARM sparm);
-
+	public abstract SAMPLE readStructExamplesFromStream(InputStream is, STRUCT_LEARN_PARM sparm);
 
 	/**
 	 * 从arraylist读取svm struct样本
@@ -268,8 +252,7 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract SAMPLE readStructExamplesFromArraylist(
-			ArrayList<String> list, STRUCT_LEARN_PARM sparm);
+	public abstract SAMPLE readStructExamplesFromArraylist(ArrayList<String> list, STRUCT_LEARN_PARM sparm);
 
 	/**
 	 * 写svm struct模型到文件
@@ -278,8 +261,7 @@ public abstract class Struct {
 	 * @param sm
 	 * @param sparm
 	 */
-	public void writeStructModel(String file, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm) {
+	public void writeStructModel(String file, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		try {
 			// Writes structural model sm to file file.
 			FileWriter fw = new FileWriter(new File(file));
@@ -288,22 +270,16 @@ public abstract class Struct {
 			MODEL model = sm.svm_model.copyMODEL();
 			SVECTOR v;
 
-			modelfl.print("SVM-multiclass Version "
-					+ CommonStruct.INST_VERSION + "\n");
+			modelfl.print("SVM-multiclass Version " + CommonStruct.INST_VERSION + "\n");
 			modelfl.print(sparm.num_classes + "# number of classes\n");
 			modelfl.print(sparm.num_features + "# number of base features\n");
 			modelfl.print(sparm.loss_function + " # loss function\n");
 			modelfl.print(model.kernel_parm.kernel_type + " # kernel type\n");
-			modelfl.print(model.kernel_parm.poly_degree
-					+ " # kernel parameter -d \n");
-			modelfl.print(model.kernel_parm.rbf_gamma
-					+ " # kernel parameter -g \n");
-			modelfl.print(model.kernel_parm.coef_lin
-					+ " # kernel parameter -s \n");
-			modelfl.print(model.kernel_parm.coef_const
-					+ " # kernel parameter -r \n");
-			modelfl.print(model.kernel_parm.custom
-					+ " # kernel parameter -u \n");
+			modelfl.print(model.kernel_parm.poly_degree + " # kernel parameter -d \n");
+			modelfl.print(model.kernel_parm.rbf_gamma + " # kernel parameter -g \n");
+			modelfl.print(model.kernel_parm.coef_lin + " # kernel parameter -s \n");
+			modelfl.print(model.kernel_parm.coef_const + " # kernel parameter -r \n");
+			modelfl.print(model.kernel_parm.custom + " # kernel parameter -u \n");
 			modelfl.print(model.totwords + " # highest feature index \n");
 			modelfl.print(model.totdoc + " # number of training documents \n");
 
@@ -313,8 +289,7 @@ public abstract class Struct {
 					sv_num++;
 			}
 			modelfl.print(sv_num + " # number of support vectors plus 1 \n");
-			modelfl.print(model.b
-					+ " # threshold b, each following line is a SV (starting with alpha*y)\n");
+			modelfl.print(model.b + " # threshold b, each following line is a SV (starting with alpha*y)\n");
 
 			for (i = 1; i < model.sv_num; i++) {
 				for (v = model.supvec[i].fvec; v != null; v = v.next) {
@@ -323,8 +298,7 @@ public abstract class Struct {
 					modelfl.print("qid:" + v.kernel_id + " ");
 					// logger.info("i="+i+" v.length:"+v.words.length);
 					for (j = 0; j < v.words.length; j++) {
-						modelfl.print((v.words[j]).wnum + ":"
-								+ (double) (v.words[j]).weight + " ");
+						modelfl.print((v.words[j]).wnum + ":" + (double) (v.words[j]).weight + " ");
 					}
 					if (v.userdefined != null)
 						modelfl.print("#" + v.userdefined + "\n");
@@ -385,62 +359,51 @@ public abstract class Struct {
 				fr = new FileReader(modelfl);
 				br = new BufferedReader(fr);
 			} catch (FileNotFoundException e2) {
-				InputStream model_is = Common.class.getResourceAsStream("/"
-						+ file);
+				InputStream model_is = Common.class.getResourceAsStream("/" + file);
 				InputStreamReader model_isr = new InputStreamReader(model_is);
 				br = new BufferedReader(model_isr);
 			}
 
 			line = br.readLine();
 			// logger.info("line:"+line);
-			version_buffer = SSO.afterStr(line, "SVM-multiclass Version")
-					.trim();
+			version_buffer = SSO.afterStr(line, "SVM-multiclass Version").trim();
 
 			if (!(version_buffer.equals(CommonStruct.INST_VERSION))) {
-				System.err
-						.println("Version of model-file does not match version of svm_struct_classify!");
+				System.err.println("Version of model-file does not match version of svm_struct_classify!");
 
 			}
 			line = br.readLine();
 			// System.err.println("model line:"+line);
-			sparm.num_classes = Integer.parseInt(SSO.beforeStr(line, "#")
-					.trim());
+			sparm.num_classes = Integer.parseInt(SSO.beforeStr(line, "#").trim());
 			line = br.readLine();
 			// System.err.println("model line:"+line);
-			sparm.num_features = Integer.parseInt(SSO.beforeStr(line, "#")
-					.trim());
+			sparm.num_features = Integer.parseInt(SSO.beforeStr(line, "#").trim());
 			line = br.readLine();
 			// System.err.println("model line:"+line);
 			// System.out.println("line:"+line);
-			sparm.loss_function = Integer.parseInt(SSO.beforeStr(line, "#")
-					.trim());
+			sparm.loss_function = Integer.parseInt(SSO.beforeStr(line, "#").trim());
 
 			line = br.readLine();
 			// System.err.println("model line:"+line);
 			// System.out.println("line:"+line);
-			model.kernel_parm.kernel_type = Short.parseShort(SSO.beforeStr(
-					line, "#").trim());
+			model.kernel_parm.kernel_type = Short.parseShort(SSO.beforeStr(line, "#").trim());
 
 			line = br.readLine();
 			// System.err.println("line:"+line);
 			// System.out.println("line:"+line);
-			model.kernel_parm.poly_degree = Integer.parseInt(SSO.beforeStr(
-					line, "#").trim());
+			model.kernel_parm.poly_degree = Integer.parseInt(SSO.beforeStr(line, "#").trim());
 
 			line = br.readLine();
 			// System.err.println("line:"+line);
-			model.kernel_parm.rbf_gamma = Double.parseDouble(SSO.beforeStr(
-					line, "#").trim());
+			model.kernel_parm.rbf_gamma = Double.parseDouble(SSO.beforeStr(line, "#").trim());
 
 			line = br.readLine();
 			// System.err.println("line:"+line);
-			model.kernel_parm.coef_lin = Double.parseDouble(SSO.beforeStr(line,
-					"#").trim());
+			model.kernel_parm.coef_lin = Double.parseDouble(SSO.beforeStr(line, "#").trim());
 
 			line = br.readLine();
 			// System.err.println("line:"+line);
-			model.kernel_parm.coef_const = Double.parseDouble(SSO.beforeStr(
-					line, "#").trim());
+			model.kernel_parm.coef_const = Double.parseDouble(SSO.beforeStr(line, "#").trim());
 
 			line = br.readLine();
 			// System.err.println("line:"+line);
@@ -483,8 +446,7 @@ public abstract class Struct {
 				words = read_words;
 				// System.out.println("words:" + words.length);
 				// System.out.println("queryid:" + queryid);
-				model.supvec[i] = sc.createExample(-1, 0, 0, 0.0,
-						sc.createSvector(words, comment, 1.0));
+				model.supvec[i] = sc.createExample(-1, 0, 0, 0.0, sc.createSvector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
 				// System.err.println("read supvec["+i+"]:"+model.supvec[i].fvec.toString());
 			}
@@ -518,12 +480,9 @@ public abstract class Struct {
 	 * @param sparm
 	 * @return
 	 */
-	public abstract LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm);
-	
-	public abstract LABEL classifyStructDoc(DOC d, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm);
-	
+	public abstract LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm);
+
+	public abstract LABEL classifyStructDoc(DOC d, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm);
 
 	public void writeLabel(PrintWriter fp, LABEL y) {
 		int i;
@@ -538,8 +497,7 @@ public abstract class Struct {
 
 	public abstract void writeLabel(PrintWriter fp, LABEL y, LABEL ybar);
 
-	public void evalPrediction(int exnum, EXAMPLE ex, LABEL ypred,
-			STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, STRUCT_TEST_STATS teststats) {
+	public void evalPrediction(int exnum, EXAMPLE ex, LABEL ypred, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, STRUCT_TEST_STATS teststats) {
 		if (exnum == 0) {
 			// this is the first time the function is called. So
 			// initialize the teststats
@@ -547,8 +505,7 @@ public abstract class Struct {
 		}
 	}
 
-	public void printStructTestingStats(SAMPLE sample, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm, STRUCT_TEST_STATS teststats) {
+	public void printStructTestingStats(SAMPLE sample, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, STRUCT_TEST_STATS teststats) {
 
 	}
 
@@ -557,7 +514,7 @@ public abstract class Struct {
 	}
 
 	public abstract PATTERN sample2pattern(String words);
-	
+
 	public abstract DOC sample2doc(String words);
 
 	public WORD[] string2words(String sample) {
@@ -577,10 +534,8 @@ public abstract class Struct {
 			// System.out.println(i+" "+sample_arr[i]);
 			temp_token = sample_arr[i];
 			if (Pattern.matches("\\d+:[\\d\\.]+", temp_token)) {
-				temp_index = Integer.parseInt(temp_token.substring(0,
-						temp_token.indexOf(":")));
-				temp_weight = Double.parseDouble(temp_token.substring(
-						temp_token.indexOf(":") + 1, temp_token.length()));
+				temp_index = Integer.parseInt(temp_token.substring(0, temp_token.indexOf(":")));
+				temp_weight = Double.parseDouble(temp_token.substring(temp_token.indexOf(":") + 1, temp_token.length()));
 				words[i].wnum = temp_index;
 				words[i].weight = temp_weight;
 			}

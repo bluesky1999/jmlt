@@ -35,8 +35,7 @@ public class Perf extends Struct {
 	feature space in sizePsi. This is the maximum number of different
 	weights that can be learned. Later, the weight vector w will
 	contain the learned weights for the model. */
-	public void initStructModel(SAMPLE sample, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm) {
+	public void initStructModel(SAMPLE sample, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm) {
 		int i, j, k, totwords = 0, totdoc = 0, totexp = 0, nump = 0, numn = 0, new_size = 0;
 		int[] select = null;
 		WORD[] words;
@@ -63,9 +62,7 @@ public class Perf extends Struct {
 
 			if (!(sparm.sparse_kernel_file.equals(""))) {
 				if (CommonStruct.struct_verbosity > 0)
-					System.out
-							.printf("Reading basis functions for sparse kernel expansion from '%s'...",
-									sparm.sparse_kernel_file);
+					System.out.printf("Reading basis functions for sparse kernel expansion from '%s'...", sparm.sparse_kernel_file);
 
 				ReadStruct rs = new ReadStruct();
 				// com.read_documents(sparm.sparse_kernel_file,basis,dummy,totwords,totexp);
@@ -78,8 +75,7 @@ public class Perf extends Struct {
 				for (i = 0; i < totdoc; i++) {
 					basis[i] = new DOC();
 					basis[i] = sample.examples[0].x.docs[i];
-					basis[i].fvec = com
-							.copySvector(sample.examples[0].x.docs[i].fvec);
+					basis[i].fvec = com.copySvector(sample.examples[0].x.docs[i].fvec);
 				}
 				totexp = totdoc;
 			}
@@ -90,15 +86,13 @@ public class Perf extends Struct {
 			if (sparm.sparse_kernel_method == 1) {
 				// select expansion via random sampling
 				if (CommonStruct.struct_verbosity > 0)
-					System.out
-							.printf("Selecting random sample of basis functions...");
+					System.out.printf("Selecting random sample of basis functions...");
 				sm.expansion = new DOC[totexp];
 				sm.expansion_size = 0;
 				for (ii = 0.5; ii < totexp; ii += ((double) totexp / sparm.sparse_kernel_size)) {
 					sm.expansion[sm.expansion_size] = new DOC();
 					sm.expansion[sm.expansion_size] = basis[(int) ii];
-					sm.expansion[sm.expansion_size].fvec = com
-							.copySvector(basis[(int) ii].fvec);
+					sm.expansion[sm.expansion_size].fvec = com.copySvector(basis[(int) ii].fvec);
 					sm.expansion_size++;
 				}
 				if (CommonStruct.struct_verbosity > 0)
@@ -107,14 +101,12 @@ public class Perf extends Struct {
 				// Make sure they are all independent. If not, select
 				// independent subset.
 				if (CommonStruct.struct_verbosity > 0)
-					System.out
-							.printf("Finding independent subset of vectors...");
+					System.out.printf("Finding independent subset of vectors...");
 				G = com.createMatrix(sm.expansion_size, sm.expansion_size);
 				for (i = 0; i < sm.expansion_size; i++) { // need only upper
 															// triangle
 					for (j = i; j < sm.expansion_size; j++) {
-						G.element[i][j] = com.kernel(kparm, sm.expansion[i],
-								sm.expansion[j]);
+						G.element[i][j] = com.kernel(kparm, sm.expansion[i], sm.expansion[j]);
 					}
 				}
 				indep = com.findIndepSubsetOfMatrix(G, 0.000001);
@@ -130,29 +122,25 @@ public class Perf extends Struct {
 				}
 
 				if (CommonStruct.struct_verbosity > 0)
-					System.out.printf("found %ld of %ld...", new_size,
-							sm.expansion_size);
+					System.out.printf("found %ld of %ld...", new_size, sm.expansion_size);
 				sm.expansion_size = new_size;
 				if (CommonStruct.struct_verbosity > 0)
 					System.out.printf("done.\n");
 
 				// compute matrix B^T*B
 				if (CommonStruct.struct_verbosity > 0)
-					System.out
-							.printf("Computing Gram matrix for kernel expansion...");
+					System.out.printf("Computing Gram matrix for kernel expansion...");
 				G = com.createMatrix(sm.expansion_size, sm.expansion_size);
 				for (i = 0; i < sm.expansion_size; i++) {// need upper triangle
 															// for cholesky
 					for (j = i; j < sm.expansion_size; j++) {
-						G.element[i][j] = com.kernel(kparm, sm.expansion[i],
-								sm.expansion[j]);
+						G.element[i][j] = com.kernel(kparm, sm.expansion[i], sm.expansion[j]);
 					}
 				}
 				if (CommonStruct.struct_verbosity > 0)
 					System.out.printf("done.\n");
 				if (CommonStruct.struct_verbosity > 0)
-					System.out
-							.printf("Computing Cholesky decomposition and inverting...");
+					System.out.printf("Computing Cholesky decomposition and inverting...");
 				L = com.choleskyMatrix(G);
 				sm.invL = com.invert_ltriangle_matrix(L);
 
@@ -163,10 +151,8 @@ public class Perf extends Struct {
 			else if (sparm.sparse_kernel_method == 2) {
 				// select expansion via incomplete cholesky
 				if (CommonStruct.struct_verbosity > 0)
-					System.out
-							.printf("Computing incomplete Cholesky decomposition...");
-				L = com.incompleteCholesky(basis, totexp,
-						sparm.sparse_kernel_size, 0.000001, kparm, select);
+					System.out.printf("Computing incomplete Cholesky decomposition...");
+				L = com.incompleteCholesky(basis, totexp, sparm.sparse_kernel_size, 0.000001, kparm, select);
 				sm.invL = com.invert_ltriangle_matrix(L);
 
 				sm.expansion = new DOC[totexp];
@@ -174,8 +160,7 @@ public class Perf extends Struct {
 				for (i = 0; select[i] >= 0; i++) {
 					sm.expansion[sm.expansion_size] = new DOC();
 					sm.expansion[sm.expansion_size] = basis[select[i]];
-					sm.expansion[sm.expansion_size].fvec = com
-							.copySvector(basis[select[i]].fvec);
+					sm.expansion[sm.expansion_size].fvec = com.copySvector(basis[select[i]].fvec);
 					sm.expansion_size++;
 				}
 				if (CommonStruct.struct_verbosity > 0)
@@ -199,10 +184,7 @@ public class Perf extends Struct {
 					}
 				}
 				words[k].wnum = 0;
-				sample.examples[0].x.docs[i] = com.createExample(
-						orgdoc[i].docnum, orgdoc[i].queryid, orgdoc[i].slackid,
-						orgdoc[i].costfactor, com.createSvector(words,
-								orgdoc[i].fvec.userdefined, 1.0));
+				sample.examples[0].x.docs[i] = com.createExample(orgdoc[i].docnum, orgdoc[i].queryid, orgdoc[i].slackid, orgdoc[i].costfactor, com.createSvector(words, orgdoc[i].fvec.userdefined, 1.0));
 			}
 
 			kparm.kernel_type = ModelConstant.LINEAR;
@@ -228,9 +210,7 @@ public class Perf extends Struct {
 			}
 		sparm.num_features = totwords;
 		if (CommonStruct.struct_verbosity > 0)
-			System.out
-					.printf("Training set properties: %d features, %ld examples (%ld pos / %ld neg)\n",
-							sparm.num_features, totdoc, nump, numn);
+			System.out.printf("Training set properties: %d features, %ld examples (%ld pos / %ld neg)\n", sparm.num_features, totdoc, nump, numn);
 		sm.sizePsi = sparm.num_features;
 		if (CommonStruct.struct_verbosity >= 2)
 			System.out.printf("Size of Phi: %ld\n", sm.sizePsi);
@@ -240,8 +220,7 @@ public class Perf extends Struct {
 			if (sparm.prec_rec_k_frac == 0) {
 				sparm.prec_rec_k_frac = 0.5;
 			} else if (sparm.prec_rec_k_frac > 1) {
-				System.out
-						.printf("\nERROR: The value of option --k for Prec@k must not be larger than 1.0!\n\n");
+				System.out.printf("\nERROR: The value of option --k for Prec@k must not be larger than 1.0!\n\n");
 				System.exit(0);
 			}
 		}
@@ -249,19 +228,15 @@ public class Perf extends Struct {
 			if (sparm.prec_rec_k_frac == 0) {
 				sparm.prec_rec_k_frac = 2;
 			} else if (sparm.prec_rec_k_frac < 1) {
-				System.out
-						.printf("\nERROR: The value of option --k for Rec@k must not be smaller than 1.0!\n\n");
+				System.out.printf("\nERROR: The value of option --k for Rec@k must not be smaller than 1.0!\n\n");
 				System.exit(0);
 			}
 		}
 
 		// make sure that the bias feature is not used with kernels
-		if (((kparm.kernel_type != ModelConstant.LINEAR) || (sparm.sparse_kernel_type != ModelConstant.LINEAR))
-				&& (sparm.bias != 0)) {
-			System.out
-					.printf("\nThe value of option --b must be zero when kernels are used.\n");
-			System.out
-					.printf("The option to use a bias for non-linear kernels is not implemented yet!\n\n");
+		if (((kparm.kernel_type != ModelConstant.LINEAR) || (sparm.sparse_kernel_type != ModelConstant.LINEAR)) && (sparm.bias != 0)) {
+			System.out.printf("\nThe value of option --b must be zero when kernels are used.\n");
+			System.out.printf("The option to use a bias for non-linear kernels is not implemented yet!\n\n");
 			System.exit(0);
 		}
 
@@ -288,8 +263,7 @@ public class Perf extends Struct {
 	 * the appropriate function of the loss + margin/slack rescaling method. See
 	 * that paper for details.
 	 */
-	public SVECTOR psi(PATTERN x, LABEL y, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm) {
+	public SVECTOR psi(PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		SVECTOR fvec = null, fvec2;
 		double[] sum, sum2;
 		int i, totwords;
@@ -329,15 +303,13 @@ public class Perf extends Struct {
 	}
 
 	@Override
-	public LABEL findMostViolatedConstraintSlackrescaling(PATTERN x, LABEL y,
-			STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
+	public LABEL findMostViolatedConstraintSlackrescaling(PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public LABEL findMostViolatedConstraintMarginrescaling(PATTERN x, LABEL y,
-			STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
+	public LABEL findMostViolatedConstraintMarginrescaling(PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -393,8 +365,7 @@ public class Perf extends Struct {
 			// Put your code for different loss functions here. But then
 			// find_most_violated_constraint_???(x, y, sm) has to return the
 			// highest scoring label with the largest loss.
-			System.out.printf("Unkown loss function type: %d\n",
-					sparm.loss_function);
+			System.out.printf("Unkown loss function type: %d\n", sparm.loss_function);
 			System.exit(1);
 		}
 
@@ -437,8 +408,7 @@ public class Perf extends Struct {
 
 		if (sparm.preimage_method == 9) {
 			for (i = 0; i < n; i++) {
-				examples[0].x.docs[i].fvec.next = com
-						.copySvector(examples[0].x.docs[i].fvec);
+				examples[0].x.docs[i].fvec.next = com.copySvector(examples[0].x.docs[i].fvec);
 				examples[0].x.docs[i].fvec.kernel_id = 0;
 				examples[0].x.docs[i].fvec.next.kernel_id = 2;
 			}
@@ -474,8 +444,7 @@ public class Perf extends Struct {
 				words[j].wnum = sparm.bias_featurenum; // bias
 				words[j].weight = sparm.bias;
 
-				sample.examples[0].x.docs[i].fvec = com.createSvector(words,
-						"", 1.0);
+				sample.examples[0].x.docs[i].fvec = com.createSvector(words, "", 1.0);
 			}
 		}
 
@@ -492,18 +461,12 @@ public class Perf extends Struct {
 				}
 
 		// change label value for better scaling using thresholdmetrics
-		if ((sparm.loss_function == ModelConstant.ZEROONE)
-				|| (sparm.loss_function == ModelConstant.FONE)
-				|| (sparm.loss_function == ModelConstant.ERRORRATE)
-				|| (sparm.loss_function == ModelConstant.PRBEP)
-				|| (sparm.loss_function == ModelConstant.PREC_K)
-				|| (sparm.loss_function == ModelConstant.REC_K)) {
+		if ((sparm.loss_function == ModelConstant.ZEROONE) || (sparm.loss_function == ModelConstant.FONE) || (sparm.loss_function == ModelConstant.ERRORRATE) || (sparm.loss_function == ModelConstant.PRBEP) || (sparm.loss_function == ModelConstant.PREC_K) || (sparm.loss_function == ModelConstant.REC_K)) {
 			for (i = 0; i < sample.examples[0].x.totdoc; i++) {
 				if (sample.examples[0].y.class_indexs[i] > 0)
 					sample.examples[0].y.class_indexs[i] = 0.5 * 100.0 / (numn + nump);
 				else
-					sample.examples[0].y.class_indexs[i] = -0.5 * 100.0
-							/ (numn + nump);
+					sample.examples[0].y.class_indexs[i] = -0.5 * 100.0 / (numn + nump);
 			}
 		}
 
@@ -533,15 +496,13 @@ public class Perf extends Struct {
 	}
 
 	@Override
-	public SAMPLE readStructExamplesFromStream(InputStream is,
-			STRUCT_LEARN_PARM sparm) {
+	public SAMPLE readStructExamplesFromStream(InputStream is, STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public SAMPLE readStructExamplesFromArraylist(ArrayList<String> list,
-			STRUCT_LEARN_PARM sparm) {
+	public SAMPLE readStructExamplesFromArraylist(ArrayList<String> list, STRUCT_LEARN_PARM sparm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -555,8 +516,7 @@ public class Perf extends Struct {
 	 * return an empty label as recognized by the function empty_label(y).
 	 */
 	@Override
-	public LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm) {
+	public LABEL classifyStructExample(PATTERN x, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		LABEL y = new LABEL();
 		int i;
 
@@ -572,8 +532,7 @@ public class Perf extends Struct {
 	}
 
 	@Override
-	public LABEL classifyStructDoc(DOC d, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm) {
+	public LABEL classifyStructDoc(DOC d, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		LABEL y = new LABEL();
 
 		y.dou_index = com.classifyExample(sm.svm_model, d);
@@ -590,8 +549,7 @@ public class Perf extends Struct {
 		String read_comment = "";
 		WORD[] words = null;
 		words = string2words(wordString);
-		DOC doc = com.createExample(dnum, queryid, slackid, costfactor,
-				com.createSvector(words, read_comment, 1.0));
+		DOC doc = com.createExample(dnum, queryid, slackid, costfactor, com.createSvector(words, read_comment, 1.0));
 		PATTERN pat = new PATTERN();
 		pat.doc = doc;
 
@@ -607,8 +565,7 @@ public class Perf extends Struct {
 		String read_comment = "";
 		WORD[] words = null;
 		words = string2words(wordString);
-		DOC doc = com.createExample(dnum, queryid, slackid, costfactor,
-				com.createSvector(words, read_comment, 1.0));
+		DOC doc = com.createExample(dnum, queryid, slackid, costfactor, com.createSvector(words, read_comment, 1.0));
 
 		return doc;
 	}
@@ -645,8 +602,7 @@ public class Perf extends Struct {
 	}
 
 	@Override
-	public void writeStructModel(String file, STRUCTMODEL sm,
-			STRUCT_LEARN_PARM sparm) {
+	public void writeStructModel(String file, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 
 	}
 
@@ -778,8 +734,7 @@ public class Perf extends Struct {
 	 * Finds the most violated constraint for metrics that are based on a
 	 * threshold.
 	 */
-	LABEL find_most_violated_constraint_thresholdmetric(PATTERN x, LABEL y,
-			STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, int loss_type) {
+	LABEL find_most_violated_constraint_thresholdmetric(PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, int loss_type) {
 		LABEL ybar = new LABEL();
 		int i, nump, numn, start, prec_rec_k, totwords;
 		double[] score, sump, sumn;
@@ -818,8 +773,7 @@ public class Perf extends Struct {
 		if (sm.sparse_kernel_type > 0) {
 			svm_model.lin_weights = new double[totwords + 1];
 			// how weight add one add one?
-			ortho_weights = com.prod_nvector_ltmatrix(sm.svm_model.lin_weights,
-					sm.invL);
+			ortho_weights = com.prod_nvector_ltmatrix(sm.svm_model.lin_weights, sm.invL);
 			for (i = 0; i < sm.invL.m; i++)
 				svm_model.lin_weights[i + 1] = ortho_weights[i];
 			svm_model.lin_weights[0] = 0;
@@ -829,8 +783,7 @@ public class Perf extends Struct {
 		nump = 0;
 		numn = 0;
 		for (i = 0; i < x.totdoc; i++) {
-			score[i] = Math.abs(y.class_indexs[i])
-					* com.classifyExample(svm_model, x.docs[i]);
+			score[i] = Math.abs(y.class_indexs[i]) * com.classifyExample(svm_model, x.docs[i]);
 			if (y.class_indexs[i] > 0) {
 				scorep.get(nump).score = score[i];
 				scorep.get(nump).tiebreak = 0;
@@ -883,30 +836,22 @@ public class Perf extends Struct {
 					loss = foneLoss(a, numn - d, nump - a, d);
 				else if (sparm.loss_function == ModelConstant.ERRORRATE)
 					loss = errorrateLoss(a, numn - d, nump - a, d);
-				else if ((sparm.loss_function == ModelConstant.PRBEP)
-						&& (a + numn - d == nump))
+				else if ((sparm.loss_function == ModelConstant.PRBEP) && (a + numn - d == nump))
 					loss = prbepLoss(a, numn - d, nump - a, d);
-				else if ((sparm.loss_function == ModelConstant.PREC_K)
-						&& (a + numn - d >= prec_rec_k))
+				else if ((sparm.loss_function == ModelConstant.PREC_K) && (a + numn - d >= prec_rec_k))
 					loss = precKLoss(a, numn - d, nump - a, d);
-				else if ((sparm.loss_function == ModelConstant.REC_K)
-						&& (a + numn - d <= prec_rec_k))
+				else if ((sparm.loss_function == ModelConstant.REC_K) && (a + numn - d <= prec_rec_k))
 					loss = recKLoss(a, numn - d, nump - a, d);
 				else {
 					loss = 0;
 				}
 				if (loss > 0) {
 					if (loss_type == LearnStruct.SLACK_RESCALING) {
-						val = loss
-								+ loss
-								* (sump[a] - (sump[nump] - sump[a]) - sumn[d] + (sumn[numn]
-										- sumn[d] - score_y));
+						val = loss + loss * (sump[a] - (sump[nump] - sump[a]) - sumn[d] + (sumn[numn] - sumn[d] - score_y));
 					} else if (loss_type == LearnStruct.MARGIN_RESCALING) {
-						val = loss + sump[a] - (sump[nump] - sump[a]) - sumn[d]
-								+ (sumn[numn] - sumn[d]);
+						val = loss + sump[a] - (sump[nump] - sump[a]) - sumn[d] + (sumn[numn] - sumn[d]);
 					} else {
-						System.err.printf("ERROR: Unknown loss type '%d'.\n",
-								loss_type);
+						System.err.printf("ERROR: Unknown loss type '%d'.\n", loss_type);
 						System.exit(1);
 					}
 					if ((val > valmax) || (start != 0)) {
@@ -922,38 +867,28 @@ public class Perf extends Struct {
 		// assign labels that maximize score
 		for (i = 0; i < nump; i++) {
 			if (i < threshp)
-				ybar.class_indexs[scorep.get(i).id] = y.class_indexs[scorep
-						.get(i).id];
+				ybar.class_indexs[scorep.get(i).id] = y.class_indexs[scorep.get(i).id];
 			else
-				ybar.class_indexs[scorep.get(i).id] = -y.class_indexs[scorep
-						.get(i).id];
+				ybar.class_indexs[scorep.get(i).id] = -y.class_indexs[scorep.get(i).id];
 		}
 		for (i = 0; i < numn; i++) {
 			if (i < threshn)
-				ybar.class_indexs[scoren.get(i).id] = y.class_indexs[scoren
-						.get(i).id];
+				ybar.class_indexs[scoren.get(i).id] = y.class_indexs[scoren.get(i).id];
 			else
-				ybar.class_indexs[scoren.get(i).id] = -y.class_indexs[scoren
-						.get(i).id];
+				ybar.class_indexs[scoren.get(i).id] = -y.class_indexs[scoren.get(i).id];
 		}
 
 		if (CommonStruct.struct_verbosity >= 2) {
 
 			if (loss_type == LearnStruct.SLACK_RESCALING)
-				System.out
-						.printf("\n max_ybar {loss(y_i,ybar)+loss(y_i,ybar)[w*Psi(x,ybar)-w*Psi(x,y)]}=%f\n",
-								valmax);
+				System.out.printf("\n max_ybar {loss(y_i,ybar)+loss(y_i,ybar)[w*Psi(x,ybar)-w*Psi(x,y)]}=%f\n", valmax);
 			else
-				System.out.printf(
-						"\n max_ybar {loss(y_i,ybar)+w*Psi(x,ybar)}=%f\n",
-						valmax);
+				System.out.printf("\n max_ybar {loss(y_i,ybar)+w*Psi(x,ybar)}=%f\n", valmax);
 			SVECTOR fy = psi(x, y, sm, sparm);
 			SVECTOR fybar = psi(x, ybar, sm, sparm);
 			DOC exy = com.createExample(0, 0, 1, 1, fy);
 			DOC exybar = com.createExample(0, 0, 1, 1, fybar);
-			System.out.printf(" -> w*Psi(x,y_i)=%f, w*Psi(x,ybar)=%f\n",
-					com.classifyExample(sm.svm_model, exy),
-					com.classifyExample(sm.svm_model, exybar));
+			System.out.printf(" -> w*Psi(x,y_i)=%f, w*Psi(x,ybar)=%f\n", com.classifyExample(sm.svm_model, exy), com.classifyExample(sm.svm_model, exybar));
 
 		}
 

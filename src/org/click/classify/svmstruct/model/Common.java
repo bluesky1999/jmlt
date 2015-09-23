@@ -64,8 +64,7 @@ public class Common {
 		return vec;
 	}
 
-	public DOC createExample(int docnum, int queryid, int slackid,
-			double costfactor, SVECTOR fvec) {
+	public DOC createExample(int docnum, int queryid, int slackid, double costfactor, SVECTOR fvec) {
 
 		DOC example = new DOC();
 
@@ -88,8 +87,7 @@ public class Common {
 			// System.out.println("kernel_type:" + GRAM);
 			if ((a.kernelid >= 0) && (b.kernelid >= 0)) {
 
-				return kernel_parm.gram_matrix.element[Math.max(a.kernelid,
-						b.kernelid)][Math.min(a.kernelid, b.kernelid)];
+				return kernel_parm.gram_matrix.element[Math.max(a.kernelid, b.kernelid)][Math.min(a.kernelid, b.kernelid)];
 			} else {
 				return 0;
 			}
@@ -101,8 +99,7 @@ public class Common {
 				if (fa.kernel_id == fb.kernel_id) {
 					// if (sum > 0)
 					// System.out.println("sum:" + sum);
-					sum += fa.factor * fb.factor
-							* singleKernel(kernel_parm, fa, fb);
+					sum += fa.factor * fb.factor * singleKernel(kernel_parm, fa, fb);
 				}
 			}
 		}
@@ -118,19 +115,16 @@ public class Common {
 			// System.out.println("liner kernel y");
 			return sprodSs(a, b);
 		case ModelConstant.POLY:
-			return Math.pow(kernel_parm.coef_lin * sprodSs(a, b)
-					+ kernel_parm.coef_const, kernel_parm.poly_degree);
+			return Math.pow(kernel_parm.coef_lin * sprodSs(a, b) + kernel_parm.coef_const, kernel_parm.poly_degree);
 		case ModelConstant.RBF:
 			if (a.twonorm_sq < 0) {
 				a.twonorm_sq = sprodSs(a, a);
 			} else if (b.twonorm_sq < 0) {
 				b.twonorm_sq = sprodSs(b, b);
 			}
-			return Math.exp(-kernel_parm.rbf_gamma
-					* (a.twonorm_sq - 2 * sprodSs(a, b) + b.twonorm_sq));
+			return Math.exp(-kernel_parm.rbf_gamma * (a.twonorm_sq - 2 * sprodSs(a, b) + b.twonorm_sq));
 		case ModelConstant.SIGMOID:
-			return Math.tanh(kernel_parm.coef_lin * sprodSs(a, b)
-					+ kernel_parm.coef_const);
+			return Math.tanh(kernel_parm.coef_lin * sprodSs(a, b) + kernel_parm.coef_const);
 		case ModelConstant.CUSTOM:
 			// return kernel.custom_kernel(kernel_parm, a, b);
 		default:
@@ -241,15 +235,13 @@ public class Common {
 			alphai = model.alpha[i];
 			supveci = model.supvec[i];
 			for (j = 1; j < model.sv_num; j++) {
-				sum += alphai * model.alpha[j]
-						* kernel(kernel_parm, supveci, model.supvec[j]);
+				sum += alphai * model.alpha[j] * kernel(kernel_parm, supveci, model.supvec[j]);
 			}
 		}
 		return (Math.sqrt(sum));
 	}
 
-	public void setLearningDefaults(LEARN_PARM learn_parm,
-			KERNEL_PARM kernel_parm) {
+	public void setLearningDefaults(LEARN_PARM learn_parm, KERNEL_PARM kernel_parm) {
 		learn_parm.type = ModelConstant.CLASSIFICATION;
 		learn_parm.predfile = "trans_predictions";
 		learn_parm.alphafile = "";
@@ -306,8 +298,7 @@ public class Common {
 		struct.read_max_words_doc = summary.read_max_words_doc + 2;
 		struct.read_max_docs = summary.read_max_docs + 2;
 
-		System.err.println("struct.read_max_words_doc:"
-				+ struct.read_max_words_doc);
+		System.err.println("struct.read_max_words_doc:" + struct.read_max_words_doc);
 		System.err.println("struct.read_max_docs:" + struct.read_max_docs);
 		if (verbosity >= 1) {
 			System.out.println("done\n");
@@ -347,8 +338,7 @@ public class Common {
 
 				ReadStruct rs = new ReadStruct();
 				if ((words = parseDocument(line, struct.read_max_words_doc, rs)) == null) {
-					System.out.println("\nParsing error in line " + dnum
-							+ "!\n" + line);
+					System.out.println("\nParsing error in line " + dnum + "!\n" + line);
 					// System.exit(1);
 					continue;
 				}
@@ -359,13 +349,10 @@ public class Common {
 					dneg++;
 				if (rs.read_doc_label == 0)
 					dunlab++;
-				if ((rs.read_wpos > 1)
-						&& ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
+				if ((rs.read_wpos > 1) && ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
 					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
-				docs[dnum] = createExample(dnum, rs.read_queryid,
-						rs.read_slackid, rs.read_costfactor,
-						createSvector(words, rs.read_comment, 1.0));
+				docs[dnum] = createExample(dnum, rs.read_queryid, rs.read_slackid, rs.read_costfactor, createSvector(words, rs.read_comment, 1.0));
 				dnum++;
 				System.err.println("dnum:" + dnum);
 				// rs=null;
@@ -384,8 +371,7 @@ public class Common {
 		return docs;
 	}
 
-	public DOC[] readDocumentsFromStream(InputStream is, double[] label,
-			ReadStruct struct) {
+	public DOC[] readDocumentsFromStream(InputStream is, double[] label, ReadStruct struct) {
 		String line, comment;
 
 		DOC[] docs;
@@ -400,7 +386,7 @@ public class Common {
 
 		ReadSummary summary = new ReadSummary();
 		ArrayList<String> list = nol_ll_stream(is, summary); // scan size of
-																// input file
+		// input file
 
 		struct.read_max_words_doc = summary.read_max_words_doc + 2;
 		struct.read_max_docs = summary.read_max_docs + 2;
@@ -434,8 +420,7 @@ public class Common {
 
 				ReadStruct rs = new ReadStruct();
 				if ((words = parseDocument(line, struct.read_max_words_doc, rs)) == null) {
-					System.out.println("\nParsing error in line " + dnum
-							+ "!\n" + line);
+					System.out.println("\nParsing error in line " + dnum + "!\n" + line);
 					// System.exit(1);
 					continue;
 				}
@@ -446,13 +431,10 @@ public class Common {
 					dneg++;
 				if (rs.read_doc_label == 0)
 					dunlab++;
-				if ((rs.read_wpos > 1)
-						&& ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
+				if ((rs.read_wpos > 1) && ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
 					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
-				docs[dnum] = createExample(dnum, rs.read_queryid,
-						rs.read_slackid, rs.read_costfactor,
-						createSvector(words, rs.read_comment, 1.0));
+				docs[dnum] = createExample(dnum, rs.read_queryid, rs.read_slackid, rs.read_costfactor, createSvector(words, rs.read_comment, 1.0));
 
 				dnum++;
 
@@ -470,8 +452,7 @@ public class Common {
 		return docs;
 	}
 
-	public DOC[] readDocumentsFromArraylist(ArrayList<String> list,
-			double[] label, ReadStruct struct) {
+	public DOC[] readDocumentsFromArraylist(ArrayList<String> list, double[] label, ReadStruct struct) {
 		String line, comment;
 		DOC[] docs;
 
@@ -509,8 +490,7 @@ public class Common {
 
 				ReadStruct rs = new ReadStruct();
 				if ((words = parseDocument(line, struct.read_max_words_doc, rs)) == null) {
-					System.out.println("\nParsing error in line " + dnum
-							+ "!\n" + line);
+					System.out.println("\nParsing error in line " + dnum + "!\n" + line);
 					continue;
 				}
 				label[dnum] = rs.read_doc_label;
@@ -520,13 +500,10 @@ public class Common {
 					dneg++;
 				if (rs.read_doc_label == 0)
 					dunlab++;
-				if ((rs.read_wpos > 1)
-						&& ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
+				if ((rs.read_wpos > 1) && ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
 					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
-				docs[dnum] = createExample(dnum, rs.read_queryid,
-						rs.read_slackid, rs.read_costfactor,
-						createSvector(words, rs.read_comment, 1.0));
+				docs[dnum] = createExample(dnum, rs.read_queryid, rs.read_slackid, rs.read_costfactor, createSvector(words, rs.read_comment, 1.0));
 				dnum++;
 
 			}
@@ -542,8 +519,7 @@ public class Common {
 		return docs;
 	}
 
-	public WORD[] parseDocument(String line, int max_words_doc,
-			ReadStruct struct) {
+	public WORD[] parseDocument(String line, int max_words_doc, ReadStruct struct) {
 		int wpos = 0, pos;
 		int wnum;
 		double weight;
@@ -569,8 +545,7 @@ public class Common {
 		String dline = "";
 
 		if (line.indexOf("#") > 0) {
-			struct.read_comment = line.substring(line.indexOf("#") + 1,
-					line.length());
+			struct.read_comment = line.substring(line.indexOf("#") + 1, line.length());
 			dline = line.substring(0, line.indexOf("#"));
 		} else {
 			dline = line;
@@ -607,7 +582,8 @@ public class Common {
 			} else if (Pattern.matches("[\\d]+", pstr)) {
 				WORD w = new WORD();
 				// ///=======///read_words[wpos].wnum = Integer.parseInt(pstr);
-				// ///=======///read_words[wpos].weight = Double.parseDouble(sstr);
+				// ///=======///read_words[wpos].weight =
+				// Double.parseDouble(sstr);
 				w.wnum = Integer.parseInt(pstr);
 				w.weight = Double.parseDouble(sstr);
 				wlist.add(w);
@@ -618,18 +594,16 @@ public class Common {
 		// ///=======///read_words[wpos].wnum = 0;
 		// ///=======///struct.read_wpos = wpos +1;
 		WORD[] read_words = new WORD[wlist.size()];
-        for(int i=0;i<wlist.size();i++)
-        {
-        	read_words[i]=wlist.get(i);
-        }
-        
-        struct.read_wpos = wpos;
-		
+		for (int i = 0; i < wlist.size(); i++) {
+			read_words[i] = wlist.get(i);
+		}
+
+		struct.read_wpos = wpos;
+
 		return read_words;
 	}
 
-	public WORD[] parseBigDocument(String line, int max_words_doc,
-			ReadStruct struct) {
+	public WORD[] parseBigDocument(String line, int max_words_doc, ReadStruct struct) {
 		int wpos = 0, pos = 0;
 		int wnum;
 		double weight;
@@ -691,8 +665,7 @@ public class Common {
 
 		} catch (FileNotFoundException e) {
 			// e.printStackTrace();
-			InputStream model_is = Common.class.getResourceAsStream("/"
-					+ input_file);
+			InputStream model_is = Common.class.getResourceAsStream("/" + input_file);
 			InputStreamReader model_isr = new InputStreamReader(model_is);
 			br = new BufferedReader(model_isr);
 
@@ -940,15 +913,13 @@ public class Common {
 				sv_num++;
 		}
 		pw.println(sv_num + " # number of support vectors plus 1 \n");
-		pw.println(model.b
-				+ " # threshold b, each following line is a SV (starting with alpha*y)\n");
+		pw.println(model.b + " # threshold b, each following line is a SV (starting with alpha*y)\n");
 
 		for (i = 1; i < model.sv_num; i++) {
 			for (v = model.supvec[i].fvec; v != null; v = v.next) {
 				pw.print(model.alpha[i] * v.factor + " ");
 				for (j = 0; (v.words[j]).wnum != 0; j++) {
-					pw.print((int) (v.words[j]).wnum + ":"
-							+ (double) (v.words[j]).weight + " ");
+					pw.print((int) (v.words[j]).wnum + ":" + (double) (v.words[j]).weight + " ");
 				}
 				if (v.userdefined != null)
 					pw.print("#" + v.userdefined + "\n");
@@ -977,13 +948,7 @@ public class Common {
 		newmodel.index = null; // index is not copied
 		newmodel.supvec[0] = null;
 		newmodel.alpha[0] = 0.0;
-		newmodel.supvec[1] = createExample(
-				-1,
-				0,
-				0,
-				0,
-				createSvectorN(newmodel.lin_weights, newmodel.totwords, null,
-						1.0));
+		newmodel.supvec[1] = createExample(-1, 0, 0, 0, createSvectorN(newmodel.lin_weights, newmodel.totwords, null, 1.0));
 		newmodel.alpha[1] = 1.0;
 		newmodel.sv_num = 2;
 
@@ -1003,22 +968,18 @@ public class Common {
 		}
 	}
 
-	public SVECTOR createSvectorN(double[] nonsparsevec, int maxfeatnum,
-			String userdefined, double factor) {
-		return (createSvectorNR(nonsparsevec, maxfeatnum, userdefined, factor,
-				0));
+	public SVECTOR createSvectorN(double[] nonsparsevec, int maxfeatnum, String userdefined, double factor) {
+		return (createSvectorNR(nonsparsevec, maxfeatnum, userdefined, factor, 0));
 	}
 
-	public SVECTOR createSvectorNR(double[] nonsparsevec, int maxfeatnum,
-			String userdefined, double factor, double min_non_zero) {
+	public SVECTOR createSvectorNR(double[] nonsparsevec, int maxfeatnum, String userdefined, double factor, double min_non_zero) {
 		// //logger.info("begin create_svector_n_r");
 		SVECTOR vec;
 		int fnum, i;
 
 		fnum = 0;
 		for (i = 1; i <= maxfeatnum; i++)
-			if ((nonsparsevec[i] < -min_non_zero)
-					|| (nonsparsevec[i] > min_non_zero))
+			if ((nonsparsevec[i] < -min_non_zero) || (nonsparsevec[i] > min_non_zero))
 				fnum++;
 
 		vec = new SVECTOR();
@@ -1029,8 +990,7 @@ public class Common {
 
 		fnum = 0;
 		for (i = 1; i <= maxfeatnum; i++) {
-			if ((nonsparsevec[i] < -min_non_zero)
-					|| (nonsparsevec[i] > min_non_zero)) {
+			if ((nonsparsevec[i] < -min_non_zero) || (nonsparsevec[i] > min_non_zero)) {
 				vec.words[fnum].wnum = i;
 				vec.words[fnum].weight = nonsparsevec[i];
 				fnum++;
@@ -1052,89 +1012,63 @@ public class Common {
 	}
 
 	public void copyright_notice() {
-		System.out
-				.println("\nCopyright: Thorsten Joachims, thorsten@joachims.org");
-		System.out
-				.println("This software is available for non-commercial use only. It must not");
-		System.out
-				.println("be modified and distributed without prior permission of the author.");
-		System.out
-				.println("The author is not responsible for implications from the use of this");
+		System.out.println("\nCopyright: Thorsten Joachims, thorsten@joachims.org");
+		System.out.println("This software is available for non-commercial use only. It must not");
+		System.out.println("be modified and distributed without prior permission of the author.");
+		System.out.println("The author is not responsible for implications from the use of this");
 		System.out.println("software.\n\n");
 	}
 
-	public boolean checkLearningParms(LEARN_PARM learn_parm,
-			KERNEL_PARM kernel_parm) {
+	public boolean checkLearningParms(LEARN_PARM learn_parm, KERNEL_PARM kernel_parm) {
 		System.out.println("check_learning_parms");
-		if ((learn_parm.skip_final_opt_check != 0)
-				&& (kernel_parm.kernel_type == ModelConstant.LINEAR)) {
-			System.out
-					.println("\nIt does not make sense to skip the final optimality check for linear kernels.\n\n");
+		if ((learn_parm.skip_final_opt_check != 0) && (kernel_parm.kernel_type == ModelConstant.LINEAR)) {
+			System.out.println("\nIt does not make sense to skip the final optimality check for linear kernels.\n\n");
 			learn_parm.skip_final_opt_check = 0;
 		}
-		if ((learn_parm.skip_final_opt_check != 0)
-				&& (learn_parm.remove_inconsistent != 0)) {
-			System.out
-					.println("\nIt is necessary to do the final optimality check when removing inconsistent \nexamples.\n");
+		if ((learn_parm.skip_final_opt_check != 0) && (learn_parm.remove_inconsistent != 0)) {
+			System.out.println("\nIt is necessary to do the final optimality check when removing inconsistent \nexamples.\n");
 			return false;
 		}
 		if ((learn_parm.svm_maxqpsize < 2)) {
-			System.out
-					.println("\nMaximum size of QP-subproblems not in valid range: "
-							+ learn_parm.svm_maxqpsize + " [2..]\n");
+			System.out.println("\nMaximum size of QP-subproblems not in valid range: " + learn_parm.svm_maxqpsize + " [2..]\n");
 			return false;
 		}
 		if ((learn_parm.svm_maxqpsize < learn_parm.svm_newvarsinqp)) {
-			System.out.println("\nMaximum size of QP-subproblems ["
-					+ learn_parm.svm_maxqpsize
-					+ "] must be larger than the number of\n");
-			System.out.println("new variables [" + learn_parm.svm_newvarsinqp
-					+ "] entering the working set in each iteration.\n");
+			System.out.println("\nMaximum size of QP-subproblems [" + learn_parm.svm_maxqpsize + "] must be larger than the number of\n");
+			System.out.println("new variables [" + learn_parm.svm_newvarsinqp + "] entering the working set in each iteration.\n");
 			return false;
 		}
 		if (learn_parm.svm_iter_to_shrink < 1) {
-			System.out
-					.println("\nMaximum number of iterations for shrinking not in valid range: "
-							+ learn_parm.svm_iter_to_shrink + " [1,..]\n");
+			System.out.println("\nMaximum number of iterations for shrinking not in valid range: " + learn_parm.svm_iter_to_shrink + " [1,..]\n");
 			return false;
 		}
 		if (learn_parm.svm_c < 0) {
-			System.out
-					.println("\nThe C parameter must be greater than zero!\n\n");
+			System.out.println("\nThe C parameter must be greater than zero!\n\n");
 			return false;
 		}
 		if (learn_parm.transduction_posratio > 1) {
-			System.out
-					.println("\nThe fraction of unlabeled examples to classify as positives must\n");
+			System.out.println("\nThe fraction of unlabeled examples to classify as positives must\n");
 			System.out.println("be less than 1.0 !!!\n\n");
 			return false;
 		}
 		if (learn_parm.svm_costratio <= 0) {
-			System.out
-					.println("\nThe COSTRATIO parameter must be greater than zero!\n\n");
+			System.out.println("\nThe COSTRATIO parameter must be greater than zero!\n\n");
 			return false;
 		}
 		if (learn_parm.epsilon_crit <= 0) {
-			System.out
-					.println("\nThe epsilon parameter must be greater than zero!\n\n");
+			System.out.println("\nThe epsilon parameter must be greater than zero!\n\n");
 			return false;
 		}
 		if (learn_parm.rho < 0) {
-			System.out
-					.println("\nThe parameter rho for xi/alpha-estimates and leave-one-out pruning must\n");
-			System.out
-					.println("be greater than zero (typically 1.0 or 2.0, see T. Joachims, Estimating the\n");
-			System.out
-					.println("Generalization Performance of an SVM Efficiently, ICML, 2000.)!\n\n");
+			System.out.println("\nThe parameter rho for xi/alpha-estimates and leave-one-out pruning must\n");
+			System.out.println("be greater than zero (typically 1.0 or 2.0, see T. Joachims, Estimating the\n");
+			System.out.println("Generalization Performance of an SVM Efficiently, ICML, 2000.)!\n\n");
 			return false;
 		}
 		if ((learn_parm.xa_depth < 0) || (learn_parm.xa_depth > 100)) {
-			System.out
-					.println("\nThe parameter depth for ext. xi/alpha-estimates must be in [0..100] (zero\n");
-			System.out
-					.println("for switching to the conventional xa/estimates described in T. Joachims,\n");
-			System.out
-					.println("Estimating the Generalization Performance of an SVM Efficiently, ICML, 2000.)\n");
+			System.out.println("\nThe parameter depth for ext. xi/alpha-estimates must be in [0..100] (zero\n");
+			System.out.println("for switching to the conventional xa/estimates described in T. Joachims,\n");
+			System.out.println("Estimating the Generalization Performance of an SVM Efficiently, ICML, 2000.)\n");
 		}
 		System.out.println("true");
 		return true;
@@ -1171,8 +1105,7 @@ public class Common {
 		return vec;
 	}
 
-	public SVECTOR createSvectorShallow(WORD[] words, String userdefined,
-			double factor) {
+	public SVECTOR createSvectorShallow(WORD[] words, String userdefined, double factor) {
 		SVECTOR vec;
 		vec = new SVECTOR();
 		// //logger.info("words.length:"+words.length);
@@ -1276,8 +1209,7 @@ public class Common {
 	 * @param min_non_zero
 	 * @return
 	 */
-	public SVECTOR multaddSsR(SVECTOR a, SVECTOR b, double fa, double fb,
-			double min_non_zero) {
+	public SVECTOR multaddSsR(SVECTOR a, SVECTOR b, double fa, double fb, double min_non_zero) {
 		SVECTOR vec;
 		WORD[] sum, sumi;
 		WORD[] ai, bj;
@@ -1336,8 +1268,7 @@ public class Common {
 					s++;
 				i++;
 			} else {
-				weight = fa * (double) ai[i].weight + fb
-						* (double) bj[j].weight;
+				weight = fa * (double) ai[i].weight + fb * (double) bj[j].weight;
 				if ((weight < -min_non_zero) || (weight > min_non_zero)) {
 					sumi[s].wnum = ai[i].wnum;
 					sumi[s].weight = weight;
@@ -1379,14 +1310,12 @@ public class Common {
 		int i;
 		double dist;
 
-		if ((model.kernel_parm.kernel_type == ModelConstant.LINEAR)
-				&& (model.lin_weights != null)) {
+		if ((model.kernel_parm.kernel_type == ModelConstant.LINEAR) && (model.lin_weights != null)) {
 			return (classifyExampleLinear(model, ex));
 		}
 		dist = 0;
 		for (i = 1; i < model.sv_num; i++) {
-			dist += kernel(model.kernel_parm, model.supvec[i], ex)
-					* model.alpha[i];
+			dist += kernel(model.kernel_parm, model.supvec[i], ex) * model.alpha[i];
 		}
 		return (dist - model.b);
 	}
@@ -1425,7 +1354,8 @@ public class Common {
 		SVECTOR f;
 
 		for (f = a; f.next != null; f = f.next)
-			; // find end of first vector list
+			; // find end of first vector
+				// list
 		f.next = b; // append the two vector lists
 	}
 
@@ -1452,9 +1382,7 @@ public class Common {
 		for (i = 1; i < model.sv_num; i++) {
 
 			newmodel.alpha[i] = model.alpha[i];
-			newmodel.supvec[i] = createExample(model.supvec[i].docnum,
-					model.supvec[i].queryid, 0, model.supvec[i].costfactor,
-					copySvector(model.supvec[i].fvec));
+			newmodel.supvec[i] = createExample(model.supvec[i].docnum, model.supvec[i].queryid, 0, model.supvec[i].costfactor, copySvector(model.supvec[i].fvec));
 
 		}
 		if (model.lin_weights != null) {
@@ -1522,8 +1450,7 @@ public class Common {
 			concat_read = copyWordArr(1, concat);
 			concat_write = copyWordArr(0, concat);
 
-			for (i = 0; (i < length - 1)
-					&& (concat_write[cwi].wnum != concat_read[cri].wnum); i++) {
+			for (i = 0; (i < length - 1) && (concat_write[cwi].wnum != concat_read[cri].wnum); i++) {
 				cwi++;
 				cri++;
 			}
@@ -1544,8 +1471,7 @@ public class Common {
 				}
 			}
 
-			if ((length > 0)
-					&& ((weight > min_non_zero) || (weight < -min_non_zero))) {
+			if ((length > 0) && ((weight > min_non_zero) || (weight < -min_non_zero))) {
 				concat_write[cwi].weight = weight;
 				cwi++;
 			}
@@ -1605,10 +1531,8 @@ public class Common {
 	 * symbol every percentperdot calls, assuming that maximum is the max number
 	 * of calls
 	 */
-	public void printPercentProgress(int maximum, int percentperdot,
-			String symbol) {
-		if ((percentperdot * ((double) progress_n - 1) / maximum) != (percentperdot
-				* ((double) progress_n) / maximum)) {
+	public void printPercentProgress(int maximum, int percentperdot, String symbol) {
+		if ((percentperdot * ((double) progress_n - 1) / maximum) != (percentperdot * ((double) progress_n) / maximum)) {
 			// //logger.info(symbol);
 		}
 		progress_n++;
@@ -1722,8 +1646,7 @@ public class Common {
 				fr = new FileReader(modelfile);
 				br = new BufferedReader(fr);
 			} catch (Exception e2) {
-				InputStream model_is = Common.class.getResourceAsStream("/"
-						+ modelfile);
+				InputStream model_is = Common.class.getResourceAsStream("/" + modelfile);
 				InputStreamReader model_isr = new InputStreamReader(model_is);
 				br = new BufferedReader(model_isr);
 			}
@@ -1742,45 +1665,33 @@ public class Common {
 			max_words = summary.read_max_words_doc;
 			max_words += 2;
 			line = br.readLine();
-			version_buffer = SSO.afterStr(line, "SVM-multiclass Version")
-					.trim();
+			version_buffer = SSO.afterStr(line, "SVM-multiclass Version").trim();
 			model.kernel_parm = new KERNEL_PARM();
 
 			line = br.readLine();
-			model.kernel_parm.kernel_type = Short.parseShort(SSO.beforeStr(
-					line, "#"));
+			model.kernel_parm.kernel_type = Short.parseShort(SSO.beforeStr(line, "#"));
 
-			System.err.println("model.kernel_parm.kernel_type:"
-					+ model.kernel_parm.kernel_type);
+			System.err.println("model.kernel_parm.kernel_type:" + model.kernel_parm.kernel_type);
 
 			line = br.readLine();
-			model.kernel_parm.poly_degree = Integer.parseInt(SSO.beforeStr(
-					line, "#"));
-			System.err.println("model.kernel_parm.poly_degree:"
-					+ model.kernel_parm.poly_degree);
+			model.kernel_parm.poly_degree = Integer.parseInt(SSO.beforeStr(line, "#"));
+			System.err.println("model.kernel_parm.poly_degree:" + model.kernel_parm.poly_degree);
 
 			line = br.readLine();
-			model.kernel_parm.rbf_gamma = Double.parseDouble(SSO.beforeStr(
-					line, "#"));
-			System.err.println("model.kernel_parm.rbf_gamma:"
-					+ model.kernel_parm.rbf_gamma);
+			model.kernel_parm.rbf_gamma = Double.parseDouble(SSO.beforeStr(line, "#"));
+			System.err.println("model.kernel_parm.rbf_gamma:" + model.kernel_parm.rbf_gamma);
 
 			line = br.readLine();
-			model.kernel_parm.coef_lin = Double.parseDouble(SSO.beforeStr(line,
-					"#"));
-			System.err.println("model.kernel_parm.coef_lin:"
-					+ model.kernel_parm.coef_lin);
+			model.kernel_parm.coef_lin = Double.parseDouble(SSO.beforeStr(line, "#"));
+			System.err.println("model.kernel_parm.coef_lin:" + model.kernel_parm.coef_lin);
 
 			line = br.readLine();
-			model.kernel_parm.coef_const = Double.parseDouble(SSO.beforeStr(
-					line, "#"));
-			System.err.println("model.kernel_parm.kernel_type:"
-					+ model.kernel_parm.kernel_type);
+			model.kernel_parm.coef_const = Double.parseDouble(SSO.beforeStr(line, "#"));
+			System.err.println("model.kernel_parm.kernel_type:" + model.kernel_parm.kernel_type);
 
 			line = br.readLine();
 			model.kernel_parm.custom = line;
-			System.err.println("model.kernel_parm.custom:"
-					+ model.kernel_parm.custom);
+			System.err.println("model.kernel_parm.custom:" + model.kernel_parm.custom);
 
 			line = br.readLine();
 			model.totwords = Integer.parseInt(SSO.beforeStr(line, "#"));
@@ -1820,8 +1731,7 @@ public class Common {
 				comment = rs.read_comment;
 				// words = svm_common.read_words;
 				words = read_words;
-				model.supvec[i] = createExample(-1, 0, 0, 0.0,
-						createSvector(words, comment, 1.0));
+				model.supvec[i] = createExample(-1, 0, 0, 0.0, createSvector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
 			}
 
@@ -1869,8 +1779,7 @@ public class Common {
 		MATRIX I;
 
 		if (L.m != L.n) {
-			System.out
-					.println("ERROR: Matrix not quadratic. Cannot invert triangular matrix!");
+			System.out.println("ERROR: Matrix not quadratic. Cannot invert triangular matrix!");
 			System.exit(1);
 		}
 
@@ -2097,8 +2006,7 @@ public class Common {
 	 * portion. index returns an array with the indices of the vectors in x that
 	 * were selected in the decomposition (terminated by -1).
 	 */
-	public MATRIX incompleteCholesky(DOC[] x, int n, int rank, double epsilon,
-			KERNEL_PARM kparm, int[] index) {
+	public MATRIX incompleteCholesky(DOC[] x, int n, int rank, double epsilon, KERNEL_PARM kparm, int[] index) {
 		int i, j, k, pivot, temp2;
 		int[] pindex;
 		int[] swap;
@@ -2205,8 +2113,7 @@ public class Common {
 		MATRIX L;
 
 		if (A.m != A.n) {
-			System.out
-					.printf("ERROR: Matrix not quadratic. Cannot compute Cholesky!\n");
+			System.out.printf("ERROR: Matrix not quadratic. Cannot compute Cholesky!\n");
 			System.exit(1);
 		}
 		n = A.n;
@@ -2246,8 +2153,7 @@ public class Common {
 		MATRIX L;
 
 		if (A.m != A.n) {
-			System.out
-					.printf("ERROR: Matrix not quadratic. Cannot compute Cholesky!\n");
+			System.out.printf("ERROR: Matrix not quadratic. Cannot compute Cholesky!\n");
 			System.exit(1);
 		}
 		n = A.n;
@@ -2259,8 +2165,7 @@ public class Common {
 					sum -= L.element[i][k] * L.element[j][k];
 				if (i == j) {
 					if (sum <= 0.0)
-						System.out
-								.printf("Cholesky: Matrix not positive definite");
+						System.out.printf("Cholesky: Matrix not positive definite");
 					L.element[i][i] = Math.sqrt(sum);
 				} else
 					L.element[j][i] = sum / L.element[i][i];

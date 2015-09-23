@@ -1,6 +1,5 @@
 package org.click.classify.svmstruct.model;
 
-
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
@@ -28,13 +27,11 @@ public class Hideo {
 	public static final int LARGEROUND = 0;
 	public static final int SMALLROUND = 1;
 
-
 	public static final double DEF_PRECISION = 1E-5;
 	public static final int DEF_MAX_ITERATIONS = 200;
 	public static final double DEF_LINDEP_SENSITIVITY = 1E-8;
 	public static final double EPSILON_HIDEO = 1E-20;
 	public static final double EPSILON_EQ = 1E-5;
-	
 
 	public double[] primal = null;
 	public double[] dual = null;
@@ -53,33 +50,29 @@ public class Hideo {
 	public short verbosity = 0;
 
 	public double progress;
-	//private static Logger logger = Logger.getLogger(Hideo.class);
-	
-	public static PrintWriter pw=null;
-	
+	// private static Logger logger = Logger.getLogger(Hideo.class);
+
+	public static PrintWriter pw = null;
+
 	{
-		try{
-			pw=new PrintWriter(new FileWriter("optimize.txt",true));
-		}
-		catch(Exception e)
-		{
-			
+		try {
+			pw = new PrintWriter(new FileWriter("optimize.txt", true));
+		} catch (Exception e) {
+
 		}
 	}
-	
-	public Hideo()
-	{
+
+	public Hideo() {
 
 	}
 
 	/**
-	 * the rank of g :
-	 *&nbsp;   0 1 2 3 4 5 6 7 8 <br>
-	 *&nbsp;     <=> <br>
-	 *&nbsp;   0 1 2 <br>
-	 *&nbsp;   3 4 5 <br>
-	 *&nbsp;   6 7 8 <br>
-	 *   
+	 * the rank of g : &nbsp; 0 1 2 3 4 5 6 7 8 <br>
+	 * &nbsp; <=> <br>
+	 * &nbsp; 0 1 2 <br>
+	 * &nbsp; 3 4 5 <br>
+	 * &nbsp; 6 7 8 <br>
+	 * 
 	 * @param qp
 	 * @param epsilon_crit
 	 * @param nx
@@ -87,13 +80,12 @@ public class Hideo {
 	 * @param learn_param
 	 * @return
 	 */
-	public double[] optimizeQp(QP qp, double epsilon_crit, int nx,
-			double threshold, LEARN_PARM learn_param) {
+	public double[] optimizeQp(QP qp, double epsilon_crit, int nx, double threshold, LEARN_PARM learn_param) {
 
-		//System.err.println("in optimizeQp");
-		//pw.println(qp.toString2());
-		//pw.flush();
-		
+		// System.err.println("in optimizeQp");
+		// pw.println(qp.toString2());
+		// pw.flush();
+
 		int i, j;
 		int result;
 		double eq;
@@ -104,21 +96,14 @@ public class Hideo {
 			primal = new double[nx];
 			dual = new double[2 * (nx + 1)];
 			nonoptimal = new int[nx];
-			buffer = new double[(nx + 1) * 2 * (nx + 1) * 2 + nx * nx + 2
-					* (nx + 1) * 2 + 2 * nx + 1 + 2 * nx + nx + nx + nx * nx];
+			buffer = new double[(nx + 1) * 2 * (nx + 1) * 2 + nx * nx + 2 * (nx + 1) * 2 + 2 * nx + 1 + 2 * nx + nx + nx + nx * nx];
 			threshold = 0;
 			for (i = 0; i < nx; i++) {
 				primal[i] = 0;
 			}
 		}
 
-	
-
-		result = optimizeHildrethDespo(qp.opt_n, qp.opt_m, opt_precision,
-				epsilon_crit, learn_param.epsilon_a, maxiter, 0, 0,
-				lindep_sensitivity, qp.opt_g, qp.opt_g0, qp.opt_ce, qp.opt_ce0,
-				qp.opt_low, qp.opt_up, primal, qp.opt_xinit, dual, nonoptimal,
-				buffer);
+		result = optimizeHildrethDespo(qp.opt_n, qp.opt_m, opt_precision, epsilon_crit, learn_param.epsilon_a, maxiter, 0, 0, lindep_sensitivity, qp.opt_g, qp.opt_g0, qp.opt_ce, qp.opt_ce0, qp.opt_low, qp.opt_up, primal, qp.opt_xinit, dual, nonoptimal, buffer);
 
 		if (learn_param.totwords < learn_param.svm_maxqpsize) {
 
@@ -134,19 +119,12 @@ public class Hideo {
 			}
 			precision_violations++;
 		}
-	
-		
 
-		if ((result != PRIMAL_OPTIMAL) || (roundnumber % 31 == 0)
-				|| (progress <= 0)) {
-			//logger.info("result is not PRIMAL_OPTIMAL");
+		if ((result != PRIMAL_OPTIMAL) || (roundnumber % 31 == 0) || (progress <= 0)) {
+			// logger.info("result is not PRIMAL_OPTIMAL");
 			smallroundcount++;
 
-			result = optimizeHildrethDespo(qp.opt_n, qp.opt_m, opt_precision,
-					epsilon_crit, learn_param.epsilon_a, maxiter,
-					PRIMAL_OPTIMAL, SMALLROUND, lindep_sensitivity, qp.opt_g,
-					qp.opt_g0, qp.opt_ce, qp.opt_ce0, qp.opt_low, qp.opt_up,
-					primal, qp.opt_xinit, dual, nonoptimal, buffer);
+			result = optimizeHildrethDespo(qp.opt_n, qp.opt_m, opt_precision, epsilon_crit, learn_param.epsilon_a, maxiter, PRIMAL_OPTIMAL, SMALLROUND, lindep_sensitivity, qp.opt_g, qp.opt_g0, qp.opt_ce, qp.opt_ce0, qp.opt_low, qp.opt_up, primal, qp.opt_xinit, dual, nonoptimal, buffer);
 
 			if (result != PRIMAL_OPTIMAL) {
 				if (result != ONLY_ONE_VARIABLE) {
@@ -171,29 +149,21 @@ public class Hideo {
 			precision_violations = 0;
 			epsilon_crit = 10.0;
 			// if(verbosity>=1) {
-			//logger.info("\nWARNING: Relaxing epsilon on KT-Conditions "
-				//	+ (epsilon_crit));
+			// logger.info("\nWARNING: Relaxing epsilon on KT-Conditions "
+			// + (epsilon_crit));
 			// }
 		}
 
-		if ((qp.opt_m > 0) && (result != NAN_SOLUTION)
-				&& (!(Double.isNaN(dual[1] - dual[0])))) {
+		if ((qp.opt_m > 0) && (result != NAN_SOLUTION) && (!(Double.isNaN(dual[1] - dual[0])))) {
 			threshold = dual[1] - dual[0];
 		} else {
 			threshold = 0;
 		}
 
-	
-
 		return primal;
 	}
 
-	public int optimizeHildrethDespo(int n, int m, double precision,
-			double epsilon_crit, double epsilon_a, int maxiter, int goal,
-			int smallround, double lindep_sensitivity, double[] g, double[] g0,
-			double[] ce, double[] ce0, double[] low, double[] up,
-			double[] primal, double[] init, double[] dual, int[] lin_dependent,
-			double[] buffer) {
+	public int optimizeHildrethDespo(int n, int m, double precision, double epsilon_crit, double epsilon_a, int maxiter, int goal, int smallround, double lindep_sensitivity, double[] g, double[] g0, double[] ce, double[] ce0, double[] low, double[] up, double[] primal, double[] init, double[] dual, int[] lin_dependent, double[] buffer) {
 		int i, j, k, from, to, n_indep, changed;
 		double sum, bmin = 0, bmax = 0;
 		double[] d, d0, ig, dual_old, temp, start;
@@ -227,15 +197,11 @@ public class Hideo {
 				sum += init[j] * g[i * n + j];
 			}
 			sum = sum * ce[i];
-			if (((b1 == -1) || (sum < bmin))
-					&& (!((init[i] <= (low[i] + epsilon_a)) && (ce[i] < 0.0)))
-					&& (!((init[i] >= (up[i] - epsilon_a)) && (ce[i] > 0.0)))) {
+			if (((b1 == -1) || (sum < bmin)) && (!((init[i] <= (low[i] + epsilon_a)) && (ce[i] < 0.0))) && (!((init[i] >= (up[i] - epsilon_a)) && (ce[i] > 0.0)))) {
 				bmin = sum;
 				b1 = i;
 			}
-			if (((b2 == -1) || (sum >= bmax))
-					&& (!((init[i] <= (low[i] + epsilon_a)) && (ce[i] > 0.0)))
-					&& (!((init[i] >= (up[i] - epsilon_a)) && (ce[i] < 0.0)))) {
+			if (((b2 == -1) || (sum >= bmax)) && (!((init[i] <= (low[i] + epsilon_a)) && (ce[i] > 0.0))) && (!((init[i] >= (up[i] - epsilon_a)) && (ce[i] < 0.0)))) {
 				bmax = sum;
 				b2 = i;
 			}
@@ -271,12 +237,11 @@ public class Hideo {
 					ce0_b -= (start[i] * ce[i]);
 				}
 			}
-			if ((g[b1 * n + b2] == g[b1 * n + b1])
-					&& (g[b1 * n + b2] == g[b2 * n + b2])) {
+			if ((g[b1 * n + b2] == g[b1 * n + b1]) && (g[b1 * n + b2] == g[b2 * n + b2])) {
 
 				if (ce[b1] == ce[b2]) {
-					if (g0_b1 <= g0_b2) { // set b1 to upper bound 
-		
+					if (g0_b1 <= g0_b2) { // set b1 to upper bound
+
 						changed = 1;
 						t = up[b1] - init[b1];
 						if ((init[b2] - low[b2]) < t) {
@@ -284,8 +249,8 @@ public class Hideo {
 						}
 						start[b1] = init[b1] + t;
 						start[b2] = init[b2] - t;
-					} else if (g0_b1 > g0_b2) { // set b2 to upper bound 
-					
+					} else if (g0_b1 > g0_b2) { // set b2 to upper bound
+
 						changed = 1;
 						t = up[b2] - init[b2];
 						if ((init[b1] - low[b1]) < t) {
@@ -294,14 +259,8 @@ public class Hideo {
 						start[b1] = init[b1] - t;
 						start[b2] = init[b2] + t;
 					}
-				} else if (((g[b1 * n + b1] > 0) || (g[b2 * n + b2] > 0))) { 
-					t = ((ce[b2] / ce[b1]) * g0[b1] - g0[b2] + ce0[0]
-							* (g[b1 * n + b1] * ce[b2] / ce[b1] - g[b1 * n + b2]
-									/ ce[b1]))
-							/ ((ce[b2] * ce[b2] / (ce[b1] * ce[b1]))
-									* g[b1 * n + b1] + g[b2 * n + b2] - 2 * (g[b1
-									* n + b2]
-									* ce[b2] / ce[b1])) - init[b2];
+				} else if (((g[b1 * n + b1] > 0) || (g[b2 * n + b2] > 0))) {
+					t = ((ce[b2] / ce[b1]) * g0[b1] - g0[b2] + ce0[0] * (g[b1 * n + b1] * ce[b2] / ce[b1] - g[b1 * n + b2] / ce[b1])) / ((ce[b2] * ce[b2] / (ce[b1] * ce[b1])) * g[b1 * n + b1] + g[b2 * n + b2] - 2 * (g[b1 * n + b2] * ce[b2] / ce[b1])) - init[b2];
 					changed = 1;
 					if ((up[b2] - init[b2]) < t) {
 						t = up[b2] - init[b2];
@@ -319,12 +278,11 @@ public class Hideo {
 					start[b2] = init[b2] + t;
 				}
 			}
-			if ((-g[b1 * n + b2] == g[b1 * n + b1])
-					&& (-g[b1 * n + b2] == g[b2 * n + b2])) {
+			if ((-g[b1 * n + b2] == g[b1 * n + b1]) && (-g[b1 * n + b2] == g[b2 * n + b2])) {
 
 				if (ce[b1] != ce[b2]) {
-					if ((g0_b1 + g0_b2) < 0) { // set b1 and b2 to upper bound 
-					
+					if ((g0_b1 + g0_b2) < 0) { // set b1 and b2 to upper bound
+
 						changed = 1;
 						t = up[b1] - init[b1];
 						if ((up[b2] - init[b2]) < t) {
@@ -332,7 +290,7 @@ public class Hideo {
 						}
 						start[b1] = init[b1] + t;
 						start[b2] = init[b2] + t;
-					} else if ((g0_b1 + g0_b2) >= 0) { 
+					} else if ((g0_b1 + g0_b2) >= 0) {
 						changed = 1;
 						t = init[b1] - low[b1];
 						if ((init[b2] - low[b2]) < t) {
@@ -341,15 +299,9 @@ public class Hideo {
 						start[b1] = init[b1] - t;
 						start[b2] = init[b2] - t;
 					}
-				} else if (((g[b1 * n + b1] > 0) || (g[b2 * n + b2] > 0))) { 
-			
-					t = ((ce[b2] / ce[b1]) * g0[b1] - g0[b2] + ce0[0]
-							* (g[b1 * n + b1] * ce[b2] / ce[b1] - g[b1 * n + b2]
-									/ ce[b1]))
-							/ ((ce[b2] * ce[b2] / (ce[b1] * ce[b1]))
-									* g[b1 * n + b1] + g[b2 * n + b2] - 2 * (g[b1
-									* n + b2]
-									* ce[b2] / ce[b1])) - init[b2];
+				} else if (((g[b1 * n + b1] > 0) || (g[b2 * n + b2] > 0))) {
+
+					t = ((ce[b2] / ce[b1]) * g0[b1] - g0[b2] + ce0[0] * (g[b1 * n + b1] * ce[b2] / ce[b1] - g[b1 * n + b2] / ce[b1])) / ((ce[b2] * ce[b2] / (ce[b1] * ce[b1])) * g[b1 * n + b1] + g[b2 * n + b2] - 2 * (g[b1 * n + b2] * ce[b2] / ce[b1])) - init[b2];
 					changed = 1;
 					if ((up[b2] - init[b2]) < t) {
 						t = up[b2] - init[b2];
@@ -369,26 +321,21 @@ public class Hideo {
 			}
 		}
 
-		if ((m > 0)
-				&& ((Math.abs(g[b1 * n + b1]) < lindep_sensitivity) || (Math
-						.abs(g[b2 * n + b2]) < lindep_sensitivity))) {
-	
+		if ((m > 0) && ((Math.abs(g[b1 * n + b1]) < lindep_sensitivity) || (Math.abs(g[b2 * n + b2]) < lindep_sensitivity))) {
+
 			add += 0.093274;
 		}
-		// in case both examples are linear dependent 
-		else if ((m > 0)
-				&& (g[b1 * n + b2] != 0 && g[b2 * n + b2] != 0)
-				&& (Math.abs(g[b1 * n + b1] / g[b1 * n + b2] - g[b1 * n + b2]
-						/ g[b2 * n + b2]) < lindep_sensitivity)) {
-	
+		// in case both examples are linear dependent
+		else if ((m > 0) && (g[b1 * n + b2] != 0 && g[b2 * n + b2] != 0) && (Math.abs(g[b1 * n + b1] / g[b1 * n + b2] - g[b1 * n + b2] / g[b2 * n + b2]) < lindep_sensitivity)) {
+
 			add += 0.078274;
 		}
 
 		// special case for zero diagonal entry on unbiased hyperplane
 		if ((m == 0) && (b1 >= 0)) {
 			if (Math.abs(g[b1 * n + b1]) < lindep_sensitivity) {
-	
-				for (i = 0; i < n; i++) { // fix other vectors 
+
+				for (i = 0; i < n; i++) { // fix other vectors
 					if (i == b1)
 						g0_b1 = g0[i];
 				}
@@ -409,7 +356,7 @@ public class Hideo {
 
 		if ((m == 0) && (b2 >= 0)) {
 			if (Math.abs(g[b2 * n + b2]) < lindep_sensitivity) {
-	
+
 				for (i = 0; i < n; i++) { // fix other vectors
 					if (i == b2)
 						g0_b2 = g0[i];
@@ -441,9 +388,7 @@ public class Hideo {
 			add = 0.0;
 		}
 
-
-
-		if (n > 2) { // switch, so that variables are better mixed 
+		if (n > 2) { // switch, so that variables are better mixed
 			lSwitchrkMatrix(d, n, b1, 0);
 			if (b2 == 0) {
 				// System.out.println("switch b2 0");
@@ -458,7 +403,7 @@ public class Hideo {
 			for (i = 2; i < n; i++) {
 				lin_dependent[i] = 1;
 			}
-			if (m > 0) { // for biased hyperplane, pick two variables 
+			if (m > 0) { // for biased hyperplane, pick two variables
 				lin_dependent[0] = 0;
 				lin_dependent[1] = 0;
 			} else { // for unbiased hyperplane, pick only one variable
@@ -471,10 +416,8 @@ public class Hideo {
 			}
 		}
 
-
-
 		lInvertMatrix(d, n, ig, lindep_sensitivity, lin_dependent);
-		
+
 		if (n > 2) { // now switch back
 			if (b2 == 0) {
 				lSwitchrkMatrix(ig, n, b1, 1);
@@ -492,7 +435,6 @@ public class Hideo {
 			lin_dependent[0] = lin_dependent[b1];
 			lin_dependent[b1] = i;
 		}
-		
 
 		lCopyMatrix(g, n, g_new); // restore g_new matrix
 		if (add > 0)
@@ -508,11 +450,11 @@ public class Hideo {
 		}
 		if (m > 0)
 			ce0_new[0] = -ce0[0];
-		for (i = 0; i < n; i++) { // fix linear dependent vectors 
+		for (i = 0; i < n; i++) { // fix linear dependent vectors
 			if (lin_dependent[i] > 0) {
 				for (j = 0; j < n; j++) {
 					if (lin_dependent[j] == 0) {
-					
+
 						g0_new[j] += start[i] * g_new[i * n + j];
 					}
 				}
@@ -521,7 +463,7 @@ public class Hideo {
 			}
 		}
 
-		from = 0; // remove linear dependent vectors 
+		from = 0; // remove linear dependent vectors
 		to = 0;
 		n_indep = 0;
 		for (i = 0; i < n; i++) {
@@ -542,8 +484,8 @@ public class Hideo {
 				from++;
 			}
 		}
-	
-		// cannot optimize with only one variable 
+
+		// cannot optimize with only one variable
 		if ((n_indep <= 1) && (m > 0) && (changed == 0)) {
 			for (i = n - 1; i >= 0; i--) {
 				primal[i] = init[i];
@@ -553,10 +495,7 @@ public class Hideo {
 
 		if ((changed == 0) || (n_indep > 1)) {
 
-			
-			result = solveDual(n_indep, m, precision, epsilon_crit, maxiter,
-					g_new, g0_new, ce_new, ce0_new, low_new, up_new, primal, d,
-					d0, ig, dual, dual_old, temp, goal);
+			result = solveDual(n_indep, m, precision, epsilon_crit, maxiter, g_new, g0_new, ce_new, ce0_new, low_new, up_new, primal, d, d0, ig, dual, dual_old, temp, goal);
 		} else {
 			result = PRIMAL_OPTIMAL;
 		}
@@ -567,7 +506,7 @@ public class Hideo {
 				j--;
 				primal[i] = primal[j];
 			} else {
-				primal[i] = start[i]; // leave as is 
+				primal[i] = start[i]; // leave as is
 			}
 			temp[i] = primal[i];
 		}
@@ -578,29 +517,24 @@ public class Hideo {
 		// System.out.println("progress:"+progress);
 		verbosity = 5;
 		if (verbosity >= 3) {
-			//logger.info("before(" + obj_before + ")...after(" + obj_after
-				//	+ ")...result_sd(" + result + ")...");
+			// logger.info("before(" + obj_before + ")...after(" + obj_after
+			// + ")...result_sd(" + result + ")...");
 		}
 
 		return ((int) result);
 	}
 
-	public int solveDual(int n, int m, double precision, double epsilon_crit,
-			int maxiter, double[] g, double[] g0, double[] ce, double[] ce0,
-			double[] low, double[] up, double[] primal, double[] d,
-			double[] d0, double[] ig, double[] dual, double[] dual_old,
-			double[] temp, int goal) {
+	public int solveDual(int n, int m, double precision, double epsilon_crit, int maxiter, double[] g, double[] g0, double[] ce, double[] ce0, double[] low, double[] up, double[] primal, double[] d, double[] d0, double[] ig, double[] dual, double[] dual_old, double[] temp, int goal) {
 		int i, j, k, iter;
 		double sum, w, maxviol, viol, temp1, temp2, isnantest;
 		double model_b, dist;
 		int retrain, maxfaktor, primal_optimal = 0, at_bound, scalemaxiter;
 		double epsilon_a = 1E-15, epsilon_hideo;
 		double eq;
-		////logger.info("in solve_dual");
+		// //logger.info("in solve_dual");
 
 		if ((m < 0) || (m > 1)) {
-			System.err
-					.println("SOLVE DUAL: inappropriate number of eq-constrains!");
+			System.err.println("SOLVE DUAL: inappropriate number of eq-constrains!");
 		}
 
 		for (i = 0; i < 2 * (n + m); i++) {
@@ -609,14 +543,14 @@ public class Hideo {
 		}
 
 		for (i = 0; i < n; i++) {
-			for (j = 0; j < n; j++) { //dual hessian for box constraints
+			for (j = 0; j < n; j++) { // dual hessian for box constraints
 				d[i * 2 * (n + m) + j] = ig[i * n + j];
 				d[(i + n) * 2 * (n + m) + j] = -ig[i * n + j];
 				d[i * 2 * (n + m) + j + n] = -ig[i * n + j];
 				d[(i + n) * 2 * (n + m) + j + n] = ig[i * n + j];
 			}
 			if (m > 0) {
-				sum = 0; // dual hessian for eq constraints 
+				sum = 0; // dual hessian for eq constraints
 				for (j = 0; j < n; j++) {
 					sum += (ce[j] * ig[i * n + j]);
 				}
@@ -642,7 +576,8 @@ public class Hideo {
 			}
 		}
 
-		for (i = 0; i < n; i++) { // dual linear component for the box constraints 
+		for (i = 0; i < n; i++) { // dual linear component for the box
+									// constraints
 			w = 0;
 			for (j = 0; j < n; j++) {
 				w += (ig[i * n + j] * g0[j]);
@@ -667,10 +602,9 @@ public class Hideo {
 		retrain = 1;
 		maxfaktor = 1;
 		scalemaxiter = maxiter / 5;
-		
-		//========= main loop ===================
-		while ((retrain > 0) && (maxviol > 0)
-				&& (iter < (scalemaxiter * maxfaktor))) {
+
+		// ========= main loop ===================
+		while ((retrain > 0) && (maxviol > 0) && (iter < (scalemaxiter * maxfaktor))) {
 			iter++;
 			while ((maxviol > precision) && (iter < (scalemaxiter * maxfaktor))) {
 				iter++;
@@ -692,13 +626,11 @@ public class Hideo {
 					dual_old[i] = dual[i];
 				}
 
-
 			}
 
 			if (m > 0) {
 				for (i = 0; i < n; i++) {
-					temp[i] = dual[i] - dual[i + n] + ce[i]
-							* (dual[n + n] - dual[n + n + 1]) + g0[i];
+					temp[i] = dual[i] - dual[i + n] + ce[i] * (dual[n + n] - dual[n + n + 1]) + g0[i];
 				}
 			} else {
 				for (i = 0; i < n; i++) {
@@ -706,12 +638,12 @@ public class Hideo {
 				}
 			}
 			for (i = 0; i < n; i++) {
-				primal[i] = 0; // calc value of primal variables 
+				primal[i] = 0; // calc value of primal variables
 				for (j = 0; j < n; j++) {
 					primal[i] += ig[i * n + j] * temp[j];
 				}
 				primal[i] *= -1.0;
-				if (primal[i] <= (low[i])) { // clip conservatively 
+				if (primal[i] <= (low[i])) { // clip conservatively
 					primal[i] = low[i];
 				} else if (primal[i] >= (up[i])) {
 					primal[i] = up[i];
@@ -733,17 +665,14 @@ public class Hideo {
 				for (j = i; j < n; j++) {
 					dist += (primal[j] * g[i * n + j]);
 				}
-				if ((primal[i] < (up[i] - epsilon_hideo))
-						&& (dist < (1.0 - epsilon_crit))) {
+				if ((primal[i] < (up[i] - epsilon_hideo)) && (dist < (1.0 - epsilon_crit))) {
 					epsilon_hideo = (up[i] - primal[i]) * 2.0;
-				} else if ((primal[i] > (low[i] + epsilon_hideo))
-						&& (dist > (1.0 + epsilon_crit))) {
+				} else if ((primal[i] > (low[i] + epsilon_hideo)) && (dist > (1.0 + epsilon_crit))) {
 					epsilon_hideo = (primal[i] - low[i]) * 2.0;
 				}
 			}
-		
 
-			for (i = 0; i < n; i++) { // clip alphas to bounds 
+			for (i = 0; i < n; i++) { // clip alphas to bounds
 				if (primal[i] <= (low[i] + epsilon_hideo)) {
 					primal[i] = low[i];
 				} else if (primal[i] >= (up[i] - epsilon_hideo)) {
@@ -754,7 +683,7 @@ public class Hideo {
 			retrain = 0;
 			primal_optimal = 1;
 			at_bound = 0;
-			for (i = 0; (i < n); i++) { // check primal KT-Conditions 
+			for (i = 0; (i < n); i++) { // check primal KT-Conditions
 				dist = -model_b * ce[i];
 				dist += (g0[i] + 1.0);
 				for (j = 0; j < i; j++) {
@@ -764,28 +693,24 @@ public class Hideo {
 					dist += (primal[j] * g[i * n + j]);
 				}
 
-				if ((primal[i] < (up[i] - epsilon_a))
-						&& (dist < (1.0 - epsilon_crit))) {
+				if ((primal[i] < (up[i] - epsilon_a)) && (dist < (1.0 - epsilon_crit))) {
 					retrain = 1;
 					primal_optimal = 0;
-				} else if ((primal[i] > (low[i] + epsilon_a))
-						&& (dist > (1.0 + epsilon_crit))) {
+				} else if ((primal[i] > (low[i] + epsilon_a)) && (dist > (1.0 + epsilon_crit))) {
 					retrain = 1;
 					primal_optimal = 0;
 				}
-				if ((primal[i] <= (low[i] + epsilon_a))
-						|| (primal[i] >= (up[i] - epsilon_a))) {
+				if ((primal[i] <= (low[i] + epsilon_a)) || (primal[i] >= (up[i] - epsilon_a))) {
 					at_bound++;
 				}
-			
+
 			}
 			if (m > 0) {
-				eq = -ce0[0]; // check precision of eq-constraint 
+				eq = -ce0[0]; // check precision of eq-constraint
 				for (i = 0; i < n; i++) {
 					eq += (ce[i] * primal[i]);
 				}
-				if ((EPSILON_EQ < Math.abs(eq))
-				) {
+				if ((EPSILON_EQ < Math.abs(eq))) {
 					retrain = 1;
 					primal_optimal = 0;
 				}
@@ -794,8 +719,7 @@ public class Hideo {
 
 			if (retrain > 0) {
 				precision /= 10;
-				if (((goal == PRIMAL_OPTIMAL) && (maxfaktor < 50000))
-						|| (maxfaktor < 5)) {
+				if (((goal == PRIMAL_OPTIMAL) && (maxfaktor < 50000)) || (maxfaktor < 5)) {
 					maxfaktor++;
 				}
 			}
@@ -803,12 +727,12 @@ public class Hideo {
 
 		if (primal_optimal == 0) {
 			for (i = 0; i < n; i++) {
-				primal[i] = 0; // calc value of primal variables 
+				primal[i] = 0; // calc value of primal variables
 				for (j = 0; j < n; j++) {
 					primal[i] += ig[i * n + j] * temp[j];
 				}
 				primal[i] *= -1.0;
-				if (primal[i] <= (low[i] + epsilon_a)) { // clip conservatively 
+				if (primal[i] <= (low[i] + epsilon_a)) { // clip conservatively
 					primal[i] = low[i];
 				} else if (primal[i] >= (up[i] - epsilon_a)) {
 					primal[i] = up[i];
@@ -817,13 +741,13 @@ public class Hideo {
 		}
 
 		isnantest = 0;
-		for (i = 0; i < n; i++) { // check for isnan 
+		for (i = 0; i < n; i++) { // check for isnan
 			isnantest += primal[i];
 		}
 
 		if (m > 0) {
-			temp1 = dual[n + n + 1]; // copy the dual variables for the eq 
-			temp2 = dual[n + n];     // constraints to a handier location 
+			temp1 = dual[n + n + 1]; // copy the dual variables for the eq
+			temp2 = dual[n + n]; // constraints to a handier location
 			for (i = n + n + 1; i >= 2; i--) {
 				dual[i] = dual[i - 2];
 			}
@@ -831,7 +755,6 @@ public class Hideo {
 			dual[1] = temp1;
 			isnantest += temp1 + temp2;
 		}
-
 
 		if (Double.isNaN(isnantest)) {
 			return ((int) NAN_SOLUTION);
@@ -869,20 +792,18 @@ public class Hideo {
 		}
 	}
 
-	public void lInvertMatrix(double[] matrix, int depth, double[] inverse,
-			double lindep_sensitivity, int[] lin_dependent) {
+	public void lInvertMatrix(double[] matrix, int depth, double[] inverse, double lindep_sensitivity, int[] lin_dependent) {
 		int i, j, k;
 		double factor;
 		for (i = 0; i < depth; i++) {
-			// lin_dependent[i]=0; 
+			// lin_dependent[i]=0;
 			for (j = 0; j < depth; j++) {
 				inverse[i * depth + j] = 0.0;
 			}
 			inverse[i * depth + i] = 1.0;
 		}
 		for (i = 0; i < depth; i++) {
-			if ((lin_dependent[i] > 0)
-					|| (Math.abs(matrix[i * depth + i]) < lindep_sensitivity)) {
+			if ((lin_dependent[i] > 0) || (Math.abs(matrix[i * depth + i]) < lindep_sensitivity)) {
 				lin_dependent[i] = 1;
 			} else {
 				for (j = i + 1; j < depth; j++) {
@@ -891,8 +812,7 @@ public class Hideo {
 						matrix[j * depth + k] -= (factor * matrix[i * depth + k]);
 					}
 					for (k = 0; k < depth; k++) {
-						inverse[j * depth + k] -= (factor * inverse[i * depth
-								+ k]);
+						inverse[j * depth + k] -= (factor * inverse[i * depth + k]);
 					}
 				}
 			}
@@ -908,37 +828,25 @@ public class Hideo {
 					factor = matrix[j * depth + i];
 					matrix[j * depth + i] = 0;
 					for (k = 0; k < depth; k++) {
-						inverse[j * depth + k] -= (factor * inverse[i * depth
-								+ k]);
+						inverse[j * depth + k] -= (factor * inverse[i * depth + k]);
 					}
 				}
 			}
 		}
 
-		
 	}
 
-	public double calculateQpObjective(int opt_n, double[] opt_g,
-			double[] opt_g0, double[] alpha) {
+	public double calculateQpObjective(int opt_n, double[] opt_g, double[] opt_g0, double[] alpha) {
 		double obj;
 		int i, j;
-		obj = 0; 
-		
-		// calculate objective 
+		obj = 0;
+
+		// calculate objective
 		for (i = 0; i < opt_n; i++) {
-			obj = WU
-					.sum(obj,WU.mul(opt_g0[i], alpha[i]));
-			obj = WU.sum(
-					obj,
-					WU.mul(
-							0.5,
-							WU.mul(
-									alpha[i],
-									WU.mul(alpha[i], opt_g[i * opt_n
-											+ i]))));
+			obj = WU.sum(obj, WU.mul(opt_g0[i], alpha[i]));
+			obj = WU.sum(obj, WU.mul(0.5, WU.mul(alpha[i], WU.mul(alpha[i], opt_g[i * opt_n + i]))));
 			for (j = 0; j < i; j++) {
-				obj =WU.sum(obj, WU.mul(alpha[j],
-						WU.mul(alpha[i], opt_g[j * opt_n + i])));
+				obj = WU.sum(obj, WU.mul(alpha[j], WU.mul(alpha[i], opt_g[j * opt_n + i])));
 			}
 		}
 		return (obj);

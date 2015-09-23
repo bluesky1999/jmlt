@@ -45,8 +45,7 @@ public class LearnStruct {
 		ssa = FactoryStruct.get_svm_struct_api();
 	}
 
-	public void svm_learn_struct(SAMPLE sample, STRUCT_LEARN_PARM sparm,
-			LEARN_PARM lparm, KERNEL_PARM kparm, STRUCTMODEL sm, int alg_type) {
+	public void svm_learn_struct(SAMPLE sample, STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm, STRUCTMODEL sm, int alg_type) {
 		int i, j;
 		int numIt = 0;
 		int argmax_count = 0;
@@ -134,13 +133,11 @@ public class LearnStruct {
 		lparm.epsilon_crit = epsilon;
 		Learn sl = new Learn();
 		if (kparm.kernel_type != ModelConstant.LINEAR) {
-			kcache = sl.kernel_cache_init(Math.max(cset.m, 1),
-					lparm.kernel_cache_size);
+			kcache = sl.kernel_cache_init(Math.max(cset.m, 1), lparm.kernel_cache_size);
 		}
 
 		// logger.info("sizePsi:" + sizePsi + "   n:" + n);
-		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n,
-				lparm, kparm, kcache, svmModel, alpha);
+		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, kcache, svmModel, alpha);
 		com.addWeightVectorToLinearModel(svmModel);
 		sm.svm_model = svmModel;
 		sm.w = svmModel.lin_weights;
@@ -212,13 +209,9 @@ public class LearnStruct {
 							// is necessary to add a new constraint
 							argmax_count++;
 							if (sparm.loss_type == SLACK_RESCALING) {
-								ybar = ssa
-										.findMostViolatedConstraintSlackrescaling(
-												ex[i].x, ex[i].y, sm, sparm);
+								ybar = ssa.findMostViolatedConstraintSlackrescaling(ex[i].x, ex[i].y, sm, sparm);
 							} else {
-								ybar = ssa
-										.findMostViolatedConstraintMarginrescaling(
-												ex[i].x, ex[i].y, sm, sparm);
+								ybar = ssa.findMostViolatedConstraintMarginrescaling(ex[i].x, ex[i].y, sm, sparm);
 							}
 
 							if (ssa.emptyLabel(ybar)) {
@@ -240,7 +233,7 @@ public class LearnStruct {
 							}
 
 							fybar = ssa.psi(ex[i].x, ybar, sm, sparm);
-							
+
 							// scale feature vector and margin by loss
 							lossval = ssa.loss(ex[i].y, ybar, sparm);
 							if (sparm.slack_norm == 2)
@@ -267,21 +260,9 @@ public class LearnStruct {
 							for (j = 0; j < cset.m; j++)
 								if (cset.lhs[j].slackid == i + 1) {
 									if (sparm.slack_norm == 2)
-										slack = Math
-												.max(slack,
-														cset.rhs[j]
-																- (com.classifyExample(
-																		svmModel,
-																		cset.lhs[j]) - sm.w[sizePsi
-																		+ i]
-																		/ (Math.sqrt(2 * svmCnorm))));
+										slack = Math.max(slack, cset.rhs[j] - (com.classifyExample(svmModel, cset.lhs[j]) - sm.w[sizePsi + i] / (Math.sqrt(2 * svmCnorm))));
 									else
-										slack = Math.max(
-												slack,
-												cset.rhs[j]
-														- com.classifyExample(
-																svmModel,
-																cset.lhs[j]));
+										slack = Math.max(slack, cset.rhs[j] - com.classifyExample(svmModel, cset.lhs[j]));
 								}
 
 							// if `error' add constraint and recompute
@@ -311,31 +292,20 @@ public class LearnStruct {
 								if (kparm.kernel_type == ModelConstant.LINEAR) {
 									diff = com.addListSs(fy);
 									if (sparm.slack_norm == 1)
-										cset.lhs[cset.m - 1] = com
-												.createExample(cset.m - 1, 0,
-														i + 1, 1,
-														com.copySvector(diff));
+										cset.lhs[cset.m - 1] = com.createExample(cset.m - 1, 0, i + 1, 1, com.copySvector(diff));
 									else if (sparm.slack_norm == 2) {
 
 										// add squared slack variable to feature
 										// vector
 										slackv[0].wnum = sizePsi + i;
-										slackv[0].weight = 1 / (Math
-												.sqrt(2 * svmCnorm));
+										slackv[0].weight = 1 / (Math.sqrt(2 * svmCnorm));
 										slackv[1].wnum = 0; // terminator
-										slackvec = com.createSvector(slackv,
-												null, 1.0);
-										cset.lhs[cset.m - 1] = com
-												.createExample(cset.m - 1, 0,
-														i + 1, 1, com.addSs(
-																diff, slackvec));
+										slackvec = com.createSvector(slackv, null, 1.0);
+										cset.lhs[cset.m - 1] = com.createExample(cset.m - 1, 0, i + 1, 1, com.addSs(diff, slackvec));
 									}
 								} else {// kernel is used
 									if (sparm.slack_norm == 1)
-										cset.lhs[cset.m - 1] = com
-												.createExample(cset.m - 1, 0,
-														i + 1, 1,
-														com.copySvector(fy));
+										cset.lhs[cset.m - 1] = com.createExample(cset.m - 1, 0, i + 1, 1, com.copySvector(fy));
 									else if (sparm.slack_norm == 2)
 										System.exit(1);
 								}
@@ -344,8 +314,7 @@ public class LearnStruct {
 
 								alpha = com.reallocAlpha(alpha, cset.m);
 								alpha[cset.m - 1] = 0;
-								alphahist = com.reallocAlphaList(alphahist,
-										cset.m);
+								alphahist = com.reallocAlphaList(alphahist, cset.m);
 								alphahist[cset.m - 1] = optcount;
 								newconstraints++;
 								totconstraints++;
@@ -359,9 +328,7 @@ public class LearnStruct {
 						}// if use shrinking
 
 						// get new QP solution
-						if ((newconstraints >= sparm.newconstretrain)
-								|| ((newconstraints > 0) && (i == n - 1))
-								|| ((new_precision != 0) && (i == n - 1))) {
+						if ((newconstraints >= sparm.newconstretrain) || ((newconstraints > 0) && (i == n - 1)) || ((new_precision != 0) && (i == n - 1))) {
 
 							svmModel = new MODEL();
 
@@ -370,13 +337,9 @@ public class LearnStruct {
 							// runs
 
 							if (kparm.kernel_type != ModelConstant.LINEAR)
-								kcache = sl.kernel_cache_init(
-										Math.max(cset.m, 1),
-										lparm.kernel_cache_size);
+								kcache = sl.kernel_cache_init(Math.max(cset.m, 1), lparm.kernel_cache_size);
 							// Run the QP solver on cset.
-							sl.svm_learn_optimization(cset.lhs, cset.rhs,
-									cset.m, sizePsi + n, lparm, kparm, kcache,
-									svmModel, alpha);
+							sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, kcache, svmModel, alpha);
 
 							// Always add weight vector, in case part of the
 							// kernel is linear. If not, ignore the weight
@@ -399,8 +362,7 @@ public class LearnStruct {
 								}
 							}
 
-							if ((new_precision != 0)
-									&& (epsilon <= sparm.epsilon))
+							if ((new_precision != 0) && (epsilon <= sparm.epsilon))
 								dont_stop = 1; // make sure we take one final
 												// pass
 
@@ -414,28 +376,21 @@ public class LearnStruct {
 					// logger.info("(NumConst=" + cset.m + ", SV="
 					// + (svmModel.sv_num - 1) + ", CEps=" + ceps
 					// + ", QPEps=" + svmModel.maxdiff + ")\n");
-					System.out.println("(NumConst=" + cset.m + ", SV="
-							+ (svmModel.sv_num - 1) + ", CEps=" + ceps
-							+ ", QPEps=" + svmModel.maxdiff + ")\n");
+					System.out.println("(NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")\n");
 
 					if (CommonStruct.struct_verbosity >= 2)
 						// logger.info("Reducing working set...");
 
-						remove_inactive_constraints(cset, alpha, optcount,
-								alphahist,
-								Math.max(50, optcount - lastoptcount));
+						remove_inactive_constraints(cset, alpha, optcount, alphahist, Math.max(50, optcount - lastoptcount));
 
 					lastoptcount = optcount;
 					// if (CommonStruct.struct_verbosity >= 2)
 					// logger.info("done. (NumConst=" + cset.m + ")\n");
 
 				} while ((use_shrinking != 0) && (activenum > 0));
-			} while (((totconstraints - old_totconstraints) > tolerance)
-					|| (dont_stop != 0));
+			} while (((totconstraints - old_totconstraints) > tolerance) || (dont_stop != 0));
 
-		} while ((epsilon > sparm.epsilon)
-				|| ssa.finalizeIteration(ceps, 0, sample, sm, cset, alpha,
-						sparm)); // main_loop
+		} while ((epsilon > sparm.epsilon) || ssa.finalizeIteration(ceps, 0, sample, sm, cset, alpha, sparm)); // main_loop
 
 		if (CommonStruct.struct_verbosity >= 1) {
 			// compute sum of slacks
@@ -448,20 +403,10 @@ public class LearnStruct {
 
 			if (sparm.slack_norm == 1) {
 				for (j = 0; j < cset.m; j++)
-					slacks[cset.lhs[j].slackid] = Math
-							.max(slacks[cset.lhs[j].slackid],
-									cset.rhs[j]
-											- com.classifyExample(svmModel,
-													cset.lhs[j]));
+					slacks[cset.lhs[j].slackid] = Math.max(slacks[cset.lhs[j].slackid], cset.rhs[j] - com.classifyExample(svmModel, cset.lhs[j]));
 			} else if (sparm.slack_norm == 2) {
 				for (j = 0; j < cset.m; j++)
-					slacks[cset.lhs[j].slackid] = Math.max(
-							slacks[cset.lhs[j].slackid],
-							cset.rhs[j]
-									- (com.classifyExample(svmModel,
-											cset.lhs[j]) - sm.w[sizePsi
-											+ cset.lhs[j].slackid - 1]
-											/ (Math.sqrt(2 * svmCnorm))));
+					slacks[cset.lhs[j].slackid] = Math.max(slacks[cset.lhs[j].slackid], cset.rhs[j] - (com.classifyExample(svmModel, cset.lhs[j]) - sm.w[sizePsi + cset.lhs[j].slackid - 1] / (Math.sqrt(2 * svmCnorm))));
 			}
 			slacksum = 0;
 			for (i = 1; i <= n; i++)
@@ -471,9 +416,7 @@ public class LearnStruct {
 			for (i = 0; i < cset.m; i++)
 				alphasum += alpha[i] * cset.rhs[i];
 			modellength = com.modelLengthS(svmModel);
-			dualitygap = (0.5 * modellength * modellength + svmCnorm
-					* (slacksum + n * ceps))
-					- (alphasum - 0.5 * modellength * modellength);
+			dualitygap = (0.5 * modellength * modellength + svmCnorm * (slacksum + n * ceps)) - (alphasum - 0.5 * modellength * modellength);
 
 			// logger.info("Final epsilon on KKT-Conditions: "
 			// + Math.max(svmModel.maxdiff, epsilon) + "\n");
@@ -525,8 +468,7 @@ public class LearnStruct {
 
 	}
 
-	public void svm_learn_struct_joint(SAMPLE sample, STRUCT_LEARN_PARM sparm,
-			LEARN_PARM lparm, KERNEL_PARM kparm, STRUCTMODEL sm, int alg_type) {
+	public void svm_learn_struct_joint(SAMPLE sample, STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm, STRUCTMODEL sm, int alg_type) {
 		int i, j;
 		int numIt = 0;
 		int totconstraints = 0;
@@ -600,16 +542,14 @@ public class LearnStruct {
 		}
 
 		kparm.gram_matrix = null;
-		if ((alg_type == CommonStruct.ONESLACK_DUAL_ALG)
-				|| (alg_type == CommonStruct.ONESLACK_DUAL_CACHE_ALG))
+		if ((alg_type == CommonStruct.ONESLACK_DUAL_ALG) || (alg_type == CommonStruct.ONESLACK_DUAL_CACHE_ALG))
 			kparm.gram_matrix = init_kernel_matrix(cset, kparm);
 
 		// set initial model and slack variables
 		svmModel = new MODEL();
 		lparm.epsilon_crit = epsilon;
 
-		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm,
-				kparm, null, svmModel, alpha);
+		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm, null, svmModel, alpha);
 
 		// //logger.info("sl totwords:"+svmModel.totwords);
 		com.addWeightVectorToLinearModel(svmModel);
@@ -623,8 +563,7 @@ public class LearnStruct {
 				// //logger.info("USE THE FYCACHE \n");
 				fy = ssa.psi(ex[i].x, ex[i].y, sm, sparm);
 				if (kparm.kernel_type == ModelConstant.LINEAR) {
-					diff = com.addListSortSsR(fy,
-							CommonStruct.COMPACT_ROUNDING_THRESH);
+					diff = com.addListSortSsR(fy, CommonStruct.COMPACT_ROUNDING_THRESH);
 					fy = diff;
 				}
 			} else
@@ -655,11 +594,7 @@ public class LearnStruct {
 			}
 			for (j = 0, slack = -1; (j < cset.m) && (slack == -1); j++) {
 				if (alpha[j] > alphasum / cset.m) {
-					slack = Math
-							.max(0,
-									cset.rhs[j]
-											- com.classifyExample(svmModel,
-													cset.lhs[j]));
+					slack = Math.max(0, cset.rhs[j] - com.classifyExample(svmModel, cset.lhs[j]));
 				}
 			}
 			slack = Math.max(0, slack);
@@ -699,8 +634,7 @@ public class LearnStruct {
 					progress = 0;
 					com.progress_n = progress;
 
-					for (j = 0; (j < batch_size)
-							|| ((j < n) && (viol - slack < sparm.epsilon)); j++) {
+					for (j = 0; (j < batch_size) || ((j < n) && (viol - slack < sparm.epsilon)); j++) {
 						if (CommonStruct.struct_verbosity >= 1)
 							com.printPercentProgress(n, 10, ".");
 						uptr = uptr % n;
@@ -711,8 +645,7 @@ public class LearnStruct {
 
 						// find most violating fydelta=fy-fybar and rhs for
 						// example i
-						find_most_violated_constraint(ex[i], fycache[i], n, sm,
-								sparm, violStruct);
+						find_most_violated_constraint(ex[i], fycache[i], n, sm, sparm, violStruct);
 
 						uptr++;
 					}
@@ -725,8 +658,7 @@ public class LearnStruct {
 					viol_est *= ((double) n / (double) j);
 					// logger.info("viol_est=" + viol_est + " slack=" + slack +
 					// "");
-					epsilon_est = (1 - (double) j / (double) n) * epsilon_est
-							+ (double) j / (double) n * (viol_est - slack);// epsilon_est璧嬪�
+					epsilon_est = (1 - (double) j / (double) n) * epsilon_est + (double) j / (double) n * (viol_est - slack);// epsilon_est璧嬪�
 					// logger.info("epsilon_est cal=" + epsilon_est);
 					// if ((CommonStruct.struct_verbosity >= 1) && (j != n))
 					// logger.info("(upd=" + (100.0 * j / n) + ",eps^="
@@ -751,8 +683,7 @@ public class LearnStruct {
 
 					// compute most violating fydelta=fy-fybar and rhs for
 					// example i
-					find_most_violated_constraint(ex[i], fycache[i], n, sm,
-							sparm, violStruct);
+					find_most_violated_constraint(ex[i], fycache[i], n, sm, sparm, violStruct);
 					// add current fy-fybar to lhs of constraint
 					if (kparm.kernel_type == ModelConstant.LINEAR) {
 						com.addListNNS(lhs_n, violStruct.fydelta, 1.0);
@@ -764,10 +695,9 @@ public class LearnStruct {
 				} // end of example loop
 
 				// create sparse vector from dense sum
-				//System.out.println("kernel type is " + kparm.kernel_type);
+				// System.out.println("kernel type is " + kparm.kernel_type);
 				if (kparm.kernel_type == ModelConstant.LINEAR) {
-					lhs = com.createSvectorNR(lhs_n, sm.sizePsi, null, 1.0,
-							CommonStruct.COMPACT_ROUNDING_THRESH);
+					lhs = com.createSvectorNR(lhs_n, sm.sizePsi, null, 1.0, CommonStruct.COMPACT_ROUNDING_THRESH);
 				}
 				doc = com.createExample(cset.m, 0, 1, 1, lhs);
 				lhsXw = com.classifyExample(svmModel, doc);
@@ -805,10 +735,8 @@ public class LearnStruct {
 				alphahist[cset.m] = optcount;
 				cset.m++;
 				totconstraints++;
-				if ((alg_type == ONESLACK_DUAL_ALG)
-						|| (alg_type == ONESLACK_DUAL_CACHE_ALG)) {
-					kparm.gram_matrix = update_kernel_matrix(kparm.gram_matrix,
-							cset.m - 1, cset, kparm);
+				if ((alg_type == ONESLACK_DUAL_ALG) || (alg_type == ONESLACK_DUAL_CACHE_ALG)) {
+					kparm.gram_matrix = update_kernel_matrix(kparm.gram_matrix, cset.m - 1, cset, kparm);
 				}
 
 				// set svm precision so that higher than eps of most violated
@@ -825,13 +753,11 @@ public class LearnStruct {
 				svmModel = new MODEL();
 				// Run the QP solver on cset.
 				kernel_type_org = kparm.kernel_type;
-				if ((alg_type == CommonStruct.ONESLACK_DUAL_ALG)
-						|| (alg_type == CommonStruct.ONESLACK_DUAL_CACHE_ALG))
+				if ((alg_type == CommonStruct.ONESLACK_DUAL_ALG) || (alg_type == CommonStruct.ONESLACK_DUAL_CACHE_ALG))
 					kparm.kernel_type = ModelConstant.GRAM; // use kernel stored
 															// in kparm
 
-				sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi,
-						lparm, kparm, null, svmModel, alpha);
+				sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm, null, svmModel, alpha);
 				kparm.kernel_type = (short) kernel_type_org;
 
 				svmModel.kernel_parm.kernel_type = (short) kernel_type_org;
@@ -870,8 +796,7 @@ public class LearnStruct {
 
 				// 在这里要将某些限制去掉
 				// //logger.info("cset.m before:"+cset.m);
-				remove_inactive_constraints(cset, alpha, optcount, alphahist,
-						50);
+				remove_inactive_constraints(cset, alpha, optcount, alphahist, 50);
 				// //logger.info("cset.m after:"+cset.m);
 				// if (CommonStruct.struct_verbosity >= 3)
 				// logger.info("done. ");
@@ -884,15 +809,10 @@ public class LearnStruct {
 			// logger.info("(NumConst=" + cset.m + ", SV="
 			// + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps="
 			// + svmModel.maxdiff + ")\n");
-			System.out.println("(NumConst=" + cset.m + ", SV="
-					+ (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps="
-					+ svmModel.maxdiff + ")\n");
+			System.out.println("(NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")\n");
 			// }
 
-		} while (cached_constraint != 0
-				|| (ceps > sparm.epsilon)
-				|| ssa.finalizeIteration(ceps, cached_constraint, sample, sm,
-						cset, alpha, sparm));
+		} while (cached_constraint != 0 || (ceps > sparm.epsilon) || ssa.finalizeIteration(ceps, cached_constraint, sample, sm, cset, alpha, sparm));
 
 		if (CommonStruct.struct_verbosity >= 1) {
 			// logger.info("Final epsilon on KKT-Conditions: "
@@ -900,10 +820,7 @@ public class LearnStruct {
 
 			slack = 0;
 			for (j = 0; j < cset.m; j++)
-				slack = Math.max(
-						slack,
-						cset.rhs[j]
-								- com.classifyExample(svmModel, cset.lhs[j]));
+				slack = Math.max(slack, cset.rhs[j] - com.classifyExample(svmModel, cset.lhs[j]));
 			alphasum = 0;
 			for (i = 0; i < cset.m; i++)
 				alphasum += alpha[i] * cset.rhs[i];
@@ -911,8 +828,7 @@ public class LearnStruct {
 				modellength = com.modelLengthN(svmModel);
 			else
 				modellength = com.modelLengthS(svmModel);
-			dualitygap = (0.5 * modellength * modellength + sparm.C * viol)
-					- (alphasum - 0.5 * modellength * modellength);
+			dualitygap = (0.5 * modellength * modellength + sparm.C * viol) - (alphasum - 0.5 * modellength * modellength);
 
 			// logger.info("Upper bound on duality gap: " + dualitygap + "\n");
 			// logger.info("Dual objective value: dval="
@@ -961,14 +877,12 @@ public class LearnStruct {
 	 * indicates that they have not been active for at least mininactive
 	 * iterations
 	 */
-	public void remove_inactive_constraints(CONSTSET cset, double[] alpha,
-			int currentiter, int[] alphahist, int mininactive) {
+	public void remove_inactive_constraints(CONSTSET cset, double[] alpha, int currentiter, int[] alphahist, int mininactive) {
 		int i, m;
 
 		m = 0;
 		for (i = 0; i < cset.m; i++) {
-			if ((alphahist[i] < 0)
-					|| ((currentiter - alphahist[i]) < mininactive)) {
+			if ((alphahist[i] < 0) || ((currentiter - alphahist[i]) < mininactive)) {
 
 				// keep constraints that are marked as -1 or which have recently
 				// been active
@@ -1023,20 +937,16 @@ public class LearnStruct {
 	 * returns fydelta=fy-fybar and rhs scalar value that correspond to the most
 	 * violated constraint for example ex
 	 */
-	public void find_most_violated_constraint(EXAMPLE ex, SVECTOR fycached,
-			int n, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm,
-			MostViolStruct struct) {
+	public void find_most_violated_constraint(EXAMPLE ex, SVECTOR fycached, int n, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, MostViolStruct struct) {
 		LABEL ybar;
 		SVECTOR fybar, fy;
 		double factor, lossval;
 
 		struct.argmaxCount++;
 		if (sparm.loss_type == SLACK_RESCALING) {
-			ybar = ssa.findMostViolatedConstraintSlackrescaling(ex.x, ex.y, sm,
-					sparm);
+			ybar = ssa.findMostViolatedConstraintSlackrescaling(ex.x, ex.y, sm, sparm);
 		} else {
-			ybar = ssa.findMostViolatedConstraintMarginrescaling(ex.x, ex.y,
-					sm, sparm);
+			ybar = ssa.findMostViolatedConstraintMarginrescaling(ex.x, ex.y, sm, sparm);
 		}
 
 		if (ssa.emptyLabel(ybar)) {
@@ -1070,8 +980,7 @@ public class LearnStruct {
 	 * assigns new kernelid to constraint in position newpos and fills the
 	 * corresponding part of the kernel matrix
 	 */
-	public MATRIX update_kernel_matrix(MATRIX matrix, int newpos,
-			CONSTSET cset, KERNEL_PARM kparm) {
+	public MATRIX update_kernel_matrix(MATRIX matrix, int newpos, CONSTSET cset, KERNEL_PARM kparm) {
 		int i, maxkernelid = 0, newid;
 		double kval;
 		double[] used;
@@ -1094,8 +1003,7 @@ public class LearnStruct {
 		// extend kernel matrix if necessary
 		maxkernelid = Math.max(maxkernelid, newid);
 		if ((matrix == null) || (maxkernelid >= matrix.m))
-			matrix = com.reallocMatrix(matrix, maxkernelid + 50,
-					maxkernelid + 50);
+			matrix = com.reallocMatrix(matrix, maxkernelid + 50, maxkernelid + 50);
 
 		for (i = 0; i < cset.m; i++) {
 			kval = com.kernel(kparm, cset.lhs[newpos], cset.lhs[i]);
@@ -1105,9 +1013,7 @@ public class LearnStruct {
 		return (matrix);
 	}
 
-	public void svm_learn_struct_joint_custom(SAMPLE sample,
-			STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm,
-			STRUCTMODEL sm) {
+	public void svm_learn_struct_joint_custom(SAMPLE sample, STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm, STRUCTMODEL sm) {
 
 	}
 

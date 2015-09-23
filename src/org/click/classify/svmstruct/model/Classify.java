@@ -30,42 +30,41 @@ public class Classify {
 		String line, comment;
 		MODEL model;
 
-		 Common com=new Common();
+		Common com = new Common();
 		read_input_parameters(args.length + 1, args);
-		
-		ReadSummary summary=null;
-		summary=com.nol_ll(docfile);
-		
+
+		ReadSummary summary = null;
+		summary = com.nol_ll(docfile);
+
 		max_docs = summary.read_max_docs;
 		max_words_doc = summary.read_max_words_doc;
 		max_words_doc += 2;
 		model = com.read_model(modelfile);
 
-		if (model.kernel_parm.kernel_type == 0) { // linear kernel 
-			//compute weight vector 
+		if (model.kernel_parm.kernel_type == 0) { // linear kernel
+			// compute weight vector
 			com.addWeightVectorToLinearModel(model);
 		}
 
 		String[] test_samples = FileToArray.fileToDimArr(docfile);
-        WORD[] read_words;
+		WORD[] read_words;
 		for (int i = 0; i < test_samples.length; i++) {
 			line = test_samples[i];
-			
-			ReadStruct rs=new ReadStruct();
-			read_words=com.parseDocument(line, max_words_doc,rs);
+
+			ReadStruct rs = new ReadStruct();
+			read_words = com.parseDocument(line, max_words_doc, rs);
 			doc_label = rs.read_doc_label;
 			queryid = rs.read_queryid;
 			slackid = rs.read_slackid;
 			costfactor = rs.read_costfactor;
 			comment = rs.read_comment;
-			//words = svm_common.read_words;
+			// words = svm_common.read_words;
 			words = read_words;
-			doc = com.createExample(-1, 0, 0, 0.0,
-					com.createSvector(words, comment, 1.0));
-			if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) { 
+			doc = com.createExample(-1, 0, 0, 0.0, com.createSvector(words, comment, 1.0));
+			if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 				dist = com.classifyExampleLinear(model, doc);
 			} else { /* non-linear kernel */
-				dist =com.classifyExample(model, doc);
+				dist = com.classifyExample(model, doc);
 			}
 
 			if (dist > 0) {
@@ -90,11 +89,8 @@ public class Classify {
 					res_d++;
 			}
 		}
-		
-	
-		System.out.println("Accuracy on test set:"+(float)(correct)*100.0/totdoc+" ("+correct+" correct, "+incorrect+" incorrect,"+totdoc+" total)\n");
-			   
-			  
+
+		System.out.println("Accuracy on test set:" + (float) (correct) * 100.0 / totdoc + " (" + correct + " correct, " + incorrect + " incorrect," + totdoc + " total)\n");
 
 	}
 
@@ -131,15 +127,14 @@ public class Classify {
 			print_help();
 			System.exit(0);
 		}
-		i=0;
+		i = 0;
 		docfile = argv[i];
 		modelfile = argv[i + 1];
 		if ((i + 2) < argc) {
 			predictionsfile = argv[i + 2];
 		}
 		if (((pred_format) != 0) && ((pred_format) != 1)) {
-			System.out
-					.println("\nOutput format can only take the values 0 or 1!\n\n");
+			System.out.println("\nOutput format can only take the values 0 or 1!\n\n");
 			print_help();
 			System.exit(0);
 		}
