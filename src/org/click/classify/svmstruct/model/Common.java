@@ -31,8 +31,6 @@ import org.click.lib.time.TimeOpera;
 public class Common {
 
 	public static int kernel_cache_statistic = 0;
-	public static int verbosity = 0;
-
 	public static int progress_n;
 
 
@@ -283,7 +281,7 @@ public class Common {
 		FileReader fr = null;
 		BufferedReader br = null;
 
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("Scanning examples...");
 		}
 
@@ -293,7 +291,7 @@ public class Common {
 
 		System.err.println("struct.read_max_words_doc:" + struct.read_max_words_doc);
 		System.err.println("struct.read_max_docs:" + struct.read_max_docs);
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("done\n");
 		}
 
@@ -317,7 +315,7 @@ public class Common {
 			words[j].weight = 0;
 		}
 
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("Reading examples into memory...");
 		}
 
@@ -356,7 +354,7 @@ public class Common {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("OK. (" + dnum + " examples read)\n");
 		}
 		struct.read_totdocs = dnum;
@@ -373,7 +371,7 @@ public class Common {
 		int max_words_doc, ll;
 		double doc_label, costfactor;
 
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("Scanning examples...");
 		}
 
@@ -383,7 +381,7 @@ public class Common {
 
 		struct.read_max_words_doc = summary.read_max_words_doc + 2;
 		struct.read_max_docs = summary.read_max_docs + 2;
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("done\n");
 		}
 
@@ -398,7 +396,7 @@ public class Common {
 			words[j].wnum = 0;
 			words[j].weight = 0;
 		}
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("Reading examples into memory...");
 		}
 		dnum = 0;
@@ -437,7 +435,7 @@ public class Common {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("OK. (" + dnum + " examples read)\n");
 		}
 		struct.read_totdocs = dnum;
@@ -469,7 +467,7 @@ public class Common {
 			words[j].wnum = 0;
 			words[j].weight = 0;
 		}
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("Reading examples into memory...");
 		}
 		dnum = 0;
@@ -504,7 +502,7 @@ public class Common {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("OK. (" + dnum + " examples read)\n");
 		}
 		struct.read_totdocs = dnum;
@@ -866,18 +864,18 @@ public class Common {
 		SVECTOR v;
 		MODEL compact_model = null;
 
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("Writing model file...");
 		}
 
 		// Replace SV with single weight vector
 		if (false && (model.kernel_parm.kernel_type == ModelConstant.LINEAR)) {
-			if (verbosity >= 1) {
+			if (CommonStruct.verbosity >= 1) {
 				System.out.println("(compacting...");
 			}
 			compact_model = compactLinearModel(model);
 			model = compact_model;
-			if (verbosity >= 1) {
+			if (CommonStruct.verbosity >= 1) {
 				System.out.println("done)");
 			}
 		}
@@ -913,7 +911,7 @@ public class Common {
 			}
 		}
 
-		if (verbosity >= 1) {
+		if (CommonStruct.verbosity >= 1) {
 			System.out.println("done\n");
 		}
 	}
@@ -1634,7 +1632,7 @@ public class Common {
 			WORD[] words;
 			String version_buffer;
 
-			if (verbosity >= 1) {
+			if (CommonStruct.verbosity >= 1) {
 				// logger.info("Reading model...");
 			}
 
@@ -1895,9 +1893,11 @@ public class Common {
 	public double[] reallocAlpha(double[] alpha, int m) {
 		double[] oalpha = alpha;
 		alpha = new double[m];
-		for (int i = 0; i < (m - 1); i++) {
-			alpha[i] = oalpha[i];
-		}
+		//for (int i = 0; i < (m - 1); i++) {
+		//	alpha[i] = oalpha[i];
+		//}
+
+		System.arraycopy(oalpha, 0, alpha, 0, m);
 		alpha[m - 1] = 0;
 
 		return alpha;
@@ -1913,9 +1913,10 @@ public class Common {
 	public int[] reallocAlphaList(int[] alpha_list, int m) {
 		int[] oalpha_list = alpha_list;
 		alpha_list = new int[m];
-		for (int i = 0; i < (m - 1); i++) {
-			alpha_list[i] = oalpha_list[i];
-		}
+		//for (int i = 0; i < (m - 1); i++) {
+		//	alpha_list[i] = oalpha_list[i];
+		//}
+		System.arraycopy(oalpha_list, 0, alpha_list, 0, m);
 		alpha_list[m - 1] = 0;
 
 		return alpha_list;
@@ -1929,9 +1930,10 @@ public class Common {
 	public void realSmalllocLhs(CONSTSET cset) {
 		DOC[] olhs = cset.lhs;
 		cset.lhs = new DOC[cset.m];
-		for (int i = 0; i < (cset.m); i++) {
-			cset.lhs[i] = olhs[i];
-		}
+		//for (int i = 0; i < (cset.m); i++) {
+		//	cset.lhs[i] = olhs[i];
+		//}
+		System.arraycopy(olhs, 0, cset.lhs, 0, cset.m);
 	}
 
 	/**

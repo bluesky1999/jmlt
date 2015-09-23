@@ -37,6 +37,9 @@ public class CommonStruct {
     3 = YES (best, if dense vectors and long vector lists) */
     public static final int COMPACT_CACHED_VECTORS=2;
     
+	public static int verbosity = 0;
+
+    
     public static String printW(double[] w, int sizePhi, int n,double C)
     {
     	 String log_info="";

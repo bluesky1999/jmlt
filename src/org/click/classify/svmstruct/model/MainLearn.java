@@ -30,7 +30,7 @@ public class MainLearn {
 		com.setLearningDefaults(learn_parm, kernel_parm);
 		modelfile = "svm_model";
 		restartfile = "";
-		Common.verbosity = 5;
+		CommonStruct.verbosity = 5;
 		type = "c";
 
 		for (i = 1; (i < argc) && ((argv[i].charAt(0)) == '-'); i++) {
@@ -45,7 +45,7 @@ public class MainLearn {
 				break;
 			case 'v':
 				i++;
-				Common.verbosity = Integer.parseInt(argv[i]);
+				CommonStruct.verbosity = Integer.parseInt(argv[i]);
 				break;
 			case 'b':
 				i++;
@@ -307,7 +307,7 @@ public class MainLearn {
 		MODEL model = new MODEL();
 		learn_parm = new LEARN_PARM();
 		kernel_parm = new KERNEL_PARM();
-		ml.read_input_parameters(args.length + 1, args, (short) Common.verbosity, learn_parm, kernel_parm);
+		ml.read_input_parameters(args.length + 1, args, (short) CommonStruct.verbosity, learn_parm, kernel_parm);
 		PrintWriter pw = null;
 		FileWriter fw = null;
 

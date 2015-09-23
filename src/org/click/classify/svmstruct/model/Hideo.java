@@ -53,6 +53,8 @@ public class Hideo {
 	// private static Logger logger = Logger.getLogger(Hideo.class);
 
 	public static PrintWriter pw = null;
+	
+	public SimFunc<Integer> sf=new SimFunc<Integer>();
 
 	{
 		try {
@@ -103,7 +105,7 @@ public class Hideo {
 
 		if (learn_param.totwords < learn_param.svm_maxqpsize) {
 
-			learn_param.svm_maxqpsize = SimFunc.maxi(learn_param.totwords, 2);
+			learn_param.svm_maxqpsize = sf.max(learn_param.totwords, 2);
 
 		}
 
@@ -200,8 +202,8 @@ public class Hideo {
 		}
 
 		if ((b1 == -1) || (b2 == -1)) {
-			b1 = SimFunc.maxi(b1, b2);
-			b2 = SimFunc.maxi(b1, b2);
+			b1 = sf.max(b1, b2);
+			b2 = sf.max(b1, b2);
 		}
 
 		for (i = 0; i < n; i++) {

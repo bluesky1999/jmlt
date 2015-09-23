@@ -43,7 +43,7 @@ public class ClassifyStruct {
 		ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		readInputParameters(args.length + 1, args, sparm, Common.verbosity, CommonStruct.struct_verbosity);
+		readInputParameters(args.length + 1, args, sparm, CommonStruct.verbosity, CommonStruct.struct_verbosity);
 
 
 		model = ssa.readStructModel(modelfile, sparm);
@@ -96,7 +96,7 @@ public class ClassifyStruct {
 		ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		readInputParameters(args.length + 1, args, sparm, Common.verbosity, CommonStruct.struct_verbosity);
+		readInputParameters(args.length + 1, args, sparm,CommonStruct.verbosity, CommonStruct.struct_verbosity);
 
 		model = ssa.readStructModel(modelfile, sparm);
 
@@ -207,7 +207,7 @@ public class ClassifyStruct {
 		ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		readInputParameters(args.length + 1, args, sparm, Common.verbosity, CommonStruct.struct_verbosity);
+		readInputParameters(args.length + 1, args, sparm, CommonStruct.verbosity, CommonStruct.struct_verbosity);
 
 
 		model = ssa.readStructModel(modelfile, sparm);
@@ -372,7 +372,7 @@ public class ClassifyStruct {
 		Struct ssa = FactoryStruct.get_svm_struct_api();
 		ssa.svmStructClassifyApiInit(args.length + 1, args);
 
-		cs.readInputParameters(args.length + 1, args, sparm, Common.verbosity, CommonStruct.struct_verbosity);
+		cs.readInputParameters(args.length + 1, args, sparm, CommonStruct.verbosity, CommonStruct.struct_verbosity);
 
 
 		PrintWriter pw = new PrintWriter(predictionsfile);

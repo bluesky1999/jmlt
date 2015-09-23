@@ -5,23 +5,16 @@ package  org.click.lib.math;
  * @author lq
  *
  */
-public class SimFunc {
+public class SimFunc<T extends Comparable<T>> {
 
-	public static long maxl(long  a, long  b)
+	public T max(T  a, T  b)
 	{
-	  if(a>b)
+	  if(a.compareTo(b)>0)
 	    return(a);
 	  else
 	    return(b);
 	}
 	
-	public static int maxi(int  a, int  b)
-	{
-	  if(a>b)
-	    return(a);
-	  else
-	    return(b);
-	}
 	
 	public static double entropy(double x)
 	{
@@ -29,5 +22,17 @@ public class SimFunc {
 		y=-x*Math.log(x)-(1-x)*Math.log(1-x);
 		return y;
 	}
+	
+	public static void main(String[] args)
+	{
+		SimFunc<Double> sf=new SimFunc<Double>();
+		
+		double a=1.0,b=15.0;
+		
+		System.err.println("max:"+sf.max(a, b));
+		
+	}
+	
+	
 	
 }
