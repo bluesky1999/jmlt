@@ -644,6 +644,8 @@ public class Hideo {
 
 			if (m > 0) {
 				for (i = 0; i < n; i++) {
+					//dual[i],dual[i+n] stands for dual variable for up ,low constraint ,dual[n+n],dual[n+n+1] 
+					//stands for dual variable for equality constraint
 					temp[i] = dual[i] - dual[i + n] + ce[i] * (dual[n + n] - dual[n + n + 1]) + g0[i];
 				}
 			} else {
@@ -653,6 +655,8 @@ public class Hideo {
 			}
 			for (i = 0; i < n; i++) {
 				primal[i] = 0; // calc value of primal variables
+				
+				//x(*)=-ig*(B^T*dual(*)+b), the element of B is either +1 or -1 
 				for (j = 0; j < n; j++) {
 					primal[i] += ig[i * n + j] * temp[j];
 				}
