@@ -611,12 +611,15 @@ public class Hideo {
 
 				maxviol = 0;
 				
-				//the main update step here ,s.t. d(i)+sum(j)_1^m{d(ij)*dual(j)}=0
+				//the main update step here ,s.t. d0(i)+sum(j)_1^m{d(ij)*dual(j)}=0
 				for (i = 0; i < 2 * (n + m); i++) {
 					sum = d0[i];
 					for (j = 0; j < 2 * (n + m); j++) {
 						sum += d[i * 2 * (n + m) + j] * dual_old[j];
 					}
+					
+					//remove the dual[i] self effect so sum is d0(i)-sum(j|j!=i)_1^m{d(ij)} here
+					//Reference: introduction to nonlinear optimization D.A. Wismer R. chattergy Hildreth and D'Espo part
 					sum -= d[i * 2 * (n + m) + i] * dual_old[i];
 					dual[i] = -sum / d[i * 2 * (n + m) + i];
 					System.err.print("dual["+i+"]="+dual[i]+" ");
@@ -624,6 +627,8 @@ public class Hideo {
 						dual[i] = 0;
 
 					viol = Math.abs(dual[i] - dual_old[i]);
+					
+					//test whether the dual solution is converged 
 					if (viol > maxviol)
 						maxviol = viol;
 					dual_old[i] = dual[i];
