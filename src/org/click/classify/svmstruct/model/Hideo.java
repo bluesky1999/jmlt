@@ -84,6 +84,7 @@ public class Hideo {
 	 */
 	public double[] optimizeQp(QP qp, double epsilon_crit, int nx, double threshold, LEARN_PARM learn_param) {
 
+		System.err.println("epsilon_crit:"+epsilon_crit+" threshold:"+threshold);
 		int i, j;
 		int result;
 		double eq;
@@ -837,6 +838,81 @@ public class Hideo {
 		}
 		return (obj);
 
+	}
+	
+	public static void main(String[] args)
+	{
+		/*
+		double[] opt_low={0,0};
+		double[] opt_up={1,1};
+		
+		double[] opt_g={1,0,0,1};
+		double[] opt_g0={-2,-2};
+		
+		double[] opt_xinit={0,0};
+		double[] opt_ce={0,0};
+		double[] opt_ce0={0};
+		
+		int opt_m=0;
+		int opt_n=2;
+		
+		QP qp=new QP();
+		qp.opt_up=opt_up;
+		qp.opt_low=opt_low;
+		qp.opt_g=opt_g;
+		qp.opt_g0=opt_g0;
+		qp.opt_n=opt_n;
+		qp.opt_m=opt_m;
+		qp.opt_xinit=opt_xinit;
+		qp.opt_ce=opt_ce;
+		qp.opt_ce0=opt_ce0;
+		
+		Hideo hd=new Hideo();
+		
+		LEARN_PARM lp=new LEARN_PARM();
+		double[] res=hd.optimizeQp(qp, 50, 2, 0, lp);
+		
+		for(int i=0;i<res.length;i++)
+		{
+			System.err.println(i+":"+res[i]);
+		}
+		*/
+		
+		
+		double[] opt_low={0,0};
+		double[] opt_up={100,100};
+		
+		double[] opt_g={2,-1,-1,1};
+		double[] opt_g0={-1,0};
+		
+		double[] opt_xinit={0,0};
+		double[] opt_ce={3,2};
+		double[] opt_ce0={-5};
+		
+		int opt_m=1;
+		int opt_n=2;
+		
+		QP qp=new QP();
+		qp.opt_up=opt_up;
+		qp.opt_low=opt_low;
+		qp.opt_g=opt_g;
+		qp.opt_g0=opt_g0;
+		qp.opt_n=opt_n;
+		qp.opt_m=opt_m;
+		qp.opt_xinit=opt_xinit;
+		qp.opt_ce=opt_ce;
+		qp.opt_ce0=opt_ce0;
+		
+		Hideo hd=new Hideo();
+		
+		LEARN_PARM lp=new LEARN_PARM();
+		double[] res=hd.optimizeQp(qp, 50, 2, 0, lp);
+		
+		for(int i=0;i<res.length;i++)
+		{
+			System.err.println(i+":"+res[i]);
+		}
+		
 	}
 
 }
