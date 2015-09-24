@@ -35,6 +35,8 @@ public class Hideo {
 	public static final double EPSILON_EQ = 1E-5;
 
 	public double[] primal = null;
+	
+	
 	public double[] dual = null;
 
 	public long precision_violations = 0;
@@ -94,6 +96,8 @@ public class Hideo {
 
 		if (primal == null) {
 			primal = new double[nx];
+			
+			//the dual variable includes 2*n dual variables for box constraints and 2*1 dual variables for equality constraint
 			dual = new double[2 * (nx + 1)];
 			nonoptimal = new int[nx];
 			buffer = new double[(nx + 1) * 2 * (nx + 1) * 2 + nx * nx + 2 * (nx + 1) * 2 + 2 * nx + 1 + 2 * nx + nx + nx + nx * nx];
@@ -173,8 +177,12 @@ public class Hideo {
 
 		g0_new = new double[n];
 		
-		
+		//d stands for d=B*ig*BT(what is B here?)
 		d = new double[(n + m) * 2 * (n + m) * 2];
+		
+		//d0 stands for d0=c+B*ig*b,what is b and c 
+		//b stands for opt_g0
+		//c stands for inequality right part that is B*x<=c
 		d0 = new double[(n + m) * 2];
 		ce_new = new double[n];
 		ce0_new = new double[m];

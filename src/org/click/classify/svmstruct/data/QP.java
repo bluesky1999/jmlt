@@ -9,13 +9,19 @@ package org.click.classify.svmstruct.data;
 */
 public class QP {
 	
+	 //number of variables
 	 public int opt_n;
+	 
+	 //number of linear equality constraints
 	 public int opt_m;
+	 	 
 	 public double[] opt_ce;
 	 public double[] opt_ce0;
 	 	 
 	 public double[] opt_g;
 	 public double[] opt_g0;
+	 
+	 //initial value for variables
 	 public double[] opt_xinit;
 	 public double[] opt_low,opt_up;
 	 
