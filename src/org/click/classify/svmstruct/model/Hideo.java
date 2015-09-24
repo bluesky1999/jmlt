@@ -610,6 +610,8 @@ public class Hideo {
 				iter++;
 
 				maxviol = 0;
+				
+				//the main update step here ,s.t. d(i)+sum(j)_1^m{d(ij)*dual(j)}=0
 				for (i = 0; i < 2 * (n + m); i++) {
 					sum = d0[i];
 					for (j = 0; j < 2 * (n + m); j++) {
