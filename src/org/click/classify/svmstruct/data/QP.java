@@ -5,7 +5,7 @@ package org.click.classify.svmstruct.data;
   <br>
   minimize   g0 * x + 1/2 x' * G * x <br>
   &nbsp;&nbsp; subject to ce*x - ce0 = 0 <br>
-  &nbsp; &nbsp;&nbsp;     l <= x <= u <br>
+  &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;l <= x <= u <br>
 */
 public class QP {
 	
