@@ -645,7 +645,7 @@ public class Hideo {
 			if (m > 0) {
 				for (i = 0; i < n; i++) {
 					//dual[i],dual[i+n] stands for dual variable for up ,low constraint ,dual[n+n],dual[n+n+1] 
-					//stands for dual variable for equality constraint
+					//stands for dual variable for equality constraint,b stands for g0
 					temp[i] = dual[i] - dual[i + n] + ce[i] * (dual[n + n] - dual[n + n + 1]) + g0[i];
 				}
 			} else {
