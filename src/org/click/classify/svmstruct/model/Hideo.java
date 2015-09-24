@@ -172,6 +172,8 @@ public class Hideo {
 		double g0_b1 = 0, g0_b2 = 0, ce0_b;
 
 		g0_new = new double[n];
+		
+		
 		d = new double[(n + m) * 2 * (n + m) * 2];
 		d0 = new double[(n + m) * 2];
 		ce_new = new double[n];
