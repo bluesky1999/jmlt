@@ -9,6 +9,7 @@ import org.click.classify.svmstruct.data.WU;
 import org.click.lib.math.SimFunc;
 
 /**
+ * The Hildreth and D'Espo solver specialized for SVMs. <br>
  * 解决下面的二次规划问题 minimize g0 * x + 1/2 x' * G * x s.t. ce*x - ce0 = 0 l <= x <= u <br>
  * ce 的元素只能取值 -1 或 1
  * 
@@ -120,7 +121,7 @@ public class Hideo {
 		}
 
 		if ((result != PRIMAL_OPTIMAL) || (roundnumber % 31 == 0) || (progress <= 0)) {
-			// logger.info("result is not PRIMAL_OPTIMAL");
+			System.err.println("result is not PRIMAL_OPTIMAL");
 			smallroundcount++;
 
 			result = optimizeHildrethDespo(qp.opt_n, qp.opt_m, opt_precision, epsilon_crit, learn_param.epsilon_a, maxiter, PRIMAL_OPTIMAL, SMALLROUND, lindep_sensitivity, qp.opt_g, qp.opt_g0, qp.opt_ce, qp.opt_ce0, qp.opt_low, qp.opt_up, primal, qp.opt_xinit, dual, nonoptimal, buffer);
@@ -591,8 +592,10 @@ public class Hideo {
 		scalemaxiter = maxiter / 5;
 
 		// ========= main loop ===================
+		
 		while ((retrain > 0) && (maxviol > 0) && (iter < (scalemaxiter * maxfaktor))) {
 			iter++;
+			System.err.println("iter:"+iter);
 			while ((maxviol > precision) && (iter < (scalemaxiter * maxfaktor))) {
 				iter++;
 
@@ -604,6 +607,7 @@ public class Hideo {
 					}
 					sum -= d[i * 2 * (n + m) + i] * dual_old[i];
 					dual[i] = -sum / d[i * 2 * (n + m) + i];
+					System.err.print("dual["+i+"]="+dual[i]+" ");
 					if (dual[i] < 0)
 						dual[i] = 0;
 
@@ -612,6 +616,8 @@ public class Hideo {
 						maxviol = viol;
 					dual_old[i] = dual[i];
 				}
+				
+				System.err.println();
 
 			}
 
