@@ -606,6 +606,8 @@ public class Hideo {
 		while ((retrain > 0) && (maxviol > 0) && (iter < (scalemaxiter * maxfaktor))) {
 			iter++;
 			System.err.println("iter:"+iter);
+			
+			//Hildreth and D'Espo route here
 			while ((maxviol > precision) && (iter < (scalemaxiter * maxfaktor))) {
 				iter++;
 
@@ -623,6 +625,8 @@ public class Hideo {
 					sum -= d[i * 2 * (n + m) + i] * dual_old[i];
 					dual[i] = -sum / d[i * 2 * (n + m) + i];
 					System.err.print("dual["+i+"]="+dual[i]+" ");
+					
+					//not less than zero
 					if (dual[i] < 0)
 						dual[i] = 0;
 
@@ -636,7 +640,7 @@ public class Hideo {
 				
 				System.err.println();
 
-			}
+			}//end of Hildreth and D'Espo
 
 			if (m > 0) {
 				for (i = 0; i < n; i++) {
