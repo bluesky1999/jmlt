@@ -59,7 +59,7 @@ public class Multiclass extends Struct {
 
 		sparm.num_features = totwords;
 		if (CommonStruct.struct_verbosity >= 0) {
-			System.out.println("Training set properties: " + sparm.num_features + " features " + sparm.num_classes + " classes\n");
+			System.out.println("Training set properties: " + sparm.num_features + " features " + sparm.num_classes + " classes");
 		}
 
 		sm.sizePsi = sparm.num_features * sparm.num_classes;

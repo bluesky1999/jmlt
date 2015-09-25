@@ -345,7 +345,7 @@ public class Common {
 
 				docs[dnum] = createExample(dnum, rs.read_queryid, rs.read_slackid, rs.read_costfactor, createSvector(words, rs.read_comment, 1.0));
 				dnum++;
-				System.err.println("dnum:" + dnum);
+				//System.err.println("dnum:" + dnum);
 				// rs=null;
 			}
 

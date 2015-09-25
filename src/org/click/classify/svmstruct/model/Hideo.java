@@ -381,7 +381,8 @@ public class Hideo {
 			}
 		}
 
-		copyMatrix(g, n, d);
+		System.arraycopy(g,0, d, 0, n*n);
+		//copyMatrix(g, n, d);
 
 		if ((m == 1) && (add > 0.0)) {
 			for (j = 0; j < n; j++) {
@@ -439,7 +440,9 @@ public class Hideo {
 			lin_dependent[b1] = i;
 		}
 
-		copyMatrix(g, n, g_new); // restore g_new matrix
+		//copyMatrix(g, n, g_new); // restore g_new matrix
+		
+		System.arraycopy(g, 0, g_new, 0, n*n);
 		if (add > 0)
 			for (j = 0; j < n; j++) {
 				for (k = 0; k < n; k++) {
@@ -840,14 +843,15 @@ public class Hideo {
 		}
 	}
 
-	public void copyMatrix(double[] matrix, int depth, double[] matrix2) {
-		// int i;
-
-		/*
-		 * for (i = 0; i < (depth * depth); i++) { matrix2[i] = matrix[i]; }
-		 */
-		System.arraycopy(matrix, 0, matrix2, 0, depth * depth);
-	}
+	/*
+	 * public void copyMatrix(double[] matrix, int depth, double[] matrix2) {
+	 * //int i;
+	 * 
+	 * 
+	 * //for (i = 0; i < (depth * depth); i++) { matrix2[i] = matrix[i]; }
+	 * 
+	 * System.arraycopy(matrix, 0, matrix2, 0, depth * depth); }
+	 */
 
 	public void switchrkMatrix(double[] matrix, int depth, int rk1, int rk2) {
 		int i;
