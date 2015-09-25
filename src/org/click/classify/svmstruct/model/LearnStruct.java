@@ -505,10 +505,10 @@ public class LearnStruct {
 		// === main loop=======
 		do { // iteratively find and add constraints to working set
 
-			if (CommonStruct.struct_verbosity >= 1) {
+			//if (CommonStruct.struct_verbosity >= 1) {
 				// logger.info("in loop Iter " + (++numIt) + ": ");
-				System.out.println("in loop Iter " + (numIt) + ": ");
-			}
+			//	System.out.println("in loop Iter " + (numIt) + ": ");
+			//}
 
 			// compute current slack
 			alphasum = 0;

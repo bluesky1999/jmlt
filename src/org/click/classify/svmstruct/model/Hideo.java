@@ -34,8 +34,7 @@ public class Hideo {
 	public static final double EPSILON_EQ = 1E-5;
 
 	public double[] primal = null;
-	
-	
+
 	public double[] dual = null;
 
 	public long precision_violations = 0;
@@ -55,8 +54,8 @@ public class Hideo {
 	// private static Logger logger = Logger.getLogger(Hideo.class);
 
 	public static PrintWriter pw = null;
-	
-	public SimFunc<Integer> sf=new SimFunc<Integer>();
+
+	public SimFunc<Integer> sf = new SimFunc<Integer>();
 
 	{
 		try {
@@ -86,7 +85,7 @@ public class Hideo {
 	 */
 	public double[] optimizeQp(QP qp, double epsilon_crit, int nx, double threshold, LEARN_PARM learn_param) {
 
-		//System.err.println("epsilon_crit:"+epsilon_crit+" threshold:"+threshold);
+		// System.err.println("epsilon_crit:"+epsilon_crit+" threshold:"+threshold);
 		int i, j;
 		int result;
 		double eq;
@@ -95,8 +94,9 @@ public class Hideo {
 
 		if (primal == null) {
 			primal = new double[nx];
-			
-			//the dual variable includes 2*n dual variables for box constraints and 2*1 dual variables for equality constraint
+
+			// the dual variable includes 2*n dual variables for box constraints
+			// and 2*1 dual variables for equality constraint
 			dual = new double[2 * (nx + 1)];
 			nonoptimal = new int[nx];
 			buffer = new double[(nx + 1) * 2 * (nx + 1) * 2 + nx * nx + 2 * (nx + 1) * 2 + 2 * nx + 1 + 2 * nx + nx + nx + nx * nx];
@@ -124,7 +124,7 @@ public class Hideo {
 		}
 
 		if ((result != PRIMAL_OPTIMAL) || (roundnumber % 31 == 0) || (progress <= 0)) {
-			//System.err.println("result is not PRIMAL_OPTIMAL");
+			// System.err.println("result is not PRIMAL_OPTIMAL");
 			smallroundcount++;
 
 			result = optimizeHildrethDespo(qp.opt_n, qp.opt_m, opt_precision, epsilon_crit, learn_param.epsilon_a, maxiter, PRIMAL_OPTIMAL, SMALLROUND, lindep_sensitivity, qp.opt_g, qp.opt_g0, qp.opt_ce, qp.opt_ce0, qp.opt_low, qp.opt_up, primal, qp.opt_xinit, dual, nonoptimal, buffer);
@@ -175,13 +175,13 @@ public class Hideo {
 		double g0_b1 = 0, g0_b2 = 0, ce0_b;
 
 		g0_new = new double[n];
-		
-		//d stands for d=B*ig*BT(what is B here?)
+
+		// d stands for d=B*ig*BT(what is B here?)
 		d = new double[(n + m) * 2 * (n + m) * 2];
-		
-		//d0 stands for d0=c+B*ig*b,what is b and c 
-		//b stands for opt_g0
-		//c stands for inequality right part that is B*x<=c
+
+		// d0 stands for d0=c+B*ig*b,what is b and c
+		// b stands for opt_g0
+		// c stands for inequality right part that is B*x<=c
 		d0 = new double[(n + m) * 2];
 		ce_new = new double[n];
 		ce0_new = new double[m];
@@ -522,13 +522,30 @@ public class Hideo {
 		return ((int) result);
 	}
 
+	private class DualCheck {
+
+		int retrain;
+
+		double maxviol;
+
+		int maxfaktor;
+
+		int primal_optimal;
+
+		double precision;
+
+	}
+
 	public int solveDual(int n, int m, double precision, double epsilon_crit, int maxiter, double[] g, double[] g0, double[] ce, double[] ce0, double[] low, double[] up, double[] primal, double[] d, double[] d0, double[] ig, double[] dual, double[] dual_old, double[] temp, int goal) {
 		int i, j, k, iter;
-		double sum, w, maxviol, viol, temp1, temp2, isnantest;
+		// double maxviol;
+		double sum, w, viol, temp1, temp2, isnantest;
 		double model_b, dist;
-		int retrain, maxfaktor, primal_optimal = 0, at_bound, scalemaxiter;
+		// int retrain, maxfaktor;
+		// int primal_optimal = 0;
+		int at_bound, scalemaxiter;
 		double epsilon_a = 1E-15, epsilon_hideo;
-		double eq;
+		// double eq;
 
 		if ((m < 0) || (m > 1)) {
 			System.err.println("SOLVE DUAL: inappropriate number of eq-constrains!");
@@ -584,7 +601,7 @@ public class Hideo {
 		}
 
 		if (m > 0) {
-			sum = 0; // dual linear component for eq constraints 
+			sum = 0; // dual linear component for eq constraints
 			for (j = 0; j < n; j++) {
 				for (k = 0; k < n; k++) {
 					sum += (ce[k] * ig[k * n + j] * g0[j]);
@@ -594,53 +611,64 @@ public class Hideo {
 			d0[2 * n + 1] = -ce0[0] - sum;
 		}
 
-		maxviol = 999999;
+		// maxviol = 999999;
 		iter = 0;
-		retrain = 1;
-		maxfaktor = 1;
+		// retrain = 1;
+		// maxfaktor = 1;
 		scalemaxiter = maxiter / 5;
 
 		// ========= main loop ===================
-		
-		while ((retrain > 0) && (maxviol > 0) && (iter < (scalemaxiter * maxfaktor))) {
+
+		DualCheck dc = new DualCheck();
+		dc.retrain = 1;
+		dc.maxviol = 999999;
+		dc.maxfaktor = 1;
+		dc.precision = precision;
+		dc.primal_optimal = 0;
+
+		while ((dc.retrain > 0) && (dc.maxviol > 0) && (iter < (scalemaxiter * dc.maxfaktor))) {
 			iter++;
-			
-			//Hildreth and D'Espo route here
-			while ((maxviol > precision) && (iter < (scalemaxiter * maxfaktor))) {
+
+			// Hildreth and D'Espo route here
+			while ((dc.maxviol > precision) && (iter < (scalemaxiter * dc.maxfaktor))) {
 				iter++;
-				maxviol = 0;
-				
-				//the main update step here ,s.t. d0(i)+sum(j)_1^m{d(ij)*dual(j)}=0
+				dc.maxviol = 0;
+
+				// the main update step here ,s.t.
+				// d0(i)+sum(j)_1^m{d(ij)*dual(j)}=0
 				for (i = 0; i < 2 * (n + m); i++) {
 					sum = d0[i];
 					for (j = 0; j < 2 * (n + m); j++) {
 						sum += d[i * 2 * (n + m) + j] * dual_old[j];
 					}
-					
-					//remove the dual[i] self effect so sum is d0(i)-sum(j|j!=i)_1^m{d(ij)} here
-					//Reference: introduction to nonlinear optimization D.A. Wismer R. chattergy Hildreth and D'Espo part
+
+					// remove the dual[i] self effect so sum is
+					// d0(i)-sum(j|j!=i)_1^m{d(ij)} here
+					// Reference: introduction to nonlinear optimization D.A.
+					// Wismer R. chattergy Hildreth and D'Espo part
 					sum -= d[i * 2 * (n + m) + i] * dual_old[i];
 					dual[i] = -sum / d[i * 2 * (n + m) + i];
-					
-					//not less than zero
+
+					// not less than zero
 					if (dual[i] < 0)
 						dual[i] = 0;
 
 					viol = Math.abs(dual[i] - dual_old[i]);
-					
-					//test whether the dual solution is converged 
-					if (viol > maxviol)
-						maxviol = viol;
+
+					// test whether the dual solution is converged
+					if (viol > dc.maxviol)
+						dc.maxviol = viol;
 					dual_old[i] = dual[i];
 				}
-				
 
-			}//end of Hildreth and D'Espo
+			}// end of Hildreth and D'Espo
 
 			if (m > 0) {
 				for (i = 0; i < n; i++) {
-					//dual[i],dual[i+n] stands for dual variable for up ,low constraint ,dual[n+n],dual[n+n+1] 
-					//stands for dual variable for equality constraint,b stands for g0
+					// dual[i],dual[i+n] stands for dual variable for up ,low
+					// constraint ,dual[n+n],dual[n+n+1]
+					// stands for dual variable for equality constraint,b stands
+					// for g0
 					temp[i] = dual[i] - dual[i + n] + ce[i] * (dual[n + n] - dual[n + n + 1]) + g0[i];
 				}
 			} else {
@@ -650,8 +678,8 @@ public class Hideo {
 			}
 			for (i = 0; i < n; i++) {
 				primal[i] = 0; // calc value of primal variables
-				
-				//x(*)=-ig*(B^T*dual(*)+b), the element of B is either +1 or -1 
+
+				// x(*)=-ig*(B^T*dual(*)+b), the element of B is either +1 or -1
 				for (j = 0; j < n; j++) {
 					primal[i] += ig[i * n + j] * temp[j];
 				}
@@ -668,94 +696,11 @@ public class Hideo {
 			else
 				model_b = 0;
 
-			epsilon_hideo = EPSILON_HIDEO;
-	
-			//the following are two different termination criteria for the algorithm
-			//first is checking the alphas(which is derived from primal KKT conditions)
-			//second is checking the primal KKT conditions 
-			//reference:Making Large-scale SVM Learning practical (Thorsten Joachims)
-			//g stands for y*k ,primal stands for alphas,the y is all one here
-			//
-			
-			for (i = 0; i < n; i++) { // check precision of alphas
-				dist = -model_b * ce[i];
-				dist += (g0[i] + 1.0);
-				for (j = 0; j < i; j++) {
-					dist += (primal[j] * g[j * n + i]);
-				}
-				for (j = i; j < n; j++) {
-					dist += (primal[j] * g[i * n + j]);
-				}
-				if ((primal[i] < (up[i] - epsilon_hideo)) && (dist < (1.0 - epsilon_crit))) {
-					//System.err.println("condition 1");
-					epsilon_hideo = (up[i] - primal[i]) * 2.0;
-				} else if ((primal[i] > (low[i] + epsilon_hideo)) && (dist > (1.0 + epsilon_crit))) {
-					//System.err.println("condition 2");
-					epsilon_hideo = (primal[i] - low[i]) * 2.0;
-				}
-				
-				//System.err.println("epsilon_hideo:"+epsilon_hideo);
-				
-			}
+			//checkDual(n, m, model_b, ce, ce0, primal, g, g0, up, low, epsilon_crit, epsilon_a, goal, dc);
 
-			for (i = 0; i < n; i++) { // clip alphas to bounds
-				if (primal[i] <= (low[i] + epsilon_hideo)) {
-					//System.err.println("clip low "+i);
-					primal[i] = low[i];
-				} else if (primal[i] >= (up[i] - epsilon_hideo)) {
-					//System.err.println("clip up "+i);
-					primal[i] = up[i];
-				}
-			}
+		}// end of outer loop
 
-			retrain = 0;
-			primal_optimal = 1;
-			at_bound = 0;
-			for (i = 0; (i < n); i++) { // check primal KT-Conditions
-				dist = -model_b * ce[i];
-				dist += (g0[i] + 1.0);
-				for (j = 0; j < i; j++) {
-					dist += (primal[j] * g[j * n + i]);
-				}
-				for (j = i; j < n; j++) {
-					dist += (primal[j] * g[i * n + j]);
-				}
-
-				if ((primal[i] < (up[i] - epsilon_a)) && (dist < (1.0 - epsilon_crit))) {
-					retrain = 1;
-					primal_optimal = 0;
-				} else if ((primal[i] > (low[i] + epsilon_a)) && (dist > (1.0 + epsilon_crit))) {
-					retrain = 1;
-					primal_optimal = 0;
-				}
-				if ((primal[i] <= (low[i] + epsilon_a)) || (primal[i] >= (up[i] - epsilon_a))) {
-					at_bound++;
-				}
-
-			}
-			if (m > 0) {
-				eq = -ce0[0]; // check precision of eq-constraint
-				for (i = 0; i < n; i++) {
-					eq += (ce[i] * primal[i]);
-				}
-				if ((EPSILON_EQ < Math.abs(eq))) {
-					retrain = 1;
-					primal_optimal = 0;
-				}
-
-			}
-
-			if (retrain > 0) {
-				precision /= 10;
-				if (((goal == PRIMAL_OPTIMAL) && (maxfaktor < 50000)) || (maxfaktor < 5)) {
-					maxfaktor++;
-				}
-			}
-			
-			
-		}//end of outer loop
-
-		if (primal_optimal == 0) {
+		if (dc.primal_optimal == 0) {
 			for (i = 0; i < n; i++) {
 				primal[i] = 0; // calc value of primal variables
 				for (j = 0; j < n; j++) {
@@ -788,15 +733,110 @@ public class Hideo {
 
 		if (Double.isNaN(isnantest)) {
 			return ((int) NAN_SOLUTION);
-		} else if (primal_optimal > 0) {
+		} else if (dc.primal_optimal > 0) {
 
 			return ((int) PRIMAL_OPTIMAL);
-		} else if (maxviol == 0.0) {
+		} else if (dc.maxviol == 0.0) {
 			return ((int) DUAL_OPTIMAL);
 		} else {
 			return ((int) MAXITER_EXCEEDED);
 		}
 
+	}
+
+	public void checkDual(int n, int m, double model_b, double[] ce, double[] ce0, double[] primal, double[] g, double[] g0, double[] up, double[] low, double epsilon_crit, double epsilon_a, int goal, DualCheck dc) {
+		int at_bound = 0;
+		double dist = 0, epsilon_hideo = 0, eq;
+		dc.primal_optimal = 1;
+		at_bound = 0;
+
+		int i, j;
+
+		epsilon_hideo = EPSILON_HIDEO;
+
+		// the following are two different termination criteria for the
+		// algorithm
+		// first is checking the alphas(which is derived from primal KKT
+		// conditions)
+		// second is checking the primal KKT conditions
+		// reference:Making Large-scale SVM Learning practical (Thorsten
+		// Joachims)
+		// g stands for y*k ,primal stands for alphas,the y is all one here
+		//
+
+		for (i = 0; i < n; i++) { // check precision of alphas
+			dist = -model_b * ce[i];
+			dist += (g0[i] + 1.0);
+			for (j = 0; j < i; j++) {
+				dist += (primal[j] * g[j * n + i]);
+			}
+			for (j = i; j < n; j++) {
+				dist += (primal[j] * g[i * n + j]);
+			}
+			if ((primal[i] < (up[i] - epsilon_hideo)) && (dist < (1.0 - epsilon_crit))) {
+				// System.err.println("condition 1");
+				epsilon_hideo = (up[i] - primal[i]) * 2.0;
+			} else if ((primal[i] > (low[i] + epsilon_hideo)) && (dist > (1.0 + epsilon_crit))) {
+				// System.err.println("condition 2");
+				epsilon_hideo = (primal[i] - low[i]) * 2.0;
+			}
+
+			// System.err.println("epsilon_hideo:"+epsilon_hideo);
+
+		}
+
+		for (i = 0; i < n; i++) { // clip alphas to bounds
+			if (primal[i] <= (low[i] + epsilon_hideo)) {
+				// System.err.println("clip low "+i);
+				primal[i] = low[i];
+			} else if (primal[i] >= (up[i] - epsilon_hideo)) {
+				// System.err.println("clip up "+i);
+				primal[i] = up[i];
+			}
+		}
+
+		dc.retrain = 0;
+
+		for (i = 0; (i < n); i++) { // check primal KT-Conditions
+			dist = -model_b * ce[i];
+			dist += (g0[i] + 1.0);
+			for (j = 0; j < i; j++) {
+				dist += (primal[j] * g[j * n + i]);
+			}
+			for (j = i; j < n; j++) {
+				dist += (primal[j] * g[i * n + j]);
+			}
+
+			if ((primal[i] < (up[i] - epsilon_a)) && (dist < (1.0 - epsilon_crit))) {
+				dc.retrain = 1;
+				dc.primal_optimal = 0;
+			} else if ((primal[i] > (low[i] + epsilon_a)) && (dist > (1.0 + epsilon_crit))) {
+				dc.retrain = 1;
+				dc.primal_optimal = 0;
+			}
+			if ((primal[i] <= (low[i] + epsilon_a)) || (primal[i] >= (up[i] - epsilon_a))) {
+				at_bound++;
+			}
+
+		}
+		if (m > 0) {
+			eq = -ce0[0]; // check precision of eq-constraint
+			for (i = 0; i < n; i++) {
+				eq += (ce[i] * primal[i]);
+			}
+			if ((EPSILON_EQ < Math.abs(eq))) {
+				dc.retrain = 1;
+				dc.primal_optimal = 0;
+			}
+
+		}
+
+		if (dc.retrain > 0) {
+			dc.precision /= 10;
+			if (((goal == PRIMAL_OPTIMAL) && (dc.maxfaktor < 50000)) || (dc.maxfaktor < 5)) {
+				dc.maxfaktor++;
+			}
+		}
 	}
 
 	public void lCopyMatrix(double[] matrix, int depth, double[] matrix2) {
@@ -866,6 +906,7 @@ public class Hideo {
 
 	}
 
+	/*
 	public double calculateQpObjective(int opt_n, double[] opt_g, double[] opt_g0, double[] alpha) {
 		double obj;
 		int i, j;
@@ -882,80 +923,81 @@ public class Hideo {
 		return (obj);
 
 	}
+	*/
+
+	public double calculateQpObjective(int opt_n, double[] opt_g, double[] opt_g0, double[] alpha) {
+		double obj;
+		int i, j;
+		obj = 0;
+
+		// calculate objective
+		for (i = 0; i < opt_n; i++) {
+			obj += opt_g0[i]*alpha[i];
+			obj += 0.5*alpha[i]*alpha[i]* opt_g[i * opt_n + i];
+			for (j = 0; j < i; j++) {
+				obj+=alpha[j]*alpha[i]* opt_g[j * opt_n + i];
+			}
+		}
+		return (obj);
+
+	}
 	
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		/*
-		double[] opt_low={0,0};
-		double[] opt_up={1,1};
-		
-		double[] opt_g={1,0,0,1};
-		double[] opt_g0={-2,-2};
-		
-		double[] opt_xinit={0,0};
-		double[] opt_ce={0,0};
-		double[] opt_ce0={0};
-		
-		int opt_m=0;
-		int opt_n=2;
-		
-		QP qp=new QP();
-		qp.opt_up=opt_up;
-		qp.opt_low=opt_low;
-		qp.opt_g=opt_g;
-		qp.opt_g0=opt_g0;
-		qp.opt_n=opt_n;
-		qp.opt_m=opt_m;
-		qp.opt_xinit=opt_xinit;
-		qp.opt_ce=opt_ce;
-		qp.opt_ce0=opt_ce0;
-		
-		Hideo hd=new Hideo();
-		
-		LEARN_PARM lp=new LEARN_PARM();
-		double[] res=hd.optimizeQp(qp, 50, 2, 0, lp);
-		
-		for(int i=0;i<res.length;i++)
-		{
-			System.err.println(i+":"+res[i]);
+		 * double[] opt_low={0,0}; double[] opt_up={1,1};
+		 * 
+		 * double[] opt_g={1,0,0,1}; double[] opt_g0={-2,-2};
+		 * 
+		 * double[] opt_xinit={0,0}; double[] opt_ce={0,0}; double[]
+		 * opt_ce0={0};
+		 * 
+		 * int opt_m=0; int opt_n=2;
+		 * 
+		 * QP qp=new QP(); qp.opt_up=opt_up; qp.opt_low=opt_low; qp.opt_g=opt_g;
+		 * qp.opt_g0=opt_g0; qp.opt_n=opt_n; qp.opt_m=opt_m;
+		 * qp.opt_xinit=opt_xinit; qp.opt_ce=opt_ce; qp.opt_ce0=opt_ce0;
+		 * 
+		 * Hideo hd=new Hideo();
+		 * 
+		 * LEARN_PARM lp=new LEARN_PARM(); double[] res=hd.optimizeQp(qp, 50, 2,
+		 * 0, lp);
+		 * 
+		 * for(int i=0;i<res.length;i++) { System.err.println(i+":"+res[i]); }
+		 */
+
+		double[] opt_low = { 0, 0 };
+		double[] opt_up = { 100, 100 };
+
+		double[] opt_g = { 2, -1, -1, 1 };
+		double[] opt_g0 = { -1, 0 };
+
+		double[] opt_xinit = { 0, 0 };
+		double[] opt_ce = { 3, 2 };
+		double[] opt_ce0 = { -5 };
+
+		int opt_m = 1;
+		int opt_n = 2;
+
+		QP qp = new QP();
+		qp.opt_up = opt_up;
+		qp.opt_low = opt_low;
+		qp.opt_g = opt_g;
+		qp.opt_g0 = opt_g0;
+		qp.opt_n = opt_n;
+		qp.opt_m = opt_m;
+		qp.opt_xinit = opt_xinit;
+		qp.opt_ce = opt_ce;
+		qp.opt_ce0 = opt_ce0;
+
+		Hideo hd = new Hideo();
+
+		LEARN_PARM lp = new LEARN_PARM();
+		double[] res = hd.optimizeQp(qp, 50, 2, 0, lp);
+
+		for (int i = 0; i < res.length; i++) {
+			System.err.println(i + ":" + res[i]);
 		}
-		*/
-		
-		
-		double[] opt_low={0,0};
-		double[] opt_up={100,100};
-		
-		double[] opt_g={2,-1,-1,1};
-		double[] opt_g0={-1,0};
-		
-		double[] opt_xinit={0,0};
-		double[] opt_ce={3,2};
-		double[] opt_ce0={-5};
-		
-		int opt_m=1;
-		int opt_n=2;
-		
-		QP qp=new QP();
-		qp.opt_up=opt_up;
-		qp.opt_low=opt_low;
-		qp.opt_g=opt_g;
-		qp.opt_g0=opt_g0;
-		qp.opt_n=opt_n;
-		qp.opt_m=opt_m;
-		qp.opt_xinit=opt_xinit;
-		qp.opt_ce=opt_ce;
-		qp.opt_ce0=opt_ce0;
-		
-		Hideo hd=new Hideo();
-		
-		LEARN_PARM lp=new LEARN_PARM();
-		double[] res=hd.optimizeQp(qp, 50, 2, 0, lp);
-		
-		for(int i=0;i<res.length;i++)
-		{
-			System.err.println(i+":"+res[i]);
-		}
-		
+
 	}
 
 }
