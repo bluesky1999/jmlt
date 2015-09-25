@@ -530,7 +530,7 @@ public class LearnStruct {
 			if (alg_type == ONESLACK_DUAL_CACHE_ALG) {
 
 				// logger.info("epsilon_est is " + epsilon_est + " \n");
-				System.out.println("epsilon_est is " + epsilon_est + " \n");
+				System.out.println("epsilon_est is " + epsilon_est );
 
 				// Is there is a sufficiently violated constraint in cache?
 				// viol = compute_violation_of_constraint_in_cache(epsilon_est /
@@ -700,7 +700,7 @@ public class LearnStruct {
 
 			}
 
-			System.out.println("(NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")\n");
+			System.out.println("(NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")");
 
 		} while (cached_constraint != 0 || (ceps > sparm.epsilon) || ssa.finalizeIteration(ceps, cached_constraint, sample, sm, cset, alpha, sparm));
 

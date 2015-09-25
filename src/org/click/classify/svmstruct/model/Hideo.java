@@ -381,7 +381,7 @@ public class Hideo {
 			}
 		}
 
-		lCopyMatrix(g, n, d);
+		copyMatrix(g, n, d);
 
 		if ((m == 1) && (add > 0.0)) {
 			for (j = 0; j < n; j++) {
@@ -394,11 +394,11 @@ public class Hideo {
 		}
 
 		if (n > 2) { // switch, so that variables are better mixed
-			lSwitchrkMatrix(d, n, b1, 0);
+			switchrkMatrix(d, n, b1, 0);
 			if (b2 == 0) {
-				lSwitchrkMatrix(d, n, b1, 1);
+				switchrkMatrix(d, n, b1, 1);
 			} else {
-				lSwitchrkMatrix(d, n, b2, 1);
+				switchrkMatrix(d, n, b2, 1);
 			}
 		}
 
@@ -419,27 +419,27 @@ public class Hideo {
 			}
 		}
 
-		lInvertMatrix(d, n, ig, lindep_sensitivity, lin_dependent);
+		invertMatrix(d, n, ig, lindep_sensitivity, lin_dependent);
 
 		if (n > 2) { // now switch back
 			if (b2 == 0) {
-				lSwitchrkMatrix(ig, n, b1, 1);
+				switchrkMatrix(ig, n, b1, 1);
 				i = lin_dependent[1];
 				lin_dependent[1] = lin_dependent[b1];
 				lin_dependent[b1] = i;
 			} else {
-				lSwitchrkMatrix(ig, n, b2, 1);
+				switchrkMatrix(ig, n, b2, 1);
 				i = lin_dependent[1];
 				lin_dependent[1] = lin_dependent[b2];
 				lin_dependent[b2] = i;
 			}
-			lSwitchrkMatrix(ig, n, b1, 0);
+			switchrkMatrix(ig, n, b1, 0);
 			i = lin_dependent[0];
 			lin_dependent[0] = lin_dependent[b1];
 			lin_dependent[b1] = i;
 		}
 
-		lCopyMatrix(g, n, g_new); // restore g_new matrix
+		copyMatrix(g, n, g_new); // restore g_new matrix
 		if (add > 0)
 			for (j = 0; j < n; j++) {
 				for (k = 0; k < n; k++) {
@@ -696,7 +696,8 @@ public class Hideo {
 			else
 				model_b = 0;
 
-			//checkDual(n, m, model_b, ce, ce0, primal, g, g0, up, low, epsilon_crit, epsilon_a, goal, dc);
+			// checkDual(n, m, model_b, ce, ce0, primal, g, g0, up, low,
+			// epsilon_crit, epsilon_a, goal, dc);
 
 		}// end of outer loop
 
@@ -839,14 +840,16 @@ public class Hideo {
 		}
 	}
 
-	public void lCopyMatrix(double[] matrix, int depth, double[] matrix2) {
-		int i;
-		for (i = 0; i < (depth * depth); i++) {
-			matrix2[i] = matrix[i];
-		}
+	public void copyMatrix(double[] matrix, int depth, double[] matrix2) {
+		// int i;
+
+		/*
+		 * for (i = 0; i < (depth * depth); i++) { matrix2[i] = matrix[i]; }
+		 */
+		System.arraycopy(matrix, 0, matrix2, 0, depth * depth);
 	}
 
-	public void lSwitchrkMatrix(double[] matrix, int depth, int rk1, int rk2) {
+	public void switchrkMatrix(double[] matrix, int depth, int rk1, int rk2) {
 		int i;
 		double temp;
 		for (i = 0; i < depth; i++) {
@@ -862,7 +865,7 @@ public class Hideo {
 		}
 	}
 
-	public void lInvertMatrix(double[] matrix, int depth, double[] inverse, double lindep_sensitivity, int[] lin_dependent) {
+	public void invertMatrix(double[] matrix, int depth, double[] inverse, double lindep_sensitivity, int[] lin_dependent) {
 		int i, j, k;
 		double factor;
 		for (i = 0; i < depth; i++) {
@@ -907,23 +910,17 @@ public class Hideo {
 	}
 
 	/*
-	public double calculateQpObjective(int opt_n, double[] opt_g, double[] opt_g0, double[] alpha) {
-		double obj;
-		int i, j;
-		obj = 0;
-
-		// calculate objective
-		for (i = 0; i < opt_n; i++) {
-			obj = WU.sum(obj, WU.mul(opt_g0[i], alpha[i]));
-			obj = WU.sum(obj, WU.mul(0.5, WU.mul(alpha[i], WU.mul(alpha[i], opt_g[i * opt_n + i]))));
-			for (j = 0; j < i; j++) {
-				obj = WU.sum(obj, WU.mul(alpha[j], WU.mul(alpha[i], opt_g[j * opt_n + i])));
-			}
-		}
-		return (obj);
-
-	}
-	*/
+	 * public double calculateQpObjective(int opt_n, double[] opt_g, double[]
+	 * opt_g0, double[] alpha) { double obj; int i, j; obj = 0;
+	 * 
+	 * // calculate objective for (i = 0; i < opt_n; i++) { obj = WU.sum(obj,
+	 * WU.mul(opt_g0[i], alpha[i])); obj = WU.sum(obj, WU.mul(0.5,
+	 * WU.mul(alpha[i], WU.mul(alpha[i], opt_g[i * opt_n + i])))); for (j = 0; j
+	 * < i; j++) { obj = WU.sum(obj, WU.mul(alpha[j], WU.mul(alpha[i], opt_g[j *
+	 * opt_n + i]))); } } return (obj);
+	 * 
+	 * }
+	 */
 
 	public double calculateQpObjective(int opt_n, double[] opt_g, double[] opt_g0, double[] alpha) {
 		double obj;
@@ -932,16 +929,16 @@ public class Hideo {
 
 		// calculate objective
 		for (i = 0; i < opt_n; i++) {
-			obj += opt_g0[i]*alpha[i];
-			obj += 0.5*alpha[i]*alpha[i]* opt_g[i * opt_n + i];
+			obj += opt_g0[i] * alpha[i];
+			obj += 0.5 * alpha[i] * alpha[i] * opt_g[i * opt_n + i];
 			for (j = 0; j < i; j++) {
-				obj+=alpha[j]*alpha[i]* opt_g[j * opt_n + i];
+				obj += alpha[j] * alpha[i] * opt_g[j * opt_n + i];
 			}
 		}
 		return (obj);
 
 	}
-	
+
 	public static void main(String[] args) {
 		/*
 		 * double[] opt_low={0,0}; double[] opt_up={1,1};
