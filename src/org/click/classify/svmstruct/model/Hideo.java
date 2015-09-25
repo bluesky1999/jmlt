@@ -53,17 +53,7 @@ public class Hideo {
 	public double progress;
 	// private static Logger logger = Logger.getLogger(Hideo.class);
 
-	public static PrintWriter pw = null;
-
 	public SimFunc<Integer> sf = new SimFunc<Integer>();
-
-	{
-		try {
-			pw = new PrintWriter(new FileWriter("optimize.txt", true));
-		} catch (Exception e) {
-
-		}
-	}
 
 	public Hideo() {
 
@@ -163,16 +153,19 @@ public class Hideo {
 	}
 
 	public int optimizeHildrethDespo(int n, int m, double precision, double epsilon_crit, double epsilon_a, int maxiter, int goal, int smallround, double lindep_sensitivity, double[] g, double[] g0, double[] ce, double[] ce0, double[] low, double[] up, double[] primal, double[] init, double[] dual, int[] lin_dependent, double[] buffer) {
-		int i, j, k, from, to, n_indep, changed;
+
+		int i, j, k, from, to, n_indep;
+		int changed;
 		double sum, bmin = 0, bmax = 0;
 		double[] d, d0, ig, dual_old, temp, start;
 		double[] g0_new, g_new, ce_new, ce0_new, low_new, up_new;
-		double add, t;
+		double add;
+		//double t;
 		int result;
 
 		double obj_before, obj_after;
 		int b1, b2;
-		double g0_b1 = 0, g0_b2 = 0, ce0_b;
+		//double g0_b1 = 0, g0_b2 = 0, ce0_b;
 
 		g0_new = new double[n];
 
@@ -197,11 +190,14 @@ public class Hideo {
 		b2 = -1;
 
 		for (i = 0; i < n; i++) {
+
+			//note:sum=[g0[i]+(primal*g)]*ce[i]
 			sum = g0[i];
 			for (j = 0; j < n; j++) {
 				sum += init[j] * g[i * n + j];
 			}
 			sum = sum * ce[i];
+
 			if (((b1 == -1) || (sum < bmin)) && (!((init[i] <= (low[i] + epsilon_a)) && (ce[i] < 0.0))) && (!((init[i] >= (up[i] - epsilon_a)) && (ce[i] > 0.0)))) {
 				bmin = sum;
 				b1 = i;
@@ -222,109 +218,9 @@ public class Hideo {
 		}
 
 		add = 0;
-		changed = 0;
-		if ((b1 != b2) && (m == 1)) {
-			for (i = 0; i < n; i++) { // fix other vectors
-				if (i == b1)
-					g0_b1 = g0[i];
-				if (i == b2)
-					g0_b2 = g0[i];
-			}
-			ce0_b = ce0[0];
-			for (i = 0; i < n; i++) {
-				if ((i != b1) && (i != b2)) {
-					for (j = 0; j < n; j++) {
-						if (j == b1)
-							g0_b1 += start[i] * g[i * n + j];
-						if (j == b2)
-							g0_b2 += start[i] * g[i * n + j];
-					}
-					ce0_b -= (start[i] * ce[i]);
-				}
-			}
-			if ((g[b1 * n + b2] == g[b1 * n + b1]) && (g[b1 * n + b2] == g[b2 * n + b2])) {
+		//changed = 0;
 
-				if (ce[b1] == ce[b2]) {
-					if (g0_b1 <= g0_b2) { // set b1 to upper bound
-
-						changed = 1;
-						t = up[b1] - init[b1];
-						if ((init[b2] - low[b2]) < t) {
-							t = init[b2] - low[b2];
-						}
-						start[b1] = init[b1] + t;
-						start[b2] = init[b2] - t;
-					} else if (g0_b1 > g0_b2) { // set b2 to upper bound
-
-						changed = 1;
-						t = up[b2] - init[b2];
-						if ((init[b1] - low[b1]) < t) {
-							t = init[b1] - low[b1];
-						}
-						start[b1] = init[b1] - t;
-						start[b2] = init[b2] + t;
-					}
-				} else if (((g[b1 * n + b1] > 0) || (g[b2 * n + b2] > 0))) {
-					t = ((ce[b2] / ce[b1]) * g0[b1] - g0[b2] + ce0[0] * (g[b1 * n + b1] * ce[b2] / ce[b1] - g[b1 * n + b2] / ce[b1])) / ((ce[b2] * ce[b2] / (ce[b1] * ce[b1])) * g[b1 * n + b1] + g[b2 * n + b2] - 2 * (g[b1 * n + b2] * ce[b2] / ce[b1])) - init[b2];
-					changed = 1;
-					if ((up[b2] - init[b2]) < t) {
-						t = up[b2] - init[b2];
-					}
-					if ((init[b2] - low[b2]) < -t) {
-						t = -(init[b2] - low[b2]);
-					}
-					if ((up[b1] - init[b1]) < t) {
-						t = (up[b1] - init[b1]);
-					}
-					if ((init[b1] - low[b1]) < -t) {
-						t = -(init[b1] - low[b1]);
-					}
-					start[b1] = init[b1] + t;
-					start[b2] = init[b2] + t;
-				}
-			}
-			if ((-g[b1 * n + b2] == g[b1 * n + b1]) && (-g[b1 * n + b2] == g[b2 * n + b2])) {
-
-				if (ce[b1] != ce[b2]) {
-					if ((g0_b1 + g0_b2) < 0) { // set b1 and b2 to upper bound
-
-						changed = 1;
-						t = up[b1] - init[b1];
-						if ((up[b2] - init[b2]) < t) {
-							t = up[b2] - init[b2];
-						}
-						start[b1] = init[b1] + t;
-						start[b2] = init[b2] + t;
-					} else if ((g0_b1 + g0_b2) >= 0) {
-						changed = 1;
-						t = init[b1] - low[b1];
-						if ((init[b2] - low[b2]) < t) {
-							t = init[b2] - low[b2];
-						}
-						start[b1] = init[b1] - t;
-						start[b2] = init[b2] - t;
-					}
-				} else if (((g[b1 * n + b1] > 0) || (g[b2 * n + b2] > 0))) {
-
-					t = ((ce[b2] / ce[b1]) * g0[b1] - g0[b2] + ce0[0] * (g[b1 * n + b1] * ce[b2] / ce[b1] - g[b1 * n + b2] / ce[b1])) / ((ce[b2] * ce[b2] / (ce[b1] * ce[b1])) * g[b1 * n + b1] + g[b2 * n + b2] - 2 * (g[b1 * n + b2] * ce[b2] / ce[b1])) - init[b2];
-					changed = 1;
-					if ((up[b2] - init[b2]) < t) {
-						t = up[b2] - init[b2];
-					}
-					if ((init[b2] - low[b2]) < -t) {
-						t = -(init[b2] - low[b2]);
-					}
-					if ((up[b1] - init[b1]) < -t) {
-						t = -(up[b1] - init[b1]);
-					}
-					if ((init[b1] - low[b1]) < t) {
-						t = init[b1] - low[b1];
-					}
-					start[b1] = init[b1] - t;
-					start[b2] = init[b2] + t;
-				}
-			}
-		}
+		changed=maxMinDir(n, m, b1, b2, g, g0, start, ce, ce0, up, low, init);
 
 		if ((m > 0) && ((Math.abs(g[b1 * n + b1]) < lindep_sensitivity) || (Math.abs(g[b2 * n + b2]) < lindep_sensitivity))) {
 
@@ -336,53 +232,10 @@ public class Hideo {
 			add += 0.078274;
 		}
 
-		// special case for zero diagonal entry on unbiased hyperplane
-		if ((m == 0) && (b1 >= 0)) {
-			if (Math.abs(g[b1 * n + b1]) < lindep_sensitivity) {
+	
+		//linDepDir(n,m,b1,b2,g,g0,lindep_sensitivity,up,low,start);
 
-				for (i = 0; i < n; i++) { // fix other vectors
-					if (i == b1)
-						g0_b1 = g0[i];
-				}
-				for (i = 0; i < n; i++) {
-					if (i != b1) {
-						for (j = 0; j < n; j++) {
-							if (j == b1)
-								g0_b1 += start[i] * g[i * n + j];
-						}
-					}
-				}
-				if (g0_b1 < 0)
-					start[b1] = up[b1];
-				if (g0_b1 >= 0)
-					start[b1] = low[b1];
-			}
-		}
-
-		if ((m == 0) && (b2 >= 0)) {
-			if (Math.abs(g[b2 * n + b2]) < lindep_sensitivity) {
-
-				for (i = 0; i < n; i++) { // fix other vectors
-					if (i == b2)
-						g0_b2 = g0[i];
-				}
-				for (i = 0; i < n; i++) {
-					if (i != b2) {
-						for (j = 0; j < n; j++) {
-							if (j == b2)
-								g0_b2 += start[i] * g[i * n + j];
-						}
-					}
-				}
-				if (g0_b2 < 0)
-					start[b2] = up[b2];
-				if (g0_b2 >= 0)
-					start[b2] = low[b2];
-			}
-		}
-
-		System.arraycopy(g,0, d, 0, n*n);
-		//copyMatrix(g, n, d);
+		System.arraycopy(g, 0, d, 0, n * n);
 
 		if ((m == 1) && (add > 0.0)) {
 			for (j = 0; j < n; j++) {
@@ -440,9 +293,9 @@ public class Hideo {
 			lin_dependent[b1] = i;
 		}
 
-		//copyMatrix(g, n, g_new); // restore g_new matrix
-		
-		System.arraycopy(g, 0, g_new, 0, n*n);
+		// copyMatrix(g, n, g_new); // restore g_new matrix
+
+		System.arraycopy(g, 0, g_new, 0, n * n);
 		if (add > 0)
 			for (j = 0; j < n; j++) {
 				for (k = 0; k < n; k++) {
@@ -525,6 +378,181 @@ public class Hideo {
 		return ((int) result);
 	}
 
+	public int maxMinDir(int n, int m, int b1, int b2, double[] g, double[] g0, double[] start, double[] ce, double[] ce0, double[] up, double[] low, double[] init) {
+
+		int i, j, changed=0;
+		double g0_b1 = 0, g0_b2 = 0, ce0_b, t;
+
+		if ((b1 != b2) && (m == 1)) {
+			for (i = 0; i < n; i++) { // fix other vectors
+				if (i == b1)
+					g0_b1 = g0[i];
+				if (i == b2)
+					g0_b2 = g0[i];
+			}
+			ce0_b = ce0[0];
+			for (i = 0; i < n; i++) {
+				if ((i != b1) && (i != b2)) {
+					for (j = 0; j < n; j++) {
+						if (j == b1)
+							g0_b1 += start[i] * g[i * n + j];
+						if (j == b2)
+							g0_b2 += start[i] * g[i * n + j];
+					}
+					ce0_b -= (start[i] * ce[i]);
+				}
+			}
+			if ((g[b1 * n + b2] == g[b1 * n + b1]) && (g[b1 * n + b2] == g[b2 * n + b2])) {
+
+				System.err.println("ce[b1]=" + ce[b1] + "  ce[b2]=" + ce[b2]);
+				if (ce[b1] == ce[b2]) {
+					if (g0_b1 <= g0_b2) { // set b1 to upper bound
+
+						changed = 1;
+						t = up[b1] - init[b1];
+						if ((init[b2] - low[b2]) < t) {
+							t = init[b2] - low[b2];
+						}
+						start[b1] = init[b1] + t;
+						start[b2] = init[b2] - t;
+					} else if (g0_b1 > g0_b2) { // set b2 to upper bound
+
+						changed = 1;
+						t = up[b2] - init[b2];
+						if ((init[b1] - low[b1]) < t) {
+							t = init[b1] - low[b1];
+						}
+						start[b1] = init[b1] - t;
+						start[b2] = init[b2] + t;
+					}
+				} else if (((g[b1 * n + b1] > 0) || (g[b2 * n + b2] > 0))) {
+					t = ((ce[b2] / ce[b1]) * g0[b1] - g0[b2] + ce0[0] * (g[b1 * n + b1] * ce[b2] / ce[b1] - g[b1 * n + b2] / ce[b1])) / ((ce[b2] * ce[b2] / (ce[b1] * ce[b1])) * g[b1 * n + b1] + g[b2 * n + b2] - 2 * (g[b1 * n + b2] * ce[b2] / ce[b1])) - init[b2];
+					changed = 1;
+					if ((up[b2] - init[b2]) < t) {
+						t = up[b2] - init[b2];
+					}
+					if ((init[b2] - low[b2]) < -t) {
+						t = -(init[b2] - low[b2]);
+					}
+					if ((up[b1] - init[b1]) < t) {
+						t = (up[b1] - init[b1]);
+					}
+					if ((init[b1] - low[b1]) < -t) {
+						t = -(init[b1] - low[b1]);
+					}
+					start[b1] = init[b1] + t;
+					start[b2] = init[b2] + t;
+				}
+			}
+			if ((-g[b1 * n + b2] == g[b1 * n + b1]) && (-g[b1 * n + b2] == g[b2 * n + b2])) {
+
+				if (ce[b1] != ce[b2]) {
+					if ((g0_b1 + g0_b2) < 0) { // set b1 and b2 to upper bound
+
+						changed = 1;
+						t = up[b1] - init[b1];
+						if ((up[b2] - init[b2]) < t) {
+							t = up[b2] - init[b2];
+						}
+						start[b1] = init[b1] + t;
+						start[b2] = init[b2] + t;
+					} else if ((g0_b1 + g0_b2) >= 0) {
+						changed = 1;
+						t = init[b1] - low[b1];
+						if ((init[b2] - low[b2]) < t) {
+							t = init[b2] - low[b2];
+						}
+						start[b1] = init[b1] - t;
+						start[b2] = init[b2] - t;
+					}
+				} else if (((g[b1 * n + b1] > 0) || (g[b2 * n + b2] > 0))) {
+
+					t = ((ce[b2] / ce[b1]) * g0[b1] - g0[b2] + ce0[0] * (g[b1 * n + b1] * ce[b2] / ce[b1] - g[b1 * n + b2] / ce[b1])) / ((ce[b2] * ce[b2] / (ce[b1] * ce[b1])) * g[b1 * n + b1] + g[b2 * n + b2] - 2 * (g[b1 * n + b2] * ce[b2] / ce[b1])) - init[b2];
+					changed = 1;
+					if ((up[b2] - init[b2]) < t) {
+						t = up[b2] - init[b2];
+					}
+					if ((init[b2] - low[b2]) < -t) {
+						t = -(init[b2] - low[b2]);
+					}
+					if ((up[b1] - init[b1]) < -t) {
+						t = -(up[b1] - init[b1]);
+					}
+					if ((init[b1] - low[b1]) < t) {
+						t = init[b1] - low[b1];
+					}
+					start[b1] = init[b1] - t;
+					start[b2] = init[b2] + t;
+				}
+			}
+		}
+		
+		return changed;
+	}
+
+	/**
+	 * special case for zero diagonal entry on unbiased hyperplane
+	 * @param n
+	 * @param m
+	 * @param b1
+	 * @param b2
+	 * @param g
+	 * @param g0
+	 * @param lindep_sensitivity
+	 * @param up
+	 * @param low
+	 * @param start
+	 */
+	public void linDepDir(int n,int m,int b1,int b2,double[] g,double[] g0,double lindep_sensitivity,double[] up,double[] low,double[] start)
+	{
+		int i,j;
+		double g0_b1 = 0, g0_b2 = 0, ce0_b;
+		
+		if ((m == 0) && (b1 >= 0)) {
+			if (Math.abs(g[b1 * n + b1]) < lindep_sensitivity) {
+
+				for (i = 0; i < n; i++) { // fix other vectors
+					if (i == b1)
+						g0_b1 = g0[i];
+				}
+				for (i = 0; i < n; i++) {
+					if (i != b1) {
+						for (j = 0; j < n; j++) {
+							if (j == b1)
+								g0_b1 += start[i] * g[i * n + j];
+						}
+					}
+				}
+				if (g0_b1 < 0)
+					start[b1] = up[b1];
+				if (g0_b1 >= 0)
+					start[b1] = low[b1];
+			}
+		}
+
+		if ((m == 0) && (b2 >= 0)) {
+			if (Math.abs(g[b2 * n + b2]) < lindep_sensitivity) {
+
+				for (i = 0; i < n; i++) { // fix other vectors
+					if (i == b2)
+						g0_b2 = g0[i];
+				}
+				for (i = 0; i < n; i++) {
+					if (i != b2) {
+						for (j = 0; j < n; j++) {
+							if (j == b2)
+								g0_b2 += start[i] * g[i * n + j];
+						}
+					}
+				}
+				if (g0_b2 < 0)
+					start[b2] = up[b2];
+				if (g0_b2 >= 0)
+					start[b2] = low[b2];
+			}
+		}
+	}
+	
 	private class DualCheck {
 
 		int retrain;
@@ -778,23 +806,17 @@ public class Hideo {
 				dist += (primal[j] * g[i * n + j]);
 			}
 			if ((primal[i] < (up[i] - epsilon_hideo)) && (dist < (1.0 - epsilon_crit))) {
-				// System.err.println("condition 1");
 				epsilon_hideo = (up[i] - primal[i]) * 2.0;
 			} else if ((primal[i] > (low[i] + epsilon_hideo)) && (dist > (1.0 + epsilon_crit))) {
-				// System.err.println("condition 2");
 				epsilon_hideo = (primal[i] - low[i]) * 2.0;
 			}
-
-			// System.err.println("epsilon_hideo:"+epsilon_hideo);
 
 		}
 
 		for (i = 0; i < n; i++) { // clip alphas to bounds
 			if (primal[i] <= (low[i] + epsilon_hideo)) {
-				// System.err.println("clip low "+i);
 				primal[i] = low[i];
 			} else if (primal[i] >= (up[i] - epsilon_hideo)) {
-				// System.err.println("clip up "+i);
 				primal[i] = up[i];
 			}
 		}
@@ -842,16 +864,6 @@ public class Hideo {
 			}
 		}
 	}
-
-	/*
-	 * public void copyMatrix(double[] matrix, int depth, double[] matrix2) {
-	 * //int i;
-	 * 
-	 * 
-	 * //for (i = 0; i < (depth * depth); i++) { matrix2[i] = matrix[i]; }
-	 * 
-	 * System.arraycopy(matrix, 0, matrix2, 0, depth * depth); }
-	 */
 
 	public void switchrkMatrix(double[] matrix, int depth, int rk1, int rk2) {
 		int i;
@@ -913,19 +925,6 @@ public class Hideo {
 
 	}
 
-	/*
-	 * public double calculateQpObjective(int opt_n, double[] opt_g, double[]
-	 * opt_g0, double[] alpha) { double obj; int i, j; obj = 0;
-	 * 
-	 * // calculate objective for (i = 0; i < opt_n; i++) { obj = WU.sum(obj,
-	 * WU.mul(opt_g0[i], alpha[i])); obj = WU.sum(obj, WU.mul(0.5,
-	 * WU.mul(alpha[i], WU.mul(alpha[i], opt_g[i * opt_n + i])))); for (j = 0; j
-	 * < i; j++) { obj = WU.sum(obj, WU.mul(alpha[j], WU.mul(alpha[i], opt_g[j *
-	 * opt_n + i]))); } } return (obj);
-	 * 
-	 * }
-	 */
-
 	public double calculateQpObjective(int opt_n, double[] opt_g, double[] opt_g0, double[] alpha) {
 		double obj;
 		int i, j;
@@ -944,27 +943,42 @@ public class Hideo {
 	}
 
 	public static void main(String[] args) {
+
 		/*
-		 * double[] opt_low={0,0}; double[] opt_up={1,1};
-		 * 
-		 * double[] opt_g={1,0,0,1}; double[] opt_g0={-2,-2};
-		 * 
-		 * double[] opt_xinit={0,0}; double[] opt_ce={0,0}; double[]
-		 * opt_ce0={0};
-		 * 
-		 * int opt_m=0; int opt_n=2;
-		 * 
-		 * QP qp=new QP(); qp.opt_up=opt_up; qp.opt_low=opt_low; qp.opt_g=opt_g;
-		 * qp.opt_g0=opt_g0; qp.opt_n=opt_n; qp.opt_m=opt_m;
-		 * qp.opt_xinit=opt_xinit; qp.opt_ce=opt_ce; qp.opt_ce0=opt_ce0;
-		 * 
-		 * Hideo hd=new Hideo();
-		 * 
-		 * LEARN_PARM lp=new LEARN_PARM(); double[] res=hd.optimizeQp(qp, 50, 2,
-		 * 0, lp);
-		 * 
-		 * for(int i=0;i<res.length;i++) { System.err.println(i+":"+res[i]); }
-		 */
+		double[] opt_low = { 0, 0 };
+		double[] opt_up = { 1, 1 };
+
+		double[] opt_g = { 1, 0, 0, 1 };
+		double[] opt_g0 = { -2, -2 };
+
+		double[] opt_xinit = { 0, 0 };
+		double[] opt_ce = { 0, 0 };
+		double[] opt_ce0 = { 0 };
+
+		int opt_m = 0;
+		int opt_n = 2;
+
+		QP qp = new QP();
+		qp.opt_up = opt_up;
+		qp.opt_low = opt_low;
+		qp.opt_g = opt_g;
+		qp.opt_g0 = opt_g0;
+		qp.opt_n = opt_n;
+		qp.opt_m = opt_m;
+		qp.opt_xinit = opt_xinit;
+		qp.opt_ce = opt_ce;
+		qp.opt_ce0 = opt_ce0;
+
+		Hideo hd = new Hideo();
+
+		LEARN_PARM lp = new LEARN_PARM();
+		double[] res = hd.optimizeQp(qp, 50, 2, 0, lp);
+
+		for (int i = 0; i < res.length; i++) {
+			System.err.println(i + ":" + res[i]);
+		}
+		
+		*/
 
 		double[] opt_low = { 0, 0 };
 		double[] opt_up = { 100, 100 };
