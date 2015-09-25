@@ -14,7 +14,6 @@ import org.click.lib.math.SimFunc;
  * ce 的元素只能取值 -1 或 1
  * 
  * @author lq
- * 
  */
 
 public class Hideo {
@@ -87,7 +86,7 @@ public class Hideo {
 	 */
 	public double[] optimizeQp(QP qp, double epsilon_crit, int nx, double threshold, LEARN_PARM learn_param) {
 
-		System.err.println("epsilon_crit:"+epsilon_crit+" threshold:"+threshold);
+		//System.err.println("epsilon_crit:"+epsilon_crit+" threshold:"+threshold);
 		int i, j;
 		int result;
 		double eq;
@@ -125,7 +124,7 @@ public class Hideo {
 		}
 
 		if ((result != PRIMAL_OPTIMAL) || (roundnumber % 31 == 0) || (progress <= 0)) {
-			System.err.println("result is not PRIMAL_OPTIMAL");
+			//System.err.println("result is not PRIMAL_OPTIMAL");
 			smallroundcount++;
 
 			result = optimizeHildrethDespo(qp.opt_n, qp.opt_m, opt_precision, epsilon_crit, learn_param.epsilon_a, maxiter, PRIMAL_OPTIMAL, SMALLROUND, lindep_sensitivity, qp.opt_g, qp.opt_g0, qp.opt_ce, qp.opt_ce0, qp.opt_low, qp.opt_up, primal, qp.opt_xinit, dual, nonoptimal, buffer);
@@ -585,7 +584,7 @@ public class Hideo {
 		}
 
 		if (m > 0) {
-			sum = 0; /* dual linear component for eq constraints */
+			sum = 0; // dual linear component for eq constraints 
 			for (j = 0; j < n; j++) {
 				for (k = 0; k < n; k++) {
 					sum += (ce[k] * ig[k * n + j] * g0[j]);
@@ -605,12 +604,10 @@ public class Hideo {
 		
 		while ((retrain > 0) && (maxviol > 0) && (iter < (scalemaxiter * maxfaktor))) {
 			iter++;
-			System.err.println("iter:"+iter);
 			
 			//Hildreth and D'Espo route here
 			while ((maxviol > precision) && (iter < (scalemaxiter * maxfaktor))) {
 				iter++;
-
 				maxviol = 0;
 				
 				//the main update step here ,s.t. d0(i)+sum(j)_1^m{d(ij)*dual(j)}=0
@@ -624,7 +621,6 @@ public class Hideo {
 					//Reference: introduction to nonlinear optimization D.A. Wismer R. chattergy Hildreth and D'Espo part
 					sum -= d[i * 2 * (n + m) + i] * dual_old[i];
 					dual[i] = -sum / d[i * 2 * (n + m) + i];
-					System.err.print("dual["+i+"]="+dual[i]+" ");
 					
 					//not less than zero
 					if (dual[i] < 0)
@@ -638,7 +634,6 @@ public class Hideo {
 					dual_old[i] = dual[i];
 				}
 				
-				System.err.println();
 
 			}//end of Hildreth and D'Espo
 
@@ -674,6 +669,14 @@ public class Hideo {
 				model_b = 0;
 
 			epsilon_hideo = EPSILON_HIDEO;
+	
+			//the following are two different termination criteria for the algorithm
+			//first is checking the alphas(which is derived from primal KKT conditions)
+			//second is checking the primal KKT conditions 
+			//reference:Making Large-scale SVM Learning practical (Thorsten Joachims)
+			//g stands for y*k ,primal stands for alphas,the y is all one here
+			//
+			
 			for (i = 0; i < n; i++) { // check precision of alphas
 				dist = -model_b * ce[i];
 				dist += (g0[i] + 1.0);
@@ -684,16 +687,23 @@ public class Hideo {
 					dist += (primal[j] * g[i * n + j]);
 				}
 				if ((primal[i] < (up[i] - epsilon_hideo)) && (dist < (1.0 - epsilon_crit))) {
+					//System.err.println("condition 1");
 					epsilon_hideo = (up[i] - primal[i]) * 2.0;
 				} else if ((primal[i] > (low[i] + epsilon_hideo)) && (dist > (1.0 + epsilon_crit))) {
+					//System.err.println("condition 2");
 					epsilon_hideo = (primal[i] - low[i]) * 2.0;
 				}
+				
+				//System.err.println("epsilon_hideo:"+epsilon_hideo);
+				
 			}
 
 			for (i = 0; i < n; i++) { // clip alphas to bounds
 				if (primal[i] <= (low[i] + epsilon_hideo)) {
+					//System.err.println("clip low "+i);
 					primal[i] = low[i];
 				} else if (primal[i] >= (up[i] - epsilon_hideo)) {
+					//System.err.println("clip up "+i);
 					primal[i] = up[i];
 				}
 			}
@@ -741,7 +751,9 @@ public class Hideo {
 					maxfaktor++;
 				}
 			}
-		}
+			
+			
+		}//end of outer loop
 
 		if (primal_optimal == 0) {
 			for (i = 0; i < n; i++) {

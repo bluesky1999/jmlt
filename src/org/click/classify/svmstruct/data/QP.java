@@ -1,7 +1,7 @@
 package org.click.classify.svmstruct.data;
 
 /** 
-  The following specifies a quadratic problem of the following form <br>
+  The following specifies a quadratic problem of the following form [primal]  <br>
   <br>
   minimize   g0 * x + 1/2 x' * G * x <br>
   &nbsp;&nbsp; subject to ce*x - ce0 = 0 <br>
