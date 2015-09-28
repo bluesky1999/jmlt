@@ -8,14 +8,25 @@ public class MODEL {
 	  public double b;
 	  public DOC[] supvec;
 	  public double[] alpha;
+	  
+	  //index from docnum to position in model 
 	  public int[] index;
+	  
+	  //number of features
 	  public int totwords;
+	  
+	  //number of training documents
 	  public int totdoc;
+	  
 	  public KERNEL_PARM kernel_parm;
 	  
 	  public double loo_error,loo_recall,loo_precision;
 	  public double xa_error,xa_recall,xa_precision;
+	  
+	  //weights for linear case using folding
 	  public double[] lin_weights;
+	  
+	  //precision, up to which this  model is accurate
 	  public double maxdiff;
 	  
 	  public MODEL copyMODEL()

@@ -127,28 +127,28 @@ public class LearnStruct {
 		svmModel = new MODEL();
 		lparm.epsilon_crit = epsilon;
 		Learn sl = new Learn();
-		if (kparm.kernel_type != ModelConstant.LINEAR) {
-			kcache = sl.kernel_cache_init(Math.max(cset.m, 1), lparm.kernel_cache_size);
-		}
+		///if (kparm.kernel_type != ModelConstant.LINEAR) {
+		///	kcache = sl.kernel_cache_init(Math.max(cset.m, 1), lparm.kernel_cache_size);
+		///}
 
 		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, kcache, svmModel, alpha);
 		com.addWeightVectorToLinearModel(svmModel);
 		sm.svm_model = svmModel;
 		sm.w = svmModel.lin_weights;
 
-		if (ModelConstant.USE_FYCACHE != 0) {
-			fycache = new SVECTOR[n];
-			for (i = 0; i < n; i++) {
-				fy = ssa.psi(ex[i].x, ex[i].y, sm, sparm);// temp
+		///if (ModelConstant.USE_FYCACHE != 0) {
+		///	fycache = new SVECTOR[n];
+		///	for (i = 0; i < n; i++) {
+		///		fy = ssa.psi(ex[i].x, ex[i].y, sm, sparm);// temp
 															// point
-				if (kparm.kernel_type == ModelConstant.LINEAR) {
-					diff = com.addListSs(fy);
-					fy = diff;
-				}
+		///		if (kparm.kernel_type == ModelConstant.LINEAR) {
+		///			diff = com.addListSs(fy);
+		///			fy = diff;
+		///		}
 
-			}
+		///	}
 
-		}
+		///}
 
 		// ========== main loop=======
 		do { // iteratively increase precision
@@ -300,8 +300,8 @@ public class LearnStruct {
 							// to use the same cache for two different training
 							// runs
 
-							if (kparm.kernel_type != ModelConstant.LINEAR)
-								kcache = sl.kernel_cache_init(Math.max(cset.m, 1), lparm.kernel_cache_size);
+							///if (kparm.kernel_type != ModelConstant.LINEAR)
+							///	kcache = sl.kernel_cache_init(Math.max(cset.m, 1), lparm.kernel_cache_size);
 							// Run the QP solver on cset.
 							sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, kcache, svmModel, alpha);
 

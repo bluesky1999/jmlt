@@ -297,7 +297,7 @@ public class MainLearn {
 		int totwords = 0, totdoc = 0, i = 0;
 		double[] target = null;
 		double[] alpha_in = null;
-		KERNEL_CACHE kernel_cache;
+		KERNEL_CACHE kernel_cache=null;
 		LEARN_PARM learn_parm;
 		KERNEL_PARM kernel_parm;
 
@@ -336,12 +336,12 @@ public class MainLearn {
 			// Always get a new kernel cache. It is not possible to use the same
 			// cache for two different training runs
 
-			kernel_cache = sl.kernel_cache_init(totdoc, learn_parm.kernel_cache_size);
+			///kernel_cache = sl.kernel_cache_init(totdoc, learn_parm.kernel_cache_size);
 		}
 
 		if (learn_parm.type == ModelConstant.CLASSIFICATION) {
 			// logger.info("call   sl.svm_learn_classification");
-			sl.svm_learn_classification(docs, target, totdoc, totwords, learn_parm, kernel_parm, kernel_cache, model, alpha_in);
+			//sl.svm_learn_classification(docs, target, totdoc, totwords, learn_parm, kernel_parm, kernel_cache, model, alpha_in);
 		} else if (learn_parm.type == ModelConstant.OPTIMIZATION) {
 			// logger.info("call   sl.svm_learn_optimization");
 			sl.svm_learn_optimization(docs, target, totdoc, totwords, learn_parm, kernel_parm, kernel_cache, model, alpha_in);
