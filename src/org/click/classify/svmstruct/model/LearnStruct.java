@@ -459,14 +459,6 @@ public class LearnStruct {
 		// create a cache of the feature vectors for the correct labels
 		fycache = new SVECTOR[n];
 		for (i = 0; i < n; i++) {
-			if (ModelConstant.USE_FYCACHE != 0) {
-				// //logger.info("USE THE FYCACHE \n");
-				fy = ssa.psi(ex[i].x, ex[i].y, sm, sparm);
-				if (kparm.kernel_type == ModelConstant.LINEAR) {
-					diff = com.addListSortSsR(fy, CommonStruct.COMPACT_ROUNDING_THRESH);
-					fy = diff;
-				}
-			} else
 				fy = null;
 			fycache[i] = fy;
 		}

@@ -33,7 +33,6 @@ public class Common {
 	public static int kernel_cache_statistic = 0;
 	public static int progress_n;
 
-
 	public SVECTOR createSvector(WORD[] words, String userdefined, double factor) {
 		SVECTOR vec;
 		int fnum, i;
@@ -171,7 +170,7 @@ public class Common {
 	public void addVectorNs(double[] vec_n, SVECTOR vec_s, double faktor) {
 		WORD[] ai;
 		ai = vec_s.words;
-		
+
 		//System.err.println("vec_n.len:"+vec_n.length);
 		for (int i = 0; i < ai.length; i++) {
 			if (ai[i] != null) {
@@ -186,10 +185,10 @@ public class Common {
 		double sum = 0;
 		WORD[] ai;
 		ai = vec_s.words;
-		
+
 		//System.err.println("vec_n.length:"+vec_n.length);
 		for (int i = 0; i < ai.length; i++) {
-			if (ai[i] != null&&ai[i].wnum>=0) {
+			if (ai[i] != null && ai[i].wnum >= 0) {
 
 				sum += (vec_n[ai[i].wnum] * ai[i].weight);
 			} else {
@@ -217,6 +216,15 @@ public class Common {
 		double hc = 0;
 		hc = ((double) c) * 10;
 		return hc;
+	}
+	
+	public WORD copyWord(WORD w)
+	{
+		WORD n=new WORD();
+		n.weight=w.weight;
+		n.wnum=w.wnum;
+		
+		return n;
 	}
 
 	/** compute length of weight vector */
@@ -866,23 +874,11 @@ public class Common {
 
 		int j, i, sv_num;
 		SVECTOR v;
-		MODEL compact_model = null;
 
 		if (CommonStruct.verbosity >= 1) {
 			System.out.println("Writing model file...");
 		}
 
-		// Replace SV with single weight vector
-		if (false && (model.kernel_parm.kernel_type == ModelConstant.LINEAR)) {
-			if (CommonStruct.verbosity >= 1) {
-				System.out.println("(compacting...");
-			}
-			compact_model = compactLinearModel(model);
-			model = compact_model;
-			if (CommonStruct.verbosity >= 1) {
-				System.out.println("done)");
-			}
-		}
 
 		pw.println("SVM-light Version " + ModelConstant.VERSION);
 		pw.println(model.kernel_parm.kernel_type + " # kernel type");
@@ -1079,8 +1075,8 @@ public class Common {
 		sumi = new WORD[veclength];
 		for (int i = 0; i < ai.length; i++) {
 			//sumi[i] = ai[i].copy_word();
-			sumi[i] =new WORD();
-			sumi[i].weight=ai[i].weight;
+			sumi[i] = new WORD();
+			sumi[i].weight = ai[i].weight;
 			sumi[i].wnum = ai[i].wnum + shift;
 		}
 
@@ -1098,7 +1094,7 @@ public class Common {
 		vec.words = new WORD[words.length];
 		for (int i = 0; i < words.length; i++) {
 			if (words[i] != null) {
-				vec.words[i] = words[i].copy_word();
+				vec.words[i] = copyWord(words[i]);
 			} else {
 				vec.words[i] = null;
 			}
@@ -1279,12 +1275,8 @@ public class Common {
 			i++;
 		}
 
-		if (true) { // potentially this wastes some memory, but saves malloc'ing
-			vec = createSvectorShallow(sumi, null, 1.0);
-		} else { // this is more memory efficient
-			vec = createSvector(sumi, null, 1.0);
+		vec = createSvectorShallow(sumi, null, 1.0);
 
-		}
 		return (vec);
 	}
 
@@ -1448,7 +1440,7 @@ public class Common {
 						concat_write[cwi].weight = weight;
 						cwi++;
 					}
-					concat_write[cwi] = concat_read[cri].copy_word();// ?是否正确
+					concat_write[cwi] =  copyWord(concat_read[cri]);// ?是否正确
 					weight = concat_write[cwi].weight;
 					cri++;
 				}
@@ -1459,11 +1451,8 @@ public class Common {
 				cwi++;
 			}
 
-			if (true) { // this wastes some memory, but saves malloc'ing
-				sum = createSvectorShallow(concat, null, 1.0);
-			} else { // this is more memory efficient
-				sum = createSvector(concat, null, 1.0);
-			}
+			sum = createSvectorShallow(concat, null, 1.0);
+
 		} else {
 			empty[0].wnum = 0;
 			sum = createSvector(empty, null, 1.0);
@@ -1478,7 +1467,7 @@ public class Common {
 		}
 
 		for (int i = start_index; i < oarr.length; i++) {
-			warr[i - start_index] = oarr[i].copy_word();
+			warr[i - start_index] = copyWord( oarr[i]);
 		}
 
 		return warr;
@@ -1842,7 +1831,6 @@ public class Common {
 
 		return narr;
 	}
-
 
 	public DOC[] reallocDOCS(DOC[] ods, int n) {
 
