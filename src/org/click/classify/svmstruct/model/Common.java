@@ -171,6 +171,8 @@ public class Common {
 	public void addVectorNs(double[] vec_n, SVECTOR vec_s, double faktor) {
 		WORD[] ai;
 		ai = vec_s.words;
+		
+		//System.err.println("vec_n.len:"+vec_n.length);
 		for (int i = 0; i < ai.length; i++) {
 			if (ai[i] != null) {
 				vec_n[ai[i].wnum] += (faktor * ai[i].weight);
@@ -184,8 +186,10 @@ public class Common {
 		double sum = 0;
 		WORD[] ai;
 		ai = vec_s.words;
+		
+		//System.err.println("vec_n.length:"+vec_n.length);
 		for (int i = 0; i < ai.length; i++) {
-			if (ai[i] != null) {
+			if (ai[i] != null&&ai[i].wnum>=0) {
 
 				sum += (vec_n[ai[i].wnum] * ai[i].weight);
 			} else {

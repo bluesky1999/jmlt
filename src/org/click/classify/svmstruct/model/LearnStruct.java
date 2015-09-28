@@ -80,7 +80,7 @@ public class LearnStruct {
 
 		ssa.initStructModel(sample, sm, sparm, lparm, kparm);
 		sizePsi = sm.sizePsi + 1;
-	
+
 		if (alg_type == CommonStruct.NSLACK_SHRINK_ALG) {
 			use_shrinking = 1;
 		} else {
@@ -163,7 +163,6 @@ public class LearnStruct {
 
 			lparm.epsilon_crit = epsilon / 2; // svm precision must be higher than eps
 
-
 			do {
 				// iteration until (approx) all SV are found for current
 				// precision and tolerance
@@ -176,7 +175,6 @@ public class LearnStruct {
 				do {
 					// with shrinking turned on, go through examples that keep
 					// producing new constraints
-
 
 					ceps = 0;
 					if (activenum == n) {
@@ -340,9 +338,9 @@ public class LearnStruct {
 					System.out.println("(NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")\n");
 
 					//if (CommonStruct.struct_verbosity >= 2)
-						// logger.info("Reducing working set...");
+					// logger.info("Reducing working set...");
 
-						remove_inactive_constraints(cset, alpha, optcount, alphahist, Math.max(50, optcount - lastoptcount));
+					remove_inactive_constraints(cset, alpha, optcount, alphahist, Math.max(50, optcount - lastoptcount));
 
 					lastoptcount = optcount;
 					// if (CommonStruct.struct_verbosity >= 2)
@@ -506,7 +504,7 @@ public class LearnStruct {
 		do { // iteratively find and add constraints to working set
 
 			//if (CommonStruct.struct_verbosity >= 1) {
-				// logger.info("in loop Iter " + (++numIt) + ": ");
+			// logger.info("in loop Iter " + (++numIt) + ": ");
 			//	System.out.println("in loop Iter " + (numIt) + ": ");
 			//}
 
@@ -699,8 +697,8 @@ public class LearnStruct {
 			} else {
 
 			}
-			
-			System.out.println("Iter "+numIt+" (NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")");
+
+			System.out.println("Iter " + numIt + " (NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")");
 			numIt++;
 		} while (cached_constraint != 0 || (ceps > sparm.epsilon) || ssa.finalizeIteration(ceps, cached_constraint, sample, sm, cset, alpha, sparm));
 
@@ -716,7 +714,6 @@ public class LearnStruct {
 			else
 				modellength = com.modelLengthS(svmModel);
 			dualitygap = (0.5 * modellength * modellength + sparm.C * viol) - (alphasum - 0.5 * modellength * modellength);
-
 
 		}
 

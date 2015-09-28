@@ -112,11 +112,13 @@ public class Hideo {
 			}
 			precision_violations++;
 		}
-
+		
+	
 		if ((result != PRIMAL_OPTIMAL) || (roundnumber % 31 == 0) || (progress <= 0)) {
 			// System.err.println("result is not PRIMAL_OPTIMAL");
 			smallroundcount++;
 
+			//System.err.println("SMALLROUND:"+SMALLROUND);
 			result = optimizeHildrethDespo(qp.opt_n, qp.opt_m, opt_precision, epsilon_crit, learn_param.epsilon_a, maxiter, PRIMAL_OPTIMAL, SMALLROUND, lindep_sensitivity, qp.opt_g, qp.opt_g0, qp.opt_ce, qp.opt_ce0, qp.opt_low, qp.opt_up, primal, qp.opt_xinit, dual, nonoptimal, buffer);
 
 			if (result != PRIMAL_OPTIMAL) {
@@ -218,9 +220,9 @@ public class Hideo {
 		}
 
 		add = 0;
-		//changed = 0;
+		changed = 0;
 
-		changed=maxMinDir(n, m, b1, b2, g, g0, start, ce, ce0, up, low, init);
+		//changed=maxMinDir(n, m, b1, b2, g, g0, start, ce, ce0, up, low, init);
 
 		if ((m > 0) && ((Math.abs(g[b1 * n + b1]) < lindep_sensitivity) || (Math.abs(g[b2 * n + b2]) < lindep_sensitivity))) {
 
@@ -256,6 +258,7 @@ public class Hideo {
 			}
 		}
 
+		//System.err.println("smallround:"+smallround);
 		if (smallround == SMALLROUND) {
 			for (i = 2; i < n; i++) {
 				lin_dependent[i] = 1;
@@ -365,6 +368,7 @@ public class Hideo {
 				j--;
 				primal[i] = primal[j];
 			} else {
+				//System.err.println("leave as it is");
 				primal[i] = start[i]; // leave as is
 			}
 			temp[i] = primal[i];
