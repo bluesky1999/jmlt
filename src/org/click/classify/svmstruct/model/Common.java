@@ -1070,14 +1070,17 @@ public class Common {
 		// //logger.info("shift:"+shift);
 		ai = new WORD[a.words.length];
 		for (int k = 0; k < ai.length; k++) {
-			ai[k] = a.words[k].copy_word();
+			//ai[k] = a.words[k].copy_word();
+			ai[k] = a.words[k];
 		}
 		// ai = a.words;
 
 		veclength = ai.length;
 		sumi = new WORD[veclength];
 		for (int i = 0; i < ai.length; i++) {
-			sumi[i] = ai[i].copy_word();
+			//sumi[i] = ai[i].copy_word();
+			sumi[i] =new WORD();
+			sumi[i].weight=ai[i].weight;
 			sumi[i].wnum = ai[i].wnum + shift;
 		}
 

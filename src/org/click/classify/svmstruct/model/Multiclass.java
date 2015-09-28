@@ -185,11 +185,13 @@ public class Multiclass extends Struct {
 		double score = 0.0, bestscore = -1;
 		WORD[] words;
 
-		doc = x.doc.copyDoc();
-		////doc= new DOC();
+		///doc = x.doc.copyDoc();
+		doc= new DOC();
+		
+
 		y.scores = new double[sparm.num_classes + 1];
 		y.num_classes = sparm.num_classes;
-		words = doc.fvec.words;
+		words = x.doc.fvec.words;
 
 		for (j = 0; j < words.length; j++) {
 			if (words[j].wnum > sparm.num_features) {
