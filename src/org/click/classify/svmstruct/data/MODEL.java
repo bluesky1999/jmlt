@@ -29,7 +29,8 @@ public class MODEL {
 	  //precision, up to which this  model is accurate
 	  public double maxdiff;
 	  
-	  public MODEL copyMODEL()
+	  /*
+	  public MODEL ccopyMODEL()
 	  {
 		MODEL model=new MODEL();
 		model.sv_num=sv_num;
@@ -97,8 +98,10 @@ public class MODEL {
 		
 		return model;
 	  }
+	  */
 	  
-	  public String topWeights()
+	  /*
+	  public String ttopWeights()
 	  {
 		  String wi="";
 		  if(lin_weights==null)
@@ -111,5 +114,5 @@ public class MODEL {
 		  }
 		  return wi;
 	  }
-	  
+	  */
 }

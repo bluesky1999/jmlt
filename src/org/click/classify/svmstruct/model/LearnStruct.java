@@ -293,7 +293,8 @@ public class LearnStruct {
 							// kernel is linear. If not, ignore the weight
 							// vector since its content is bogus.
 							com.addWeightVectorToLinearModel(svmModel);
-							sm.svm_model = svmModel.copyMODEL();
+							////sm.svm_model = svmModel.copyMODEL();
+							sm.svm_model = svmModel;
 							sm.w = new double[svmModel.lin_weights.length];
 							for (int k = 0; k < svmModel.lin_weights.length; k++) {
 								sm.w[k] = svmModel.lin_weights[k];

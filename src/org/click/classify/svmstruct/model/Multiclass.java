@@ -124,8 +124,8 @@ public class Multiclass extends Struct {
 
 		// NOTE: This function could be made much more efficient by not always
 		// computing a new PSI vector.
-		doc = x.doc.copyDoc();
-
+		////doc = x.doc.copyDoc();
+		doc = new DOC();
 		ybar.scores = null;
 		ybar.num_classes = sparm.num_classes;
 
@@ -186,6 +186,7 @@ public class Multiclass extends Struct {
 		WORD[] words;
 
 		doc = x.doc.copyDoc();
+		////doc= new DOC();
 		y.scores = new double[sparm.num_classes + 1];
 		y.num_classes = sparm.num_classes;
 		words = doc.fvec.words;

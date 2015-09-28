@@ -13,11 +13,9 @@ import org.click.classify.svmstruct.data.ModelConstant;
 import org.click.classify.svmstruct.data.QP;
 import org.click.classify.svmstruct.data.SHRINK_STATE;
 import org.click.classify.svmstruct.data.SVECTOR;
-import org.click.classify.svmstruct.data.TIMING;
 import org.click.classify.svmstruct.data.WORD;
 import org.click.classify.svmstruct.data.WU;
 import org.click.classify.svmstruct.model.Common;
-import org.click.lib.time.TimeOpera;
 
 /**
  * Learning module of Support Vector Machine
@@ -88,7 +86,6 @@ public class Learn {
 		}
 
 		model.index = new int[totdoc + 2];
-
 		model.at_upper_bound = 0;
 		model.b = 0;
 		model.supvec[0] = null;
@@ -330,7 +327,7 @@ public class Learn {
 	}
 
 	public void get_kernel_row(DOC[] docs, int docnum, int totdoc, int[] active2dnum, double[] buffer, KERNEL_PARM kernel_parm) {
-		int i, j, start;
+		int i, j;
 		DOC ex;
 		ex = docs[docnum];
 
@@ -458,10 +455,8 @@ public class Learn {
 		int[] working2dnum;
 		int[] selexam;
 		int activenum;
-		double criterion;
 		double eq;
 		double[] a_old;
-		double t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0;
 		int transductcycle;
 		int transduction;
 		double epsilon_crit_org;
@@ -1404,7 +1399,6 @@ public class Learn {
 			switchnum += unsupaddnum1 + unsupaddnum2;
 
 			// stop and print out current margin
-
 			if ((unsupaddnum1 == 0) && (unsupaddnum2 == 0)) {
 				if ((learn_parm.svm_unlabbound >= 1) && ((newpos + newneg) == allunlab)) {
 					for (j = 0; (j < totdoc); j++) {
@@ -2112,239 +2106,11 @@ public class Learn {
 		return (maxxlen);
 	}
 
-	/**
-	 * optional: length of model vector in feature space optional: radius of
-	 * ball containing the data
-	 */
-	public double estimate_margin_vcdim(MODEL model, double w, double R) {
-		double h;
-
-		// follows chapter 5.6.4 in [Vapnik/95]
-		if (w < 0) {
-			w = com.modelLengthS(model);
-		}
-		if (R < 0) {
-			R = estimate_sphere(model);
-		}
-		h = w * w * R * R + 1;
-		return (h);
-	}
-
-	/************************** Compute estimates ******************************/
-	/**
-	 * Computes xa-estimate of error rate, recall, and precision. See T.
-	 * Joachims, Estimating the Generalization Performance of an SVM
-	 * Efficiently, IMCL, 2000.
-	 */
-	public void compute_xa_estimates(MODEL model, int[] label, int[] unlabeled, int totdoc, DOC[] docs, double[] lin, double[] a, KERNEL_PARM kernel_parm, LEARN_PARM learn_parm) {
-		int i, looerror, looposerror, loonegerror;
-		int totex, totposex;
-		double xi, r_delta, r_delta_sq, sim = 0;
-		int[] sv2dnum = null, sv = null;
-		int svnum;
-
-		r_delta = estimate_r_delta(docs, totdoc, kernel_parm);
-		r_delta_sq = r_delta * r_delta;
-
-		looerror = 0;
-		looposerror = 0;
-		loonegerror = 0;
-		totex = 0;
-		totposex = 0;
-		svnum = 0;
-
-		if (learn_parm.xa_depth > 0) {
-			sv = new int[totdoc + 11];
-			for (i = 0; i < totdoc; i++)
-				sv[i] = 0;
-			for (i = 1; i < model.sv_num; i++)
-				if (a[model.supvec[i].docnum] < (learn_parm.svm_cost[model.supvec[i].docnum] - learn_parm.epsilon_a)) {
-					sv[model.supvec[i].docnum] = 1;
-					svnum++;
-				}
-			sv2dnum = new int[totdoc + 11];
-			clear_index(sv2dnum);
-			compute_index(sv, totdoc, sv2dnum);
-		}
-
-		for (i = 0; i < totdoc; i++) {
-			if (unlabeled[i] != 0) {
-				// ignore it 
-			} else {
-				xi = 1.0 - ((lin[i] - model.b) * ((double) label[i]));
-				if (xi < 0)
-					xi = 0;
-				if (label[i] > 0) {
-					totposex++;
-				}
-				if ((learn_parm.rho * a[i] * r_delta_sq + xi) >= 1.0) {
-					if (learn_parm.xa_depth > 0) { /* makes assumptions */
-						sim = distribute_alpha_t_greedily(sv2dnum, svnum, docs, a, i, label, kernel_parm, learn_parm, (double) ((1.0 - xi - a[i] * r_delta_sq) / (2.0 * a[i])));
-					}
-					if ((learn_parm.xa_depth == 0) || ((a[i] * com.kernel(kernel_parm, docs[i], docs[i]) + a[i] * 2.0 * sim + xi) >= 1.0)) {
-						looerror++;
-						if (label[i] > 0) {
-							looposerror++;
-						} else {
-							loonegerror++;
-						}
-					}
-				}
-				totex++;
-			}
-		}
-
-		model.xa_error = ((double) looerror / (double) totex) * 100.0;
-		model.xa_recall = (1.0 - (double) looposerror / (double) totposex) * 100.0;
-		model.xa_precision = (((double) totposex - (double) looposerror) / ((double) totposex - (double) looposerror + (double) loonegerror)) * 100.0;
-
-	}
 
 	public void clear_index(double[] index) {
 		index[0] = -1;
 	}
 
-	/**
-	 * Experimental Code improving plain XiAlpha Estimates by computing a better
-	 * bound using a greedy optimzation strategy.
-	 */
-	public double distribute_alpha_t_greedily(int[] sv2dnum, int svnum, DOC[] docs, double[] a, int docnum, int[] label, KERNEL_PARM kernel_parm, LEARN_PARM learn_parm, double thresh) {
-		int best_depth = 0;
-		int i, j, k, d, skip, allskip;
-		double best, val, init_val_sq, init_val_lin;
-		double[] best_val = new double[101];
-		int[] best_ex = new int[101];
-		double[] cache, trow;
-
-		cache = new double[learn_parm.xa_depth * svnum];
-		trow = new double[svnum];
-
-		for (k = 0; k < svnum; k++) {
-			trow[k] = com.kernel(kernel_parm, docs[docnum], docs[sv2dnum[k]]);
-		}
-
-		init_val_sq = 0;
-		init_val_lin = 0;
-		best = 0;
-
-		for (d = 0; d < learn_parm.xa_depth; d++) {
-			allskip = 1;
-			if (d >= 1) {
-				init_val_sq += cache[best_ex[d - 1] + svnum * (d - 1)];
-				for (k = 0; k < d - 1; k++) {
-					init_val_sq += 2.0 * cache[best_ex[k] + svnum * (d - 1)];
-				}
-				init_val_lin += trow[best_ex[d - 1]];
-			}
-			for (i = 0; i < svnum; i++) {
-				skip = 0;
-				if (sv2dnum[i] == docnum)
-					skip = 1;
-				for (j = 0; j < d; j++) {
-					if (i == best_ex[j])
-						skip = 1;
-				}
-
-				if (skip == 0) {
-					val = init_val_sq;
-					val += com.kernel(kernel_parm, docs[sv2dnum[i]], docs[sv2dnum[i]]);
-					for (j = 0; j < d; j++) {
-						val += 2.0 * cache[i + j * svnum];
-					}
-					val *= (1.0 / (2.0 * (d + 1.0) * (d + 1.0)));
-					val -= ((init_val_lin + trow[i]) / (d + 1.0));
-
-					if ((allskip != 0) || (val < best_val[d])) {
-						best_val[d] = val;
-						best_ex[d] = i;
-					}
-					allskip = 0;
-					if (val < thresh) {
-						i = svnum;
-
-					}
-				}
-			}
-			if (allskip == 0) {
-				for (k = 0; k < svnum; k++) {
-					cache[d * svnum + k] = com.kernel(kernel_parm, docs[sv2dnum[best_ex[d]]], docs[sv2dnum[k]]);
-				}
-			}
-			if ((allskip == 0) && ((best_val[d] < best) || (d == 0))) {
-				best = best_val[d];
-				best_depth = d;
-			}
-			if ((allskip != 0) || (best < thresh)) {
-				d = learn_parm.xa_depth;
-			}
-		}
-
-		return (best);
-	}
-
-	/**
-	 * Loo-bound based on observation that loo-errors must have an equal
-	 * distribution in both training and test examples, given that the test
-	 * examples are classified correctly. Compare chapter
-	 * "Constraints on the Transductive Hyperplane" in my Dissertation.
-	 */
-	public void estimate_transduction_quality(MODEL model, int[] label, int[] unlabeled, int totdoc, DOC[] docs, double[] lin) {
-		int i, j, l = 0, ulab = 0, lab = 0, labpos = 0, labneg = 0, ulabpos = 0, ulabneg = 0, totulab = 0;
-		double totlab = 0, totlabpos = 0, totlabneg = 0, labsum = 0, ulabsum = 0;
-		double r_delta, r_delta_sq, xi, xisum = 0, asum = 0;
-
-		r_delta = estimate_r_delta(docs, totdoc, model.kernel_parm);
-		r_delta_sq = r_delta * r_delta;
-
-		for (j = 0; j < totdoc; j++) {
-			if (unlabeled[j] != 0) {
-				totulab++;
-			} else {
-				totlab++;
-				if (label[j] > 0)
-					totlabpos++;
-				else
-					totlabneg++;
-			}
-		}
-
-		for (j = 1; j < model.sv_num; j++) {
-			i = model.supvec[j].docnum;
-			xi = 1.0 - ((lin[i] - model.b) * (double) label[i]);
-			if (xi < 0)
-				xi = 0;
-
-			xisum += xi;
-			asum += Math.abs(model.alpha[j]);
-			if (unlabeled[i] != 0) {
-				ulabsum += (Math.abs(model.alpha[j]) * r_delta_sq + xi);
-			} else {
-				labsum += (Math.abs(model.alpha[j]) * r_delta_sq + xi);
-			}
-			if ((Math.abs(model.alpha[j]) * r_delta_sq + xi) >= 1) {
-				l++;
-				if (unlabeled[model.supvec[j].docnum] != 0) {
-					ulab++;
-					if (model.alpha[j] > 0)
-						ulabpos++;
-					else
-						ulabneg++;
-				} else {
-					lab++;
-					if (model.alpha[j] > 0)
-						labpos++;
-					else
-						labneg++;
-				}
-			}
-		}
-
-		System.out.println("xacrit>=1: labeledpos=" + (double) labpos / (double) totlab * 100.0 + " labeledneg=" + (double) labneg / (double) totlab * 100.0 + " default=" + (double) totlabpos / (double) (totlab) * 100.0);
-		System.out.println("xacrit>=1: unlabelpos=" + (double) ulabpos / (double) totulab * 100.0 + " unlabelneg=" + (double) ulabneg / (double) totulab * 100.0);
-		System.out.println("xacrit>=1: labeled=" + (double) lab / (double) totlab * 100.0 + " unlabled=" + (double) ulab / (double) totulab * 100.0 + " all=" + (double) l / (double) (totdoc) * 100.0);
-		System.out.println("xacritsum: labeled=" + (double) labsum / (double) totlab * 100.0 + " unlabled=" + (double) ulabsum / (double) totulab * 100.0 + " all=" + (double) (labsum + ulabsum) / (double) (totdoc) * 100.0);
-		System.out.println("r_delta_sq=" + r_delta_sq + " xisum=" + xisum + " asum=" + asum);
-	}
 
 	public static void main(String[] args) {
 

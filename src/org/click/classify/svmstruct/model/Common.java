@@ -928,7 +928,8 @@ public class Common {
 	public MODEL compactLinearModel(MODEL model) {
 		MODEL newmodel;
 		newmodel = new MODEL();
-		newmodel = model.copyMODEL();
+		///newmodel = model.copyMODEL();
+		newmodel = model;
 		addWeightVectorToLinearModel(newmodel);
 		newmodel.supvec = new DOC[2];
 		newmodel.alpha = new double[2];
@@ -1346,7 +1347,7 @@ public class Common {
 		return (multaddSsR(a, b, 1.0, 1.0, 0));
 	}
 
-	public MODEL copyModel(MODEL model) {
+	public MODEL ccopyModel(MODEL model) {
 		MODEL newmodel;
 		int i;
 
@@ -1840,33 +1841,6 @@ public class Common {
 		return narr;
 	}
 
-	public String douarr2str(double[] arr) {
-		String str = "";
-		if (arr == null) {
-			return "";
-		}
-
-		for (int i = 0; i < arr.length; i++) {
-			str += (i + ":" + arr[i] + " ");
-		}
-
-		str = str.trim();
-		return str;
-	}
-
-	public String intarr2str(int[] arr) {
-		String str = "";
-		if (arr == null) {
-			return "";
-		}
-
-		for (int i = 0; i < arr.length; i++) {
-			str += (i + ":" + arr[i] + " ");
-		}
-
-		str = str.trim();
-		return str;
-	}
 
 	public DOC[] reallocDOCS(DOC[] ods, int n) {
 
@@ -1878,7 +1852,8 @@ public class Common {
 			return ndoc;
 		}
 		for (int i = 0; i < ods.length; i++) {
-			ndoc[i] = ods[i].copyDoc();
+			///ndoc[i] = ods[i].copyDoc();
+			ndoc[i] = ods[i];
 		}
 		for (int i = ods.length; i < n; i++) {
 			ndoc[i] = new DOC();

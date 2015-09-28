@@ -9,6 +9,7 @@ public class DOC {
 	  public int kernelid;
 	  public SVECTOR fvec;
 	  
+	
 	  public DOC copyDoc()
 	  {
 		  DOC ndoc=new DOC();
@@ -27,5 +28,6 @@ public class DOC {
 		  }
 		  return ndoc;
 	  }
+
 	  
 }

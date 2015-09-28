@@ -11,6 +11,7 @@ public class SVECTOR {
 	  public SVECTOR next;
 	  public double factor;
 	  
+	  
 	  public SVECTOR copySVECTOR()
 	  {
 		  SVECTOR sv=new SVECTOR();
@@ -77,5 +78,6 @@ public class SVECTOR {
 		  wi=wi.trim();
 		  
 		  return wi;
-	  }	  
+	  }	
+	  
 }

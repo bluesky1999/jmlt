@@ -267,7 +267,8 @@ public abstract class Struct {
 			FileWriter fw = new FileWriter(new File(file));
 			PrintWriter modelfl = new PrintWriter(fw);
 			int j, i, sv_num;
-			MODEL model = sm.svm_model.copyMODEL();
+			///MODEL model = sm.svm_model.copyMODEL();
+			MODEL model = sm.svm_model;
 			SVECTOR v;
 
 			modelfl.print("SVM-multiclass Version " + CommonStruct.INST_VERSION + "\n");
