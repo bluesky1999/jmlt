@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 
 import org.click.classify.svmstruct.data.CheckStruct;
 import org.click.classify.svmstruct.data.DOC;
-import org.click.classify.svmstruct.data.KERNEL_CACHE;
 import org.click.classify.svmstruct.data.KERNEL_PARM;
 import org.click.classify.svmstruct.data.LEARN_PARM;
 import org.click.classify.svmstruct.data.MODEL;
@@ -38,8 +37,7 @@ public class Learn {
 		com = new Common();
 	}
 
-
-	public void svm_learn_optimization(DOC[] docs, double[] rhs, int totdoc, int totwords, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm, KERNEL_CACHE kernel_cache, MODEL model, double[] alpha) {
+	public void svm_learn_optimization(DOC[] docs, double[] rhs, int totdoc, int totwords, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm, MODEL model, double[] alpha) {
 
 		int i;
 		int[] label;
@@ -49,7 +47,7 @@ public class Learn {
 		double[] a;
 		double[] c;
 		///double runtime_start, runtime_end;
-		int iterations,	svsetnum = 0;
+		int iterations, svsetnum = 0;
 		int maxslackid;
 
 		int[] unlabeled;
@@ -88,7 +86,7 @@ public class Learn {
 		for (int k = 0; k < model.alpha.length; k++) {
 
 		}
-		
+
 		model.index = new int[totdoc + 2];
 
 		model.at_upper_bound = 0;
@@ -163,9 +161,8 @@ public class Learn {
 				}
 			}
 
-
 			compute_index(index, totdoc, index2dnum);
-			update_linear_component(docs, label, index2dnum, alpha, a, index2dnum, totdoc, totwords, kernel_parm, kernel_cache, lin, aicache, weights);
+			update_linear_component(docs, label, index2dnum, alpha, a, index2dnum, totdoc, totwords, kernel_parm, lin, aicache, weights);
 
 			calculate_svm_model(docs, label, unlabeled, lin, alpha, a, c, learn_parm, index2dnum, index2dnum, model);
 			for (i = 0; i < totdoc; i++) {
@@ -180,10 +177,10 @@ public class Learn {
 		}
 
 		if (learn_parm.sharedslack != 0) {
-			iterations = optimize_to_convergence_sharedslack(docs, label, totdoc, totwords, learn_parm, kernel_parm, kernel_cache, shrink_state, model, a, lin, c, checkStruct);
+			iterations = optimize_to_convergence_sharedslack(docs, label, totdoc, totwords, learn_parm, kernel_parm, shrink_state, model, a, lin, c, checkStruct);
 
 		} else {
-			iterations = optimize_to_convergence(docs, label, totdoc, totwords, learn_parm, kernel_parm, kernel_cache, shrink_state, model, inconsistent, unlabeled, a, lin, c,  -1, 1, checkStruct);
+			iterations = optimize_to_convergence(docs, label, totdoc, totwords, learn_parm, kernel_parm, shrink_state, model, inconsistent, unlabeled, a, lin, c, -1, 1, checkStruct);
 
 		}
 
@@ -253,7 +250,7 @@ public class Learn {
 
 	}
 
-	public void update_linear_component(DOC[] docs, int[] label, int[] active2dnum, double[] a, double[] a_old, int[] working2dnum, int totdoc, int totwords, KERNEL_PARM kernel_parm, KERNEL_CACHE kernel_cache, double[] lin, double[] aicache, double[] weights) {
+	public void update_linear_component(DOC[] docs, int[] label, int[] active2dnum, double[] a, double[] a_old, int[] working2dnum, int totdoc, int totwords, KERNEL_PARM kernel_parm, double[] lin, double[] aicache, double[] weights) {
 		int i, ii, j, jj;
 		double tec;
 		SVECTOR f;
@@ -285,7 +282,7 @@ public class Learn {
 		} else {
 			for (jj = 0; (i = working2dnum[jj]) >= 0; jj++) {
 				if (a[i] != a_old[i]) {
-					get_kernel_row(kernel_cache, docs, i, totdoc, active2dnum, aicache, kernel_parm);
+					get_kernel_row(docs, i, totdoc, active2dnum, aicache, kernel_parm);
 					for (ii = 0; (j = active2dnum[ii]) >= 0; ii++) {
 						tec = aicache[j];
 						lin[j] += (((a[i] * tec) - (a_old[i] * tec)) * (double) label[i]);
@@ -314,7 +311,6 @@ public class Learn {
 		return (avgxlen / totdoc);
 	}
 
-
 	public int compute_index(int[] binfeature, int range, int[] index) {
 		int i, ii;
 		ii = 0;
@@ -333,27 +329,14 @@ public class Learn {
 		return ii;
 	}
 
-	public void get_kernel_row(KERNEL_CACHE kernel_cache, DOC[] docs, int docnum, int totdoc, int[] active2dnum, double[] buffer, KERNEL_PARM kernel_parm) {
+	public void get_kernel_row(DOC[] docs, int docnum, int totdoc, int[] active2dnum, double[] buffer, KERNEL_PARM kernel_parm) {
 		int i, j, start;
 		DOC ex;
 		ex = docs[docnum];
 
-		if ((kernel_cache != null) && (kernel_cache.index[docnum] != -1)) {
-			kernel_cache.lru[kernel_cache.index[docnum]] = kernel_cache.time;
-			start = kernel_cache.activenum * kernel_cache.index[docnum];
-			for (i = 0; (j = active2dnum[i]) >= 0; i++) {
-				if (kernel_cache.totdoc2active[j] >= 0) {
-					buffer[j] = kernel_cache.buffer[start + kernel_cache.totdoc2active[j]];
-				} else {
-					buffer[j] = com.kernel(kernel_parm, ex, docs[j]);
-				}
-			}
-		} else {
-			for (i = 0; (j = active2dnum[i]) >= 0; i++) {
-				buffer[j] = com.kernel(kernel_parm, ex, docs[j]);
-			}
+		for (i = 0; (j = active2dnum[i]) >= 0; i++) {
+			buffer[j] = com.kernel(kernel_parm, ex, docs[j]);
 		}
-
 	}
 
 	public int calculate_svm_model(DOC[] docs, int[] label, int[] unlabeled, double[] lin, double[] a, double[] a_old, double[] c, LEARN_PARM learn_parm, int[] working2dnum, int[] active2dnum, MODEL model) {
@@ -460,7 +443,7 @@ public class Learn {
 		return (model.sv_num - 1);
 	}
 
-	public int optimize_to_convergence(DOC[] docs, int[] label, int totdoc, int totwords, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm, KERNEL_CACHE kernel_cache, SHRINK_STATE shrink_state, MODEL model, int[] inconsistent, int[] unlabeled, double[] a, double[] lin, double[] c,  int heldout, int retrain, CheckStruct struct) {
+	public int optimize_to_convergence(DOC[] docs, int[] label, int totdoc, int totwords, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm, SHRINK_STATE shrink_state, MODEL model, int[] inconsistent, int[] unlabeled, double[] a, double[] lin, double[] c, int heldout, int retrain, CheckStruct struct) {
 
 		int[] chosen;
 		int[] key;
@@ -559,10 +542,6 @@ public class Learn {
 
 		/** main loop ***/
 		for (; (retrain != 0) && (terminate == 0); iteration++) {
-			if (kernel_cache != null) {
-				kernel_cache.time = iteration;
-			}
-
 
 			if (learn_parm.svm_newvarsinqp > learn_parm.svm_maxqpsize) {
 				learn_parm.svm_newvarsinqp = learn_parm.svm_maxqpsize;
@@ -626,19 +605,17 @@ public class Learn {
 					already_chosen = 0;
 
 					if ((Math.min(learn_parm.svm_newvarsinqp, learn_parm.svm_maxqpsize - choosenum) >= 4) && (kernel_parm.kernel_type != ModelConstant.LINEAR)) {
-						already_chosen = select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, (Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp) / 2), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, kernel_cache, 1, key, chosen);
+						already_chosen = select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, (Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp) / 2), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, 1, key, chosen);
 
 						choosenum += already_chosen;
 					}
 
-					choosenum += select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp - already_chosen), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, kernel_cache, 0, key, chosen);
-
+					choosenum += select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp - already_chosen), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, 0, key, chosen);
 
 				} else {
-					choosenum += select_next_qp_subproblem_rand(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, kernel_cache, key, chosen, iteration);
+					choosenum += select_next_qp_subproblem_rand(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, key, chosen, iteration);
 				}
 			}
-
 
 			if (retrain != 2) {
 
@@ -646,12 +623,9 @@ public class Learn {
 
 			}
 
-
-			update_linear_component(docs, label, active2dnum, a, a_old, working2dnum, totdoc, totwords, kernel_parm, kernel_cache, lin, aicache, weights);
-
+			update_linear_component(docs, label, active2dnum, a, a_old, working2dnum, totdoc, totwords, kernel_parm, lin, aicache, weights);
 
 			supvecnum = calculate_svm_model(docs, label, unlabeled, lin, a, a_old, c, learn_parm, working2dnum, active2dnum, model);
-
 
 			for (jj = 0; (i = working2dnum[jj]) >= 0; jj++) {
 				a_old[i] = a[i];
@@ -684,8 +658,7 @@ public class Learn {
 
 			if ((retrain == 0) && (inactivenum > 0) && ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == ModelConstant.LINEAR))) {
 
-
-				reactivate_inactive_examples(label, unlabeled, a, shrink_state, lin, c, totdoc, totwords, iteration, learn_parm, inconsistent, docs, kernel_parm, kernel_cache, model, aicache, weights, struct);
+				reactivate_inactive_examples(label, unlabeled, a, shrink_state, lin, c, totdoc, totwords, iteration, learn_parm, inconsistent, docs, kernel_parm, model, aicache, weights, struct);
 
 				activenum = compute_index(shrink_state.active, totdoc, active2dnum);
 				inactivenum = totdoc - activenum;
@@ -713,7 +686,6 @@ public class Learn {
 			if (learn_parm.epsilon_crit < epsilon_crit_org) {
 				learn_parm.epsilon_crit = epsilon_crit_org;
 			}
-
 
 			if ((retrain == 0) && (transduction != 0)) {
 				for (i = 0; (i < totdoc); i++) {
@@ -765,7 +737,6 @@ public class Learn {
 		return iteration;
 	}
 
-
 	public void clear_index(int[] index) {
 		for (int i = 0; i < index.length; i++) {
 			index[i] = -1;
@@ -794,7 +765,7 @@ public class Learn {
 	 * @param chosen
 	 * @return
 	 */
-	public int select_next_qp_subproblem_grad(int[] label, int[] unlabeled, double[] a, double[] lin, double[] c, int totdoc, int qp_size, LEARN_PARM learn_parm, int[] inconsistent, int[] active2dnum, int[] working2dnum, double[] selcrit, int[] select, KERNEL_CACHE kernel_cache, int cache_only, int[] key, int[] chosen) {
+	public int select_next_qp_subproblem_grad(int[] label, int[] unlabeled, double[] a, double[] lin, double[] c, int totdoc, int qp_size, LEARN_PARM learn_parm, int[] inconsistent, int[] active2dnum, int[] working2dnum, double[] selcrit, int[] select, int cache_only, int[] key, int[] chosen) {
 
 		int choosenum, i, j, k, activedoc, inum, valid;
 		double s;
@@ -806,16 +777,9 @@ public class Learn {
 
 		for (i = 0; (j = active2dnum[i]) >= 0; i++) {
 			s = -label[j];
-			if ((kernel_cache != null) && (cache_only != 0)) {
-				if (kernel_cache.index[j] >= 0) {
-					valid = 1;
-				} else {
-					valid = 0;
-				}
-			} else {
-				valid = 1;
-			}
 
+			valid = 1;
+		
 			if ((valid != 0) && (!((a[j] <= (0 + learn_parm.epsilon_a)) && (s < 0))) && (!((a[j] >= (learn_parm.svm_cost[j] - learn_parm.epsilon_a)) && (s > 0))) && (chosen[j] == 0) && (label[j] != 0) && (inconsistent[j] == 0)) {
 
 				selcrit[activedoc] = (double) label[j] * (learn_parm.eps - (double) label[j] * c[j] + (double) label[j] * lin[j]);
@@ -842,15 +806,7 @@ public class Learn {
 		activedoc = 0;
 		for (i = 0; (j = active2dnum[i]) >= 0; i++) {
 			s = label[j];
-			if ((kernel_cache != null) && (cache_only != 0)) {
-				if (kernel_cache.index[j] >= 0) {
-					valid = 1;
-				} else {
-					valid = 0;
-				}
-			} else {
-				valid = 1;
-			}
+			valid = 1;
 
 			if (valid != 0 && (!((a[j] <= (0 + learn_parm.epsilon_a)) && (s < 0))) && (!((a[j] >= (learn_parm.svm_cost[j] - learn_parm.epsilon_a)) && (s > 0))) && (chosen[j] == 0) && (label[j] != 0) && (inconsistent[j] == 0)) {
 				selcrit[activedoc] = -(double) label[j] * (learn_parm.eps - (double) label[j] * c[j] + (double) label[j] * lin[j]);
@@ -910,8 +866,7 @@ public class Learn {
 		}
 	}
 
-
-	public int select_next_qp_subproblem_rand(int[] label, int[] unlabeled, double[] a, double[] lin, double[] c, int totdoc, int qp_size, LEARN_PARM learn_parm, int[] inconsistent, int[] active2dnum, int[] working2dnum, double[] selcrit, int[] select, KERNEL_CACHE kernel_cache, int[] key, int[] chosen, int iteration) {
+	public int select_next_qp_subproblem_rand(int[] label, int[] unlabeled, double[] a, double[] lin, double[] c, int totdoc, int qp_size, LEARN_PARM learn_parm, int[] inconsistent, int[] active2dnum, int[] working2dnum, double[] selcrit, int[] select, int[] key, int[] chosen, int iteration) {
 		int choosenum, i, j, k, activedoc, inum;
 		double s = 0;
 
@@ -962,7 +917,6 @@ public class Learn {
 
 	}
 
-
 	public void optimize_svm(DOC[] docs, int[] label, int[] unlabeled, int[] exclude_from_eq_const, double eq_target, int[] chosen, int[] active2dnum, MODEL model, int totdoc, int[] working2dnum, int varnum, double[] a, double[] lin, double[] c, LEARN_PARM learn_parm, double[] aicache, KERNEL_PARM kernel_parm, QP qp, double epsilon_crit_target) {
 		int i;
 		double[] a_v;
@@ -984,7 +938,6 @@ public class Learn {
 
 		int ki, kj, i, j;
 		double kernel_temp;
-
 
 		qp.opt_n = varnum;
 		qp.opt_ce0[0] = -eq_target;
@@ -1110,7 +1063,7 @@ public class Learn {
 
 	}
 
-	public void reactivate_inactive_examples(int[] label, int[] unlabeled, double[] a, SHRINK_STATE shrink_state, double[] lin, double[] c, int totdoc, int totwords, int iteration, LEARN_PARM learn_parm, int[] inconsistent, DOC[] docs, KERNEL_PARM kernel_parm, KERNEL_CACHE kernel_cache, MODEL model, double[] aicache, double[] weights, CheckStruct struct) {
+	public void reactivate_inactive_examples(int[] label, int[] unlabeled, double[] a, SHRINK_STATE shrink_state, double[] lin, double[] c, int totdoc, int totwords, int iteration, LEARN_PARM learn_parm, int[] inconsistent, DOC[] docs, KERNEL_PARM kernel_parm, MODEL model, double[] aicache, double[] weights, CheckStruct struct) {
 		int i, j, ii, jj, t;
 		int[] changed2dnum, inactive2dnum;
 		int[] changed;
@@ -1175,7 +1128,7 @@ public class Learn {
 				compute_index(changed, totdoc, changed2dnum);
 
 				for (ii = 0; (i = changed2dnum[ii]) >= 0; ii++) {
-					get_kernel_row(kernel_cache, docs, i, totdoc, inactive2dnum, aicache, kernel_parm);
+					get_kernel_row(docs, i, totdoc, inactive2dnum, aicache, kernel_parm);
 					for (jj = 0; (j = inactive2dnum[jj]) >= 0; jj++) {
 						kernel_val = aicache[j];
 						lin[j] += (((a[i] * kernel_val) - (a_old[i] * kernel_val)) * (double) label[i]);
@@ -1471,7 +1424,7 @@ public class Learn {
 					learn_parm.svm_unlabbound = 1;
 				}
 				model.at_upper_bound = 0; // since upper bound increased
-			} 
+			}
 
 			learn_parm.epsilon_crit = 0.5; // don't need to be so picky
 
@@ -1531,7 +1484,6 @@ public class Learn {
 			System.out.println(e.getMessage());
 		}
 
-
 	}
 
 	/**
@@ -1549,7 +1501,7 @@ public class Learn {
 			activenum++;
 
 			lastiter = last_suboptimal_at[i];
-		
+
 			if (((iteration - lastiter) > learn_parm.svm_iter_to_shrink) || (inconsistent[i] != 0)) {
 				change++;
 			}
@@ -1569,9 +1521,9 @@ public class Learn {
 			}
 			for (ii = 0; active2dnum[ii] >= 0; ii++) {
 				i = active2dnum[ii];
-	
+
 				lastiter = last_suboptimal_at[i];
-				
+
 				if (((iteration - lastiter) > learn_parm.svm_iter_to_shrink) || (inconsistent[i] != 0)) {
 					shrink_state.active[i] = 0;
 					shrink_state.inactive_since[i] = shrink_state.deactnum;
@@ -1586,7 +1538,6 @@ public class Learn {
 		}
 		return (activenum);
 	}
-
 
 	/**
 	 * Throw out examples with multipliers at upper bound. This corresponds to
@@ -1628,9 +1579,6 @@ public class Learn {
 				struct.inconsistentnum++;
 				inconsistent[i] = 1; // never choose again
 				retrain = 2; // start over
-				///if (CommonStruct.verbosity >= 3) {
-				///	System.out.println("inconsistent(" + i + ")..");
-				///}
 			}
 		}
 		return (retrain);
@@ -1661,9 +1609,6 @@ public class Learn {
 			struct.inconsistentnum++;
 			inconsistent[maxex] = 1; // never choose again
 			retrain = 2; // start over
-			///if (CommonStruct.verbosity >= 3) {
-			///	System.out.println("inconsistent(" + i + ")..");
-			///}
 		}
 		return (retrain);
 	}
@@ -1686,7 +1631,7 @@ public class Learn {
 	 * @param timing_profile
 	 * @return
 	 */
-	public int optimize_to_convergence_sharedslack(DOC[] docs, int[] label, int totdoc, int totwords, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm, KERNEL_CACHE kernel_cache, SHRINK_STATE shrink_state, MODEL model, double[] a, double[] lin, double[] c, CheckStruct struct) {
+	public int optimize_to_convergence_sharedslack(DOC[] docs, int[] label, int totdoc, int totwords, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm, SHRINK_STATE shrink_state, MODEL model, double[] a, double[] lin, double[] c, CheckStruct struct) {
 
 		int[] chosen;
 		int[] key;
@@ -1723,7 +1668,6 @@ public class Learn {
 		epsilon_crit_org = learn_parm.epsilon_crit; /* save org */
 		if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
 			learn_parm.epsilon_crit = 2.0;
-			// kernel_cache=NULL; caching makes no sense for linear kernel
 		}
 		learn_parm.epsilon_shrink = 2;
 		struct.maxdiff = 1;
@@ -1780,7 +1724,6 @@ public class Learn {
 		bestmaxdiff = 999999999;
 		terminate = 0;
 
-
 		for (i = 0; i < totdoc; i++) { // various inits
 			chosen[i] = 0;
 			unlabeled[i] = 0;
@@ -1803,10 +1746,6 @@ public class Learn {
 				selcrit[ci] = 0.0;
 			}
 
-			if (kernel_cache != null) {
-				kernel_cache.time = iteration; // for lru cache
-			}
-
 			if (learn_parm.svm_newvarsinqp > learn_parm.svm_maxqpsize) {
 				learn_parm.svm_newvarsinqp = learn_parm.svm_maxqpsize;
 			}
@@ -1819,7 +1758,6 @@ public class Learn {
 				slackset = select_next_qp_slackset(docs, label, a, lin, slack, alphaslack, c, learn_parm, active2dnum, struct);
 				if (((iteration % 100) == 0) || (slackset == 0) || (struct.maxsharedviol < learn_parm.epsilon_crit)) {
 					// do a step with examples from different slack sets
-
 					i = 0;
 					for (jj = 0; (j = working2dnum[jj]) >= 0; jj++) {
 						if ((chosen[j] >= (learn_parm.svm_maxqpsize / Math.min(learn_parm.svm_maxqpsize, learn_parm.svm_newvarsinqp)))) {
@@ -1835,12 +1773,12 @@ public class Learn {
 					already_chosen = 0;
 					if ((Math.min(learn_parm.svm_newvarsinqp, learn_parm.svm_maxqpsize - choosenum) >= 4) && (kernel_parm.kernel_type != ModelConstant.LINEAR)) {
 						// select part of the working set from cache
-						already_chosen = select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, (int) (Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp) / 2), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, kernel_cache, 1, key, chosen);
+						already_chosen = select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, (int) (Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp) / 2), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, 1, key, chosen);
 
 						choosenum += already_chosen;
 					}
-					choosenum += select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp - already_chosen), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, kernel_cache, 0, key, chosen);
-				
+					choosenum += select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp - already_chosen), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, 0, key, chosen);
+
 				} else {// do a step with all examples from same slack set
 
 					jointstep = 1;
@@ -1861,15 +1799,15 @@ public class Learn {
 						}
 					}
 					learn_parm.biased_hyperplane = 1;
-					choosenum = select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, learn_parm.svm_maxqpsize, learn_parm, ignore, active2dnum, working2dnum, selcrit, selexam, kernel_cache, 0, key, chosen);
+					choosenum = select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, learn_parm.svm_maxqpsize, learn_parm, ignore, active2dnum, working2dnum, selcrit, selexam, 0, key, chosen);
 					learn_parm.biased_hyperplane = 0;
 				}
 			} else {
-				
+
 				// once in a while, select a somewhat random working set to
 				// get unlocked of infinite loops due to numerical
 				// inaccuracies in the core qp-solver
-				choosenum += select_next_qp_subproblem_rand(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, kernel_cache, key, chosen, iteration);
+				choosenum += select_next_qp_subproblem_rand(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp), learn_parm, inconsistent, active2dnum, working2dnum, selcrit, selexam, key, chosen, iteration);
 			}
 
 			if (jointstep != 0) {
@@ -1909,7 +1847,7 @@ public class Learn {
 				}
 			}
 
-			update_linear_component(docs, label, active2dnum, a, a_old, working2dnum, totdoc, totwords, kernel_parm, kernel_cache, lin, aicache, weights);
+			update_linear_component(docs, label, active2dnum, a, a_old, working2dnum, totdoc, totwords, kernel_parm, lin, aicache, weights);
 			compute_shared_slacks(docs, label, a, lin, c, active2dnum, learn_parm, slack, alphaslack);
 
 			supvecnum = calculate_svm_model(docs, label, unlabeled, lin, a, a_old, c, learn_parm, working2dnum, active2dnum, model);
@@ -1936,7 +1874,7 @@ public class Learn {
 
 			if ((retrain == 0) && (inactivenum > 0) && ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == ModelConstant.LINEAR))) {
 
-				reactivate_inactive_examples(label, unlabeled, a, shrink_state, lin, c, totdoc, totwords, iteration, learn_parm, inconsistent, docs, kernel_parm, kernel_cache, model, aicache, weights, struct);
+				reactivate_inactive_examples(label, unlabeled, a, shrink_state, lin, c, totdoc, totwords, iteration, learn_parm, inconsistent, docs, kernel_parm, model, aicache, weights, struct);
 				// Update to new active variables.
 				activenum = compute_index(shrink_state.active, totdoc, active2dnum);
 				inactivenum = totdoc - activenum;
@@ -1971,13 +1909,10 @@ public class Learn {
 				learn_parm.epsilon_crit = epsilon_crit_org;
 			}
 
-
 			if (((iteration % 10) == 0) && (noshrink == 0)) {
 				activenum = shrink_problem(docs, learn_parm, shrink_state, kernel_parm, active2dnum, last_suboptimal_at, iteration, totdoc, Math.max((int) (activenum / 10), Math.max((int) (totdoc / 500), 100)), a, inconsistent);
 				inactivenum = totdoc - activenum;
-
 			}
-
 		}
 
 		learn_parm.epsilon_crit = epsilon_crit_org; // restore org
@@ -2186,7 +2121,6 @@ public class Learn {
 		double h;
 
 		// follows chapter 5.6.4 in [Vapnik/95]
-
 		if (w < 0) {
 			w = com.modelLengthS(model);
 		}
@@ -2413,7 +2347,6 @@ public class Learn {
 		System.out.println("r_delta_sq=" + r_delta_sq + " xisum=" + xisum + " asum=" + asum);
 	}
 
-	
 	public static void main(String[] args) {
 
 	}

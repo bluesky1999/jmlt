@@ -3,7 +3,6 @@ package org.click.classify.svmstruct.model;
 import org.click.classify.svmstruct.data.CONSTSET;
 import org.click.classify.svmstruct.data.DOC;
 import org.click.classify.svmstruct.data.EXAMPLE;
-import org.click.classify.svmstruct.data.KERNEL_CACHE;
 import org.click.classify.svmstruct.data.KERNEL_PARM;
 import org.click.classify.svmstruct.data.LABEL;
 import org.click.classify.svmstruct.data.LEARN_PARM;
@@ -71,7 +70,7 @@ public class LearnStruct {
 		SVECTOR slackvec;
 		WORD[] slackv = new WORD[2];
 		MODEL svmModel = null;
-		KERNEL_CACHE kcache = null;
+		//KERNEL_CACHE kcache = null;
 		LABEL ybar;
 		DOC doc;
 
@@ -131,7 +130,7 @@ public class LearnStruct {
 		///	kcache = sl.kernel_cache_init(Math.max(cset.m, 1), lparm.kernel_cache_size);
 		///}
 
-		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, kcache, svmModel, alpha);
+		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm,  svmModel, alpha);
 		com.addWeightVectorToLinearModel(svmModel);
 		sm.svm_model = svmModel;
 		sm.w = svmModel.lin_weights;
@@ -303,7 +302,7 @@ public class LearnStruct {
 							///if (kparm.kernel_type != ModelConstant.LINEAR)
 							///	kcache = sl.kernel_cache_init(Math.max(cset.m, 1), lparm.kernel_cache_size);
 							// Run the QP solver on cset.
-							sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, kcache, svmModel, alpha);
+							sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm,  svmModel, alpha);
 
 							// Always add weight vector, in case part of the
 							// kernel is linear. If not, ignore the weight
@@ -470,7 +469,7 @@ public class LearnStruct {
 		svmModel = new MODEL();
 		lparm.epsilon_crit = epsilon;
 
-		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm, null, svmModel, alpha);
+		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm, svmModel, alpha);
 
 		// //logger.info("sl totwords:"+svmModel.totwords);
 		com.addWeightVectorToLinearModel(svmModel);
@@ -654,7 +653,7 @@ public class LearnStruct {
 					kparm.kernel_type = ModelConstant.GRAM; // use kernel stored
 															// in kparm
 
-				sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm, null, svmModel, alpha);
+				sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm,  svmModel, alpha);
 				kparm.kernel_type = (short) kernel_type_org;
 
 				svmModel.kernel_parm.kernel_type = (short) kernel_type_org;

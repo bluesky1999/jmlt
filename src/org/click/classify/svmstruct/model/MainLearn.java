@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import org.click.classify.svmstruct.data.DOC;
-import org.click.classify.svmstruct.data.KERNEL_CACHE;
 import org.click.classify.svmstruct.data.KERNEL_PARM;
 import org.click.classify.svmstruct.data.LEARN_PARM;
 import org.click.classify.svmstruct.data.MODEL;
@@ -297,7 +296,7 @@ public class MainLearn {
 		int totwords = 0, totdoc = 0, i = 0;
 		double[] target = null;
 		double[] alpha_in = null;
-		KERNEL_CACHE kernel_cache=null;
+		//KERNEL_CACHE kernel_cache=null;
 		LEARN_PARM learn_parm;
 		KERNEL_PARM kernel_parm;
 
@@ -329,22 +328,22 @@ public class MainLearn {
 		if (restartfile != null) {
 			alpha_in = ml.com.readAlphas(restartfile, rs.read_totdocs);
 		}
-		if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
-			kernel_cache = null;
-		} else {
+		///if (kernel_parm.kernel_type == ModelConstant.LINEAR) {
+		///	kernel_cache = null;
+		///} else {
 
 			// Always get a new kernel cache. It is not possible to use the same
 			// cache for two different training runs
 
 			///kernel_cache = sl.kernel_cache_init(totdoc, learn_parm.kernel_cache_size);
-		}
+		///}
 
 		if (learn_parm.type == ModelConstant.CLASSIFICATION) {
 			// logger.info("call   sl.svm_learn_classification");
 			//sl.svm_learn_classification(docs, target, totdoc, totwords, learn_parm, kernel_parm, kernel_cache, model, alpha_in);
 		} else if (learn_parm.type == ModelConstant.OPTIMIZATION) {
 			// logger.info("call   sl.svm_learn_optimization");
-			sl.svm_learn_optimization(docs, target, totdoc, totwords, learn_parm, kernel_parm, kernel_cache, model, alpha_in);
+			sl.svm_learn_optimization(docs, target, totdoc, totwords, learn_parm, kernel_parm, model, alpha_in);
 		}
 		ml.com.writeModel(modelfile, model);
 	}
