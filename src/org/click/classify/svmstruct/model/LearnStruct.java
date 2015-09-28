@@ -70,7 +70,6 @@ public class LearnStruct {
 		SVECTOR slackvec;
 		WORD[] slackv = new WORD[2];
 		MODEL svmModel = null;
-		//KERNEL_CACHE kcache = null;
 		LABEL ybar;
 		DOC doc;
 
@@ -126,28 +125,14 @@ public class LearnStruct {
 		svmModel = new MODEL();
 		lparm.epsilon_crit = epsilon;
 		Learn sl = new Learn();
-		///if (kparm.kernel_type != ModelConstant.LINEAR) {
-		///	kcache = sl.kernel_cache_init(Math.max(cset.m, 1), lparm.kernel_cache_size);
-		///}
+
 
 		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm,  svmModel, alpha);
 		com.addWeightVectorToLinearModel(svmModel);
 		sm.svm_model = svmModel;
 		sm.w = svmModel.lin_weights;
 
-		///if (ModelConstant.USE_FYCACHE != 0) {
-		///	fycache = new SVECTOR[n];
-		///	for (i = 0; i < n; i++) {
-		///		fy = ssa.psi(ex[i].x, ex[i].y, sm, sparm);// temp
-															// point
-		///		if (kparm.kernel_type == ModelConstant.LINEAR) {
-		///			diff = com.addListSs(fy);
-		///			fy = diff;
-		///		}
 
-		///	}
-
-		///}
 
 		// ========== main loop=======
 		do { // iteratively increase precision
@@ -336,15 +321,9 @@ public class LearnStruct {
 
 					System.out.println("(NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")\n");
 
-					//if (CommonStruct.struct_verbosity >= 2)
-					// logger.info("Reducing working set...");
-
 					remove_inactive_constraints(cset, alpha, optcount, alphahist, Math.max(50, optcount - lastoptcount));
 
 					lastoptcount = optcount;
-					// if (CommonStruct.struct_verbosity >= 2)
-					// logger.info("done. (NumConst=" + cset.m + ")\n");
-
 				} while ((use_shrinking != 0) && (activenum > 0));
 			} while (((totconstraints - old_totconstraints) > tolerance) || (dont_stop != 0));
 

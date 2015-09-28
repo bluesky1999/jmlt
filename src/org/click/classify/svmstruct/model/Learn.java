@@ -28,7 +28,7 @@ import org.click.lib.time.TimeOpera;
 public class Learn {
 
 	// private static Logger logger = Logger.getLogger(Learn.class);
-	public int kernel_cache_statistic;
+	//public int kernel_cache_statistic;
 	public static final int MAXSHRINK = 50000;
 
 	public Common com = null;
@@ -65,7 +65,7 @@ public class Learn {
 
 		SHRINK_STATE shrink_state = new SHRINK_STATE();
 
-		kernel_cache_statistic = 0;
+		///kernel_cache_statistic = 0;
 		learn_parm.totwords = totwords;
 		if ((learn_parm.svm_newvarsinqp < 2) || (learn_parm.svm_newvarsinqp > learn_parm.svm_maxqpsize)) {
 			learn_parm.svm_newvarsinqp = learn_parm.svm_maxqpsize;
@@ -759,7 +759,6 @@ public class Learn {
 	 * @param working2dnum
 	 * @param selcrit
 	 * @param select
-	 * @param kernel_cache
 	 * @param cache_only
 	 * @param key
 	 * @param chosen
