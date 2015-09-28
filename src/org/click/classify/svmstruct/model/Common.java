@@ -1595,7 +1595,6 @@ public class Common {
 		}
 
 		return ndarr;
-
 	}
 
 	/** compute length of weight vector */
