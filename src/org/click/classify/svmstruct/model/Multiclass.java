@@ -1,9 +1,6 @@
 package org.click.classify.svmstruct.model;
 
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-
 import org.click.classify.svmstruct.data.DOC;
 import org.click.classify.svmstruct.data.EXAMPLE;
 import org.click.classify.svmstruct.data.KERNEL_PARM;
@@ -215,13 +212,12 @@ public class Multiclass extends Struct {
 		int n;
 		DOC[] docs;
 		double[] target = null;
-		int totwords, i, num_classes = 0;
+		int  i, num_classes = 0;
 
 		ReadStruct rs = new ReadStruct();
 		docs = com.readDocuments(file, rs);
 
 		target = rs.read_target;
-		totwords = rs.read_totwords;
 		n = rs.read_totdocs;
 
 		for (int k = 0; k < docs.length; k++) {

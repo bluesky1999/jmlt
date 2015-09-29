@@ -16,7 +16,6 @@ import org.click.classify.svmstruct.data.STRUCT_LEARN_PARM;
 import org.click.classify.svmstruct.data.SVECTOR;
 import org.click.classify.svmstruct.data.WORD;
 
-
 /**
  * Basic algorithm for learning structured outputs (e.g. parses, sequences,
  * multi-label classification) with a Support Vector Machine.
@@ -44,12 +43,11 @@ public class LearnStruct {
 
 	public void svm_learn_struct(SAMPLE sample, STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm, STRUCTMODEL sm, int alg_type) {
 		int i, j;
-		int numIt = 0;
-		int argmax_count = 0;
+
 		int newconstraints = 0, totconstraints = 0, activenum = 0;
 		int opti_round;
 		int[] opti;
-		int fullround, use_shrinking;
+		int  use_shrinking;
 		int old_totconstraints = 0;
 		double epsilon, svmCnorm;
 		int tolerance, new_precision = 1, dont_stop = 0;
@@ -57,8 +55,7 @@ public class LearnStruct {
 		double margin = 0;
 		double slack;
 		double[] slacks;
-		double slacksum, ceps = 0;
-		double dualitygap, modellength, alphasum;
+		double  ceps = 0;
 		int sizePsi = 0;
 		double[] alpha = null;
 		int[] alphahist = null;
@@ -126,13 +123,10 @@ public class LearnStruct {
 		lparm.epsilon_crit = epsilon;
 		Learn sl = new Learn();
 
-
-		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm,  svmModel, alpha);
+		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, svmModel, alpha);
 		com.addWeightVectorToLinearModel(svmModel);
 		sm.svm_model = svmModel;
 		sm.w = svmModel.lin_weights;
-
-
 
 		// ========== main loop=======
 		do { // iteratively increase precision
@@ -161,19 +155,14 @@ public class LearnStruct {
 					// producing new constraints
 
 					ceps = 0;
-					if (activenum == n) {
-						fullround = 1;
-					} else {
-						fullround = 0;
-					}
+
 
 					for (i = 0; i < n; i++) {// example loop
-						
+
 						if ((use_shrinking == 0) || (opti[i] != opti_round)) {
 
 							// if the example is not shrunk away, then see if it
 							// is necessary to add a new constraint
-							argmax_count++;
 							if (sparm.loss_type == SLACK_RESCALING) {
 								ybar = ssa.findMostViolatedConstraintSlackrescaling(ex[i].x, ex[i].y, sm, sparm);
 							} else {
@@ -280,7 +269,7 @@ public class LearnStruct {
 							svmModel = new MODEL();
 
 							// Run the QP solver on cset.
-							sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm,  svmModel, alpha);
+							sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, svmModel, alpha);
 
 							// Always add weight vector, in case part of the
 							// kernel is linear. If not, ignore the weight
@@ -338,16 +327,6 @@ public class LearnStruct {
 				for (j = 0; j < cset.m; j++)
 					slacks[cset.lhs[j].slackid] = Math.max(slacks[cset.lhs[j].slackid], cset.rhs[j] - (com.classifyExample(svmModel, cset.lhs[j]) - sm.w[sizePsi + cset.lhs[j].slackid - 1] / (Math.sqrt(2 * svmCnorm))));
 			}
-			slacksum = 0;
-			for (i = 1; i <= n; i++)
-				slacksum += slacks[i];
-
-			alphasum = 0;
-			for (i = 0; i < cset.m; i++)
-				alphasum += alpha[i] * cset.rhs[i];
-			modellength = com.modelLengthS(svmModel);
-			dualitygap = (0.5 * modellength * modellength + svmCnorm * (slacksum + n * ceps)) - (alphasum - 0.5 * modellength * modellength);
-
 		}
 
 		if (svmModel != null) {
@@ -362,21 +341,19 @@ public class LearnStruct {
 	public void svm_learn_struct_joint(SAMPLE sample, STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm, STRUCTMODEL sm, int alg_type) {
 		int i, j;
 		int numIt = 0;
-		int totconstraints = 0;
 		int kernel_type_org;
-		double epsilon, epsilon_cached;
+		double epsilon;
 		double lhsXw;
 		MostViolStruct violStruct = new MostViolStruct();
 		double rhs = 0;
 		double slack, ceps;
-		double dualitygap, modellength, alphasum;
+		double  alphasum;
 		int sizePsi;
 		double[] alpha = null;
 		int[] alphahist = null;
 		int optcount = 0;
 
 		CONSTSET cset;
-		SVECTOR diff = null;
 		double[] lhs_n = null;
 		SVECTOR fy;
 		SVECTOR[] fycache = null;
@@ -386,32 +363,19 @@ public class LearnStruct {
 
 		int n = sample.n;
 		EXAMPLE[] ex = sample.examples;
-		int progress;
-
-		int cached_constraint;
-		double viol = 0, viol_est, epsilon_est = 0;
-		int uptr = 0;
-		int[] randmapping = null;
-		int batch_size = n;
 
 		Learn sl = new Learn();
 
-		if (sparm.batch_size < 100)
-			batch_size = (int) ((sparm.batch_size * n) / 100.0);
 		ssa.initStructModel(sample, sm, sparm, lparm, kparm);
 		sizePsi = sm.sizePsi + 1; // sm must contain size of psi on return
 
 		if (sparm.slack_norm == 1) {
 			lparm.svm_c = sparm.C; // set upper bound C
 			lparm.sharedslack = 1;
-		} 
-		
+		}
+
 		lparm.biased_hyperplane = 0; // set threshold to zero
 		epsilon = 100.0; // start with low precision and increase later
-
-		epsilon_cached = epsilon; // epsilon to use for iterations using
-									// constraints constructed from the
-									// constraint cache
 
 		cset = ssa.initStructConstraints(sample, sm, sparm);
 
@@ -442,7 +406,7 @@ public class LearnStruct {
 		// create a cache of the feature vectors for the correct labels
 		fycache = new SVECTOR[n];
 		for (i = 0; i < n; i++) {
-				fy = null;
+			fy = null;
 			fycache[i] = fy;
 		}
 
@@ -450,9 +414,6 @@ public class LearnStruct {
 			// //logger.info("kernel type is LINEAR \n");
 			lhs_n = com.createNvector(sm.sizePsi);
 		}
-		// randomize order or training examples
-		if (batch_size < n)
-			randmapping = com.randomOrder(n);
 
 		// === main loop=======
 		do { // iteratively find and add constraints to working set
@@ -471,44 +432,38 @@ public class LearnStruct {
 			// find a violated joint constraint
 			lhs = null;
 			rhs = 0;
-		
-				// do not use constraint from cache
-				cached_constraint = 0;
-				if (kparm.kernel_type == ModelConstant.LINEAR)
-					com.clearNvector(lhs_n, sm.sizePsi);
-				com.progress_n = 0;
 
-				for (i = 0; i < n; i++) {
+			if (kparm.kernel_type == ModelConstant.LINEAR)
+				com.clearNvector(lhs_n, sm.sizePsi);
 
-					if (CommonStruct.struct_verbosity >= 1)
-						com.printPercentProgress(n, 10, ".");
 
-					// compute most violating fydelta=fy-fybar and rhs for
-					// example i
-					find_most_violated_constraint(ex[i], fycache[i], n, sm, sparm, violStruct);
-					// add current fy-fybar to lhs of constraint
-					if (kparm.kernel_type == ModelConstant.LINEAR) {
-						com.addListNNS(lhs_n, violStruct.fydelta, 1.0);
-					} else {
-						com.appendSvectorList(violStruct.fydelta, lhs);
-						lhs = violStruct.fydelta;
-					}
-					rhs += violStruct.rhs;// add loss to rhs
-				} // end of example loop
+			for (i = 0; i < n; i++) {
 
-				// create sparse vector from dense sum
+				if (CommonStruct.struct_verbosity >= 1)
+					com.printPercentProgress(n, 10, ".");
+
+				// compute most violating fydelta=fy-fybar and rhs for
+				// example i
+				find_most_violated_constraint(ex[i], fycache[i], n, sm, sparm, violStruct);
+				// add current fy-fybar to lhs of constraint
 				if (kparm.kernel_type == ModelConstant.LINEAR) {
-					lhs = com.createSvectorNR(lhs_n, sm.sizePsi, null, 1.0, CommonStruct.COMPACT_ROUNDING_THRESH);
+					com.addListNNS(lhs_n, violStruct.fydelta, 1.0);
+				} else {
+					com.appendSvectorList(violStruct.fydelta, lhs);
+					lhs = violStruct.fydelta;
 				}
-				doc = com.createExample(cset.m, 0, 1, 1, lhs);
-				lhsXw = com.classifyExample(svmModel, doc);
+				rhs += violStruct.rhs;// add loss to rhs
+			} // end of example loop
 
-				viol = rhs - lhsXw;
-
-		
+			// create sparse vector from dense sum
+			if (kparm.kernel_type == ModelConstant.LINEAR) {
+				lhs = com.createSvectorNR(lhs_n, sm.sizePsi, null, 1.0, CommonStruct.COMPACT_ROUNDING_THRESH);
+			}
+			doc = com.createExample(cset.m, 0, 1, 1, lhs);
+			lhsXw = com.classifyExample(svmModel, doc);
 
 			ceps = Math.max(0, rhs - lhsXw - slack);
-			if ((ceps > sparm.epsilon) || cached_constraint != 0) {
+			if ((ceps > sparm.epsilon)) {
 				// resize constraint matrix and add new constraint
 				int ti = 0;
 				ti = cset.m + 1;
@@ -526,21 +481,15 @@ public class LearnStruct {
 				alphahist = com.reallocIntArr(alphahist, cset.m + 1);
 				alphahist[cset.m] = optcount;
 				cset.m++;
-				totconstraints++;
 				if ((alg_type == ONESLACK_DUAL_ALG) || (alg_type == ONESLACK_DUAL_CACHE_ALG)) {
 					kparm.gram_matrix = update_kernel_matrix(kparm.gram_matrix, cset.m - 1, cset, kparm);
 				}
 
 				// set svm precision so that higher than eps of most violated
 				// constr
-				if (cached_constraint != 0) {
-					epsilon_cached = Math.min(epsilon_cached, ceps);
-					lparm.epsilon_crit = epsilon_cached / 2;
-				} else {
-					epsilon = Math.min(epsilon, ceps); /* best eps so far */
-					lparm.epsilon_crit = epsilon / 2;
-					epsilon_cached = epsilon;
-				}
+
+				epsilon = Math.min(epsilon, ceps); /* best eps so far */
+				lparm.epsilon_crit = epsilon / 2;
 
 				svmModel = new MODEL();
 				// Run the QP solver on cset.
@@ -549,7 +498,7 @@ public class LearnStruct {
 					kparm.kernel_type = ModelConstant.GRAM; // use kernel stored
 															// in kparm
 
-				sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm,  svmModel, alpha);
+				sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm, svmModel, alpha);
 				kparm.kernel_type = (short) kernel_type_org;
 
 				svmModel.kernel_parm.kernel_type = (short) kernel_type_org;
@@ -587,13 +536,11 @@ public class LearnStruct {
 				// 在这里要将某些限制去掉
 				remove_inactive_constraints(cset, alpha, optcount, alphahist, 50);
 
-			} else {
-
 			}
 
 			System.out.println("Iter " + numIt + " (NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")");
 			numIt++;
-		} while (cached_constraint != 0 || (ceps > sparm.epsilon) );
+		} while (ceps > sparm.epsilon);
 
 		if (CommonStruct.struct_verbosity >= 1) {
 			slack = 0;
@@ -602,11 +549,6 @@ public class LearnStruct {
 			alphasum = 0;
 			for (i = 0; i < cset.m; i++)
 				alphasum += alpha[i] * cset.rhs[i];
-			if (kparm.kernel_type == ModelConstant.LINEAR)
-				modellength = com.modelLengthN(svmModel);
-			else
-				modellength = com.modelLengthS(svmModel);
-			dualitygap = (0.5 * modellength * modellength + sparm.C * viol) - (alphasum - 0.5 * modellength * modellength);
 
 		}
 
@@ -697,7 +639,6 @@ public class LearnStruct {
 			ybar = ssa.findMostViolatedConstraintMarginrescaling(ex.x, ex.y, sm, sparm);
 		}
 
-
 		// get psi(x,y) and psi(x,ybar)
 		if (fycached != null)
 			fy = com.copySvector(fycached);
@@ -718,7 +659,7 @@ public class LearnStruct {
 		com.appendSvectorList(fybar, fy); // compute fy-fybar
 
 		struct.fydelta = fybar;
-		struct.rhs = lossval/(double)n;
+		struct.rhs = lossval / (double) n;
 	}
 
 	/**
@@ -757,6 +698,5 @@ public class LearnStruct {
 		}
 		return (matrix);
 	}
-
 
 }

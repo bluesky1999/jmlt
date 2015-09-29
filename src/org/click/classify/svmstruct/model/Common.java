@@ -227,22 +227,6 @@ public class Common {
 		return n;
 	}
 
-	/** compute length of weight vector */
-	public double modelLengthS(MODEL model) {
-		int i, j;
-		double sum = 0, alphai;
-		DOC supveci;
-		KERNEL_PARM kernel_parm = model.kernel_parm;
-
-		for (i = 1; i < model.sv_num; i++) {
-			alphai = model.alpha[i];
-			supveci = model.supvec[i];
-			for (j = 1; j < model.sv_num; j++) {
-				sum += alphai * model.alpha[j] * kernel(kernel_parm, supveci, model.supvec[j]);
-			}
-		}
-		return (Math.sqrt(sum));
-	}
 
 	public void setLearningDefaults(LEARN_PARM learn_parm, KERNEL_PARM kernel_parm) {
 		learn_parm.type = ModelConstant.CLASSIFICATION;
@@ -1231,26 +1215,6 @@ public class Common {
 		}
 
 		return ndarr;
-	}
-
-	/** compute length of weight vector */
-	public double modelLengthN(MODEL model) {
-		int i, totwords = model.totwords + 1;
-		double sum;
-		double[] weight_n;
-		SVECTOR weight;
-
-		if (model.kernel_parm.kernel_type != ModelConstant.LINEAR) {
-			// logger.info("ERROR: model_length_n applies only to linear kernel!\n");
-		}
-		weight_n = createNvector(totwords);
-		clearNvector(weight_n, totwords);
-		for (i = 1; i < model.sv_num; i++)
-			addListNNS(weight_n, model.supvec[i].fvec, model.alpha[i]);
-		weight = createSvectorN(weight_n, totwords, null, 1.0);
-		sum = sprodSs(weight, weight);
-
-		return (Math.sqrt(sum));
 	}
 
 	public MODEL read_model(String modelfile) {
