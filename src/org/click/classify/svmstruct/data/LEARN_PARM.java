@@ -53,64 +53,76 @@ public class LEARN_PARM {
 	 
 	 public int kernel_cache_size;
 	 
+	 // tolerable error for distances used 
+	 // in stopping criterion 
+	 public double epsilon_crit;  
 	 
-	 public double epsilon_crit;         /* tolerable error for distances used 
-	  in stopping criterion */
+	// how much a multiplier should be above 
+	 // zero for shrinking 
+	 public double epsilon_shrink;     
+    
+	 // iterations h after which an example can
+	 // be removed by shrinking 
+	 public long   svm_iter_to_shrink;  
+    
+     // number of iterations after which the
+	 // optimizer terminates, if there was
+	 // no progress in maxdiff 
+	 public long   maxiter;        
 	 
-	 public double epsilon_shrink;       /* how much a multiplier should be above 
-	  zero for shrinking */
+	 // exclude examples with alpha at C and  retrain 
+	 public long   remove_inconsistent;  
     
-	 public long   svm_iter_to_shrink;   /* iterations h after which an example can
-	  be removed by shrinking */
+	 // do not check KT-Conditions at the end of
+	//  optimization for examples removed by 
+	//  shrinking. WARNING: This might lead to 
+	//  sub-optimal solutions! 
+	 public  long   skip_final_opt_check;
+	 
+	// if nonzero, computes leave-one-out estimates 
+	 public  long   compute_loo;         
+	 
+	 // parameter in xi/alpha-estimates and for
+	 //pruning leave-one-out range [1..2] 
+	 public double rho;                
     
-	 public long   maxiter;              /* number of iterations after which the
-	  optimizer terminates, if there was
-	  no progress in maxdiff */
-    
-	 public long   remove_inconsistent;  /* exclude examples with alpha at C and 
-	  retrain */
-    
-    
-	 public  long   skip_final_opt_check; /* do not check KT-Conditions at the end of
-	  optimization for examples removed by 
-	  shrinking. WARNING: This might lead to 
-	  sub-optimal solutions! */
-    
-	 public  long   compute_loo;          /* if nonzero, computes leave-one-out
-	  estimates */
-    
-	 public double rho;                  /* parameter in xi/alpha-estimates and for
-	  pruning leave-one-out range [1..2] */
-    
-	 public  int   xa_depth;             /* parameter in xi/alpha-estimates upper
-	  bounding the number of SV the current
-	  alpha_t is distributed over */
-    
-	 public  String predfile;          /* file for predicitions on unlabeled examples
-	  in transduction */
-    
-	 public   String alphafile;         /* file to store optimal alphas in. use  
-	  empty string if alphas should not be 
-	  output */
+	 // parameter in xi/alpha-estimates upper
+	 //  bounding the number of SV the current
+	 //  alpha_t is distributed over 
+	 public  int   xa_depth;            
+	 
+	 // file for predicitions on unlabeled examples
+	 // in transduction 
+	 public  String predfile;         
+	 
+	 // file to store optimal alphas in. use  empty string if alphas should not  output 
+	 public   String alphafile;        
 
-    /* you probably do not want to touch the following */
-	 public double epsilon_const;        /* tolerable error on eq-constraint */
+     // you probably do not want to touch the following 
+	 // tolerable error on eq-constraint 
+	 public double epsilon_const;        
 
-	 public double epsilon_a;            /* tolerable error on alphas at bounds */
+	  // tolerable error on alphas at bounds 
+	 public double epsilon_a;          
     
-	 public  double opt_precision;        /* precision of solver, set to e.g. 1e-21 
-	  if you get convergence problems */
+	 // precision of solver, set to e.g. 1e-21 
+	 // if you get convergence problems 
+	 public  double opt_precision;       
 
-    /* the following are only for internal use */
-	 public  long   svm_c_steps;          /* do so many steps for finding optimal C */
+    //the following are only for internal use 
+	 // do so many steps for finding optimal C 
+	 public  long   svm_c_steps;        
    
-	 public  double svm_c_factor;         /* increase C by this factor every step */
+	// increase C by this factor every step 
+	 public  double svm_c_factor;        
    
 	 public  double svm_costratio_unlab;
    
 	 public  double svm_unlabbound;
    
-	 public  double[] svm_cost;            /* individual upper bounds for each var */
+	// individual upper bounds for each var
+	 public  double[] svm_cost;           
     
-	 public  int   totwords;             /* number of features */
+	 // number of features 
+	 public  int   totwords;            
 }

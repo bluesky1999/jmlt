@@ -8,12 +8,10 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import org.click.classify.svmstruct.data.CONSTSET;
 import org.click.classify.svmstruct.data.DOC;
-import org.click.classify.svmstruct.data.EXAMPLE;
 import org.click.classify.svmstruct.data.KERNEL_PARM;
 import org.click.classify.svmstruct.data.LABEL;
 import org.click.classify.svmstruct.data.LEARN_PARM;

@@ -1,6 +1,5 @@
 package org.click.classify.svmstruct.model;
 
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +25,6 @@ public class Perf extends Struct {
 
 	public Perf() {
 		super();
-		// com = new Common();
 	}
 
 	@Override
