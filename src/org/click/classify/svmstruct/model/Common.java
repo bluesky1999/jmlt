@@ -1053,32 +1053,12 @@ public class Common {
 		return warr;
 	}
 
-	/** creates an array of the integers [0..n-1] in random order */
-	public int[] randomOrder(int n) {
-		int[] randarray = new int[n];
-		RANDPAIR[] randpair = new RANDPAIR[n];
-		int i;
-
-		for (i = 0; i < n; i++) {
-			randpair[i].val = i;
-			randpair[i].sort = Math.random();
-		}
-
-		SortWordArr.sort_double_array(randpair);
-		for (i = 0; i < n; i++) {
-			randarray[i] = randpair[i].val;
-		}
-
-		return (randarray);
-	}
 
 	public void addListNNS(double[] vec_n, SVECTOR vec_s, double faktor) {
 		SVECTOR f;
 		for (f = vec_s; f != null; f = f.next)
 			addVectorNs(vec_n, f, f.factor * faktor);
 	}
-
-
 
 	/** multiplies the factor of each element in vector list with factor */
 	public void multSvectorList(SVECTOR a, double factor) {
@@ -1256,17 +1236,7 @@ public class Common {
 		return model;
 	}
 
-	public int size_svector(SVECTOR fvec) {
-		WORD[] words = fvec.words;
-		return words.length;
 
-	}
-
-	public int size_arr(double[] arr) {
-		int len = 0;
-		len = arr.length;
-		return len;
-	}
 
 	/* create deep copy of matrix */
 	public MATRIX copy_matrix(MATRIX matrix) {
@@ -1420,9 +1390,6 @@ public class Common {
 	public int[] reallocAlphaList(int[] alpha_list, int m) {
 		int[] oalpha_list = alpha_list;
 		alpha_list = new int[m];
-		//for (int i = 0; i < (m - 1); i++) {
-		//	alpha_list[i] = oalpha_list[i];
-		//}
 		System.arraycopy(oalpha_list, 0, alpha_list, 0, m);
 		alpha_list[m - 1] = 0;
 
@@ -1437,9 +1404,6 @@ public class Common {
 	public void realSmalllocLhs(CONSTSET cset) {
 		DOC[] olhs = cset.lhs;
 		cset.lhs = new DOC[cset.m];
-		//for (int i = 0; i < (cset.m); i++) {
-		//	cset.lhs[i] = olhs[i];
-		//}
 		System.arraycopy(olhs, 0, cset.lhs, 0, cset.m);
 	}
 

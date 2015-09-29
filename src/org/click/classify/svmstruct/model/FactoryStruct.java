@@ -1,5 +1,7 @@
 package org.click.classify.svmstruct.model;
 
+import org.click.classify.svmperf.model.Perf;
+
 public class FactoryStruct {
 
 	public static int api_type=0;
