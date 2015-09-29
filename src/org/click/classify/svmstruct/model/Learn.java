@@ -67,13 +67,13 @@ public class Learn {
 		lin = new double[totdoc];
 
 		learn_parm.svm_cost = new double[totdoc];
-		model.supvec = new DOC[totdoc + 2];
-		model.alpha = new double[totdoc + 2];
-		for (int k = 0; k < model.alpha.length; k++) {
+		///model.supvec = new DOC[totdoc + 2];
+		model.supvec = new DOC[totdoc + 1];
+		///model.alpha = new double[totdoc + 2];
+		model.alpha = new double[totdoc + 1];
 
-		}
-
-		model.index = new int[totdoc + 2];
+		///model.index = new int[totdoc + 2];
+		model.index = new int[totdoc + 1];
 		model.at_upper_bound = 0;
 		model.b = 0;
 		model.supvec[0] = null;
