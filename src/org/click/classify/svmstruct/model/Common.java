@@ -28,7 +28,6 @@ import org.click.lib.time.TimeOpera;
 
 public class Common {
 
-
 	public SVECTOR createSvector(WORD[] words, String userdefined, double factor) {
 		SVECTOR vec;
 		int i;
@@ -210,16 +209,14 @@ public class Common {
 		hc = ((double) c) * 10;
 		return hc;
 	}
-	
-	public WORD copyWord(WORD w)
-	{
-		WORD n=new WORD();
-		n.weight=w.weight;
-		n.wnum=w.wnum;
-		
+
+	public WORD copyWord(WORD w) {
+		WORD n = new WORD();
+		n.weight = w.weight;
+		n.wnum = w.wnum;
+
 		return n;
 	}
-
 
 	public void setLearningDefaults(LEARN_PARM learn_parm, KERNEL_PARM kernel_parm) {
 		learn_parm.type = ModelConstant.CLASSIFICATION;
@@ -303,7 +300,7 @@ public class Common {
 					continue;
 				}
 				label[dnum] = rs.read_doc_label;
-	
+
 				if ((rs.read_wpos > 1) && ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
 					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
@@ -323,7 +320,6 @@ public class Common {
 		struct.read_target = label;
 		return docs;
 	}
-
 
 	public WORD[] parseDocument(String line, int max_words_doc, ReadStruct struct) {
 		int wpos = 0;
@@ -394,7 +390,6 @@ public class Common {
 		return read_words;
 	}
 
-
 	public ReadSummary nol_ll(String input_file) {
 
 		ReadSummary summary = new ReadSummary();
@@ -440,8 +435,6 @@ public class Common {
 		return summary;
 
 	}
-
-
 
 	/**
 	 * reads the alpha vector from a file as written by the write_alphas
@@ -489,7 +482,6 @@ public class Common {
 		if (CommonStruct.verbosity >= 1) {
 			System.out.println("Writing model file...");
 		}
-
 
 		pw.println("SVM-light Version " + ModelConstant.VERSION);
 		pw.println(model.kernel_parm.kernel_type + " # kernel type");
@@ -639,7 +631,6 @@ public class Common {
 			return false;
 		}
 
-
 		System.out.println("true");
 		return true;
 	}
@@ -654,7 +645,6 @@ public class Common {
 		for (int k = 0; k < ai.length; k++) {
 			ai[k] = a.words[k];
 		}
-
 
 		veclength = ai.length;
 		sumi = new WORD[veclength];
@@ -722,7 +712,7 @@ public class Common {
 	/** scale sparse vector a by factor */
 	public SVECTOR smultS(SVECTOR a, double factor) {
 		SVECTOR vec;
-		WORD[]  sumi;
+		WORD[] sumi;
 		WORD[] ai;
 		int veclength;
 		String userdefined = null;
@@ -768,7 +758,7 @@ public class Common {
 	 */
 	public SVECTOR multaddSsR(SVECTOR a, SVECTOR b, double fa, double fb, double min_non_zero) {
 		SVECTOR vec;
-		WORD[]  sumi;
+		WORD[] sumi;
 		WORD[] ai, bj;
 		int veclength;
 		double weight;
@@ -986,7 +976,7 @@ public class Common {
 						concat_write[cwi].weight = weight;
 						cwi++;
 					}
-					concat_write[cwi] =  copyWord(concat_read[cri]);// ?是否正确
+					concat_write[cwi] = copyWord(concat_read[cri]);// ?是否正确
 					weight = concat_write[cwi].weight;
 					cri++;
 				}
@@ -1013,12 +1003,11 @@ public class Common {
 		}
 
 		for (int i = start_index; i < oarr.length; i++) {
-			warr[i - start_index] = copyWord( oarr[i]);
+			warr[i - start_index] = copyWord(oarr[i]);
 		}
 
 		return warr;
 	}
-
 
 	public void addListNNS(double[] vec_n, SVECTOR vec_s, double faktor) {
 		SVECTOR f;
@@ -1116,17 +1105,16 @@ public class Common {
 				br = new BufferedReader(model_isr);
 			}
 			int i, queryid;
-	
-			int  max_words;
+
+			int max_words;
 			String line, comment;
 			WORD[] words;
-
 
 			ReadSummary summary = nol_ll(modelfile);
 			max_words = summary.read_max_words_doc;
 			max_words += 2;
 			line = br.readLine();
-			
+
 			model.kernel_parm = new KERNEL_PARM();
 
 			line = br.readLine();
@@ -1202,8 +1190,6 @@ public class Common {
 		return model;
 	}
 
-
-
 	/* create deep copy of matrix */
 	public MATRIX copy_matrix(MATRIX matrix) {
 		int i, j;
@@ -1248,31 +1234,36 @@ public class Common {
 
 		double[] narr = new double[nsize];
 		if (arr == null) {
-			for (int ni = 0; ni < nsize; ni++) {
-				narr[ni] = 0;
-			}
+			///for (int ni = 0; ni < nsize; ni++) {
+			///	narr[ni] = 0;
+			///}
 			return narr;
 		}
 
 		if (nsize <= arr.length) {
-			narr = new double[arr.length];
-			for (int ni = 0; ni < nsize; ni++) {
-				narr[ni] = arr[ni];
-			}
+			narr = new double[nsize];
 
-			for (int ni = nsize; ni < arr.length; ni++) {
-				narr[ni] = 0;
-			}
+			System.arraycopy(arr, 0, narr, 0, nsize);
+			///for (int ni = 0; ni < nsize; ni++) {
+			///	narr[ni] = arr[ni];
+			///}
+
+			///for (int ni = nsize; ni < arr.length; ni++) {
+			///	narr[ni] = 0;
+			///}
 
 			return narr;
 		}
 
-		for (int ni = 0; ni < arr.length; ni++) {
-			narr[ni] = arr[ni];
-		}
-		for (int ni = arr.length; ni < nsize; ni++) {
-			narr[ni] = 0;
-		}
+		///for (int ni = 0; ni < arr.length; ni++) {
+		///	narr[ni] = arr[ni];
+		///}
+
+		System.arraycopy(arr, 0, narr, 0, arr.length);
+
+		///for (int ni = arr.length; ni < nsize; ni++) {
+		///	narr[ni] = 0;
+		///}
 
 		return narr;
 	}
@@ -1281,27 +1272,33 @@ public class Common {
 
 		int[] narr = new int[nsize];
 		if (arr == null) {
-			for (int ni = 0; ni < nsize; ni++) {
-				narr[ni] = 0;
-			}
+			///for (int ni = 0; ni < nsize; ni++) {
+			///	narr[ni] = 0;
+			///}
 			return narr;
 		}
 		if (nsize <= arr.length) {
-			narr = new int[arr.length];
-			for (int ni = 0; ni < nsize; ni++) {
-				narr[ni] = arr[ni];
-			}
-			for (int ni = nsize; ni < arr.length; ni++) {
-				narr[ni] = 0;
-			}
+			narr = new int[nsize];
+			///for (int ni = 0; ni < nsize; ni++) {
+			///	narr[ni] = arr[ni];
+			///}
+
+			System.arraycopy(arr, 0, narr, 0, nsize);
+
+			///for (int ni = nsize; ni < arr.length; ni++) {
+			///	narr[ni] = 0;
+			//}
 			return narr;
 		}
-		for (int ni = 0; ni < arr.length; ni++) {
-			narr[ni] = arr[ni];
-		}
-		for (int ni = arr.length; ni < nsize; ni++) {
-			narr[ni] = 0;
-		}
+		///for (int ni = 0; ni < arr.length; ni++) {
+		///	narr[ni] = arr[ni];
+		///}
+
+		System.arraycopy(arr, 0, narr, 0, arr.length);
+
+		///for (int ni = arr.length; ni < nsize; ni++) {
+		///	narr[ni] = 0;
+		///}
 
 		return narr;
 	}
@@ -1315,10 +1312,12 @@ public class Common {
 			}
 			return ndoc;
 		}
-		for (int i = 0; i < ods.length; i++) {
-			///ndoc[i] = ods[i].copyDoc();
-			ndoc[i] = ods[i];
-		}
+		///for (int i = 0; i < ods.length; i++) {
+		///ndoc[i] = ods[i].copyDoc();
+		///	ndoc[i] = ods[i];
+		///}
+
+		System.arraycopy(ods, 0, ndoc, 0, ods.length);
 		for (int i = ods.length; i < n; i++) {
 			ndoc[i] = new DOC();
 		}
@@ -1381,9 +1380,11 @@ public class Common {
 	public void realSmalllocRhs(CONSTSET cset) {
 		double[] orhs = cset.rhs;
 		cset.rhs = new double[cset.m];
-		for (int i = 0; i < (cset.m); i++) {
-			cset.rhs[i] = orhs[i];
-		}
+		///for (int i = 0; i < (cset.m); i++) {
+		///	cset.rhs[i] = orhs[i];
+		///}
+
+		System.arraycopy(orhs, 0, cset.rhs, 0, cset.m);
 	}
 
 	/**
@@ -1394,9 +1395,12 @@ public class Common {
 	public void realloc(CONSTSET cset) {
 		DOC[] olhs = cset.lhs;
 		cset.lhs = new DOC[cset.m];
-		for (int i = 0; i < (cset.m - 1); i++) {
-			cset.lhs[i] = olhs[i];
-		}
+
+		///for (int i = 0; i < (cset.m - 1); i++) {
+		///	cset.lhs[i] = olhs[i];
+		///}
+		System.arraycopy(olhs, 0, cset.lhs, 0, cset.m - 1);
+
 		cset.lhs[cset.m - 1] = new DOC();
 	}
 
@@ -1408,9 +1412,10 @@ public class Common {
 	public void reallocRhs(CONSTSET cset) {
 		double[] orhs = cset.rhs;
 		cset.rhs = new double[cset.m];
-		for (int i = 0; i < (cset.m - 1); i++) {
-			cset.rhs[i] = orhs[i];
-		}
+		///for (int i = 0; i < (cset.m - 1); i++) {
+		///	cset.rhs[i] = orhs[i];
+		///}
+		System.arraycopy(orhs, 0, cset.rhs, 0, cset.m - 1);
 		cset.rhs[cset.m - 1] = 0;
 	}
 
