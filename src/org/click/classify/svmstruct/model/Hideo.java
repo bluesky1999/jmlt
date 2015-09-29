@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 
 import org.click.classify.svmstruct.data.LEARN_PARM;
 import org.click.classify.svmstruct.data.QP;
-import org.click.classify.svmstruct.data.WU;
+
 import org.click.lib.math.SimFunc;
 
 /**

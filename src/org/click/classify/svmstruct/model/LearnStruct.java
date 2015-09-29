@@ -15,7 +15,7 @@ import org.click.classify.svmstruct.data.STRUCTMODEL;
 import org.click.classify.svmstruct.data.STRUCT_LEARN_PARM;
 import org.click.classify.svmstruct.data.SVECTOR;
 import org.click.classify.svmstruct.data.WORD;
-import org.click.classify.svmstruct.data.WU;
+
 
 /**
  * Basic algorithm for learning structured outputs (e.g. parses, sequences,
