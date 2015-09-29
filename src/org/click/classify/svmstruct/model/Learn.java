@@ -1499,6 +1499,7 @@ public class Learn {
 				change++;
 			}
 		}
+		
 		if ((change >= minshrink) // shrink only if sufficiently many candidates
 									// and enough memory
 				&& (shrink_state.deactnum < shrink_state.maxhistory)) {
