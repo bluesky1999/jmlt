@@ -167,9 +167,8 @@ public class LearnStruct {
 						fullround = 0;
 					}
 
-					for (i = 0; i < n; i++) {
-						// example loop
-
+					for (i = 0; i < n; i++) {// example loop
+						
 						if ((use_shrinking == 0) || (opti[i] != opti_round)) {
 
 							// if the example is not shrunk away, then see if it
@@ -280,12 +279,6 @@ public class LearnStruct {
 
 							svmModel = new MODEL();
 
-							// Always get a new kernel cache. It is not possible
-							// to use the same cache for two different training
-							// runs
-
-							///if (kparm.kernel_type != ModelConstant.LINEAR)
-							///	kcache = sl.kernel_cache_init(Math.max(cset.m, 1), lparm.kernel_cache_size);
 							// Run the QP solver on cset.
 							sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm,  svmModel, alpha);
 
@@ -293,13 +286,12 @@ public class LearnStruct {
 							// kernel is linear. If not, ignore the weight
 							// vector since its content is bogus.
 							com.addWeightVectorToLinearModel(svmModel);
-							////sm.svm_model = svmModel.copyMODEL();
 							sm.svm_model = svmModel;
 							sm.w = new double[svmModel.lin_weights.length];
 							for (int k = 0; k < svmModel.lin_weights.length; k++) {
 								sm.w[k] = svmModel.lin_weights[k];
 							}
-							// sm.w = svmModel.lin_weights;
+
 							optcount++;
 
 							// keep track of when each constraint was last
@@ -359,7 +351,6 @@ public class LearnStruct {
 		}
 
 		if (svmModel != null) {
-			// sm.svm_model = svm_com.copy_model(svmModel);
 			sm.svm_model = svmModel;
 			sm.w = sm.svm_model.lin_weights; // short cut to weight vector
 		}
@@ -413,16 +404,8 @@ public class LearnStruct {
 		if (sparm.slack_norm == 1) {
 			lparm.svm_c = sparm.C; // set upper bound C
 			lparm.sharedslack = 1;
-			// //logger.info(" lparm.sharedslack is 1");
-		} else if (sparm.slack_norm == 2) {
-			// logger.info("ERROR: The joint algorithm does not apply to L2 slack norm!");
-
-			System.exit(0);
-		} else {
-			// logger.info("ERROR: Slack norm must be L1 or L2!");
-			System.exit(0);
-		}
-
+		} 
+		
 		lparm.biased_hyperplane = 0; // set threshold to zero
 		epsilon = 100.0; // start with low precision and increase later
 
@@ -488,52 +471,8 @@ public class LearnStruct {
 			// find a violated joint constraint
 			lhs = null;
 			rhs = 0;
-
-			if (alg_type == ONESLACK_DUAL_CACHE_ALG) {
-				System.out.println("epsilon_est is " + epsilon_est + " ");
-
-				if (viol - slack > Math.max(epsilon_est / 10, sparm.epsilon)) {
-					// There is a sufficiently violated constraint in cache, so
-					// use this constraint in this iteration.
-					cached_constraint = 1;
-				} else {
-					// There is no sufficiently violated constraint in cache, so
-					// update cache byprint_percent_progress computing most
-					// violated constraint explicitly for batch_size examples
-					viol_est = 0;
-					progress = 0;
-					com.progress_n = progress;
-
-					for (j = 0; (j < batch_size) || ((j < n) && (viol - slack < sparm.epsilon)); j++) {
-						if (CommonStruct.struct_verbosity >= 1)
-							com.printPercentProgress(n, 10, ".");
-						uptr = uptr % n;
-						if (randmapping != null)
-							i = randmapping[uptr];
-						else
-							i = uptr;
-
-						// find most violating fydelta=fy-fybar and rhs for
-						// example i
-						find_most_violated_constraint(ex[i], fycache[i], n, sm, sparm, violStruct);
-
-						uptr++;
-					}
-					if (j < n) {
-						cached_constraint = 1;
-					} else {
-						cached_constraint = 0;
-					}
-
-					viol_est *= ((double) n / (double) j);
-					epsilon_est = (1 - (double) j / (double) n) * epsilon_est + (double) j / (double) n * (viol_est - slack);// epsilon_est璧嬪�
-				}
-
-				lhsXw = rhs - viol;
-
-			} else {
+		
 				// do not use constraint from cache
-
 				cached_constraint = 0;
 				if (kparm.kernel_type == ModelConstant.LINEAR)
 					com.clearNvector(lhs_n, sm.sizePsi);
@@ -566,7 +505,7 @@ public class LearnStruct {
 
 				viol = rhs - lhsXw;
 
-			} // end of finding most violated joint constraint
+		
 
 			ceps = Math.max(0, rhs - lhsXw - slack);
 			if ((ceps > sparm.epsilon) || cached_constraint != 0) {
@@ -670,9 +609,6 @@ public class LearnStruct {
 			dualitygap = (0.5 * modellength * modellength + sparm.C * viol) - (alphasum - 0.5 * modellength * modellength);
 
 		}
-
-		if (CommonStruct.struct_verbosity >= 4)
-			CommonStruct.printW(sm.w, sizePsi, n, lparm.svm_c);
 
 		if (svmModel != null) {
 
@@ -822,8 +758,5 @@ public class LearnStruct {
 		return (matrix);
 	}
 
-	public void svm_learn_struct_joint_custom(SAMPLE sample, STRUCT_LEARN_PARM sparm, LEARN_PARM lparm, KERNEL_PARM kparm, STRUCTMODEL sm) {
-
-	}
 
 }

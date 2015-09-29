@@ -359,9 +359,7 @@ public class MainStruct {
 		} else if (alg_type == 4) {
 			// logger.info("learn_parm.sharedslack:" + learn_parm.sharedslack);
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm, kernel_parm, structmodel, CommonStruct.ONESLACK_DUAL_CACHE_ALG);
-		} else if (alg_type == 9) {
-			ssl.svm_learn_struct_joint_custom(sample, struct_parm, learn_parm, kernel_parm, structmodel);
-		} else {
+		}  else {
 			System.exit(1);
 		}
 
@@ -432,9 +430,7 @@ public class MainStruct {
 		} else if (alg_type == 4) {
 			// logger.info("learn_parm.sharedslack:" + learn_parm.sharedslack);
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm, kernel_parm, structmodel, CommonStruct.ONESLACK_DUAL_CACHE_ALG);
-		} else if (alg_type == 9) {
-			ssl.svm_learn_struct_joint_custom(sample, struct_parm, learn_parm, kernel_parm, structmodel);
-		} else {
+		}  else {
 			System.exit(1);
 		}
 
