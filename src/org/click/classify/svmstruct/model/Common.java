@@ -1366,8 +1366,7 @@ public class Common {
 				newmodel.lin_weights[i] = model.lin_weights[i];
 		}
 
-		newmodel.kernel_parm = model.kernel_parm.copyKERNEL_PARM();
-
+		newmodel.kernel_parm = model.kernel_parm;
 		return (newmodel);
 	}
 

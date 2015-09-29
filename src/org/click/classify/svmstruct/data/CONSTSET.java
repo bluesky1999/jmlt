@@ -7,7 +7,7 @@ package org.click.classify.svmstruct.data;
  *
  */
 public class CONSTSET {
-	 /* m is the total number of constrains */
+	// m is the total number of constrains 
 	public int m;
 	public DOC[] lhs;
 	public double[] rhs;

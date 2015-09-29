@@ -1360,7 +1360,7 @@ public class Learn {
 					model.at_upper_bound++;
 				}
 			}
-
+			
 			update_linear_component(docs, label,  a, a_old, working2dnum, totdoc, totwords, kernel_parm, lin, aicache, weights);
 			compute_shared_slacks(docs, label, a, lin, c,  learn_parm, slack, alphaslack);
 

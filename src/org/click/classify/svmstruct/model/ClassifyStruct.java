@@ -13,7 +13,6 @@ import org.click.classify.svmstruct.data.ModelConstant;
 import org.click.classify.svmstruct.data.SAMPLE;
 import org.click.classify.svmstruct.data.STRUCTMODEL;
 import org.click.classify.svmstruct.data.STRUCT_LEARN_PARM;
-import org.click.classify.svmstruct.data.STRUCT_TEST_STATS;
 import org.click.lib.string.SSO;
 
 public class ClassifyStruct {
@@ -36,7 +35,7 @@ public class ClassifyStruct {
 		double avgloss = 0, l = 0;
 		PrintWriter predfl;
 		sparm = new STRUCT_LEARN_PARM();
-		STRUCT_TEST_STATS teststats = null;
+
 		SAMPLE testsample;
 		LABEL y = new LABEL();
 
@@ -89,7 +88,7 @@ public class ClassifyStruct {
 		PrintWriter predfl;
 		STRUCTMODEL model;
 		STRUCT_LEARN_PARM sparm = new STRUCT_LEARN_PARM();
-		STRUCT_TEST_STATS teststats = null;
+	
 		SAMPLE testsample;
 		LABEL y = new LABEL();
 
@@ -168,7 +167,7 @@ public class ClassifyStruct {
 				incorrect++;
 			}
 
-			ssa.evalPrediction(i, testsample.examples[i], y, model, sparm, teststats);
+			ssa.evalPrediction(i, testsample.examples[i], y, model, sparm);
 
 			if (ssa.emptyLabel(testsample.examples[i].y)) {
 				no_accuracy = 1;
@@ -183,7 +182,7 @@ public class ClassifyStruct {
 		System.err.println("Average loss on test set:" + (float) avgloss);
 		System.err.println("Zero/one-error on test set " + (float) 100.0 * incorrect / testsample.n + "(" + correct + " correct, " + incorrect + " incorrect," + testsample.n + ", total");
 
-		ssa.printStructTestingStats(testsample, model, sparm, teststats);
+		ssa.printStructTestingStats(testsample, model, sparm);
 	}
 
 	/**
@@ -200,7 +199,7 @@ public class ClassifyStruct {
 		PrintWriter predfl;
 		STRUCTMODEL model;
 		STRUCT_LEARN_PARM sparm = new STRUCT_LEARN_PARM();
-		STRUCT_TEST_STATS teststats = null;
+
 		SAMPLE testsample;
 		LABEL y = new LABEL();
 
@@ -275,7 +274,7 @@ public class ClassifyStruct {
 				incorrect++;
 			}
 
-			ssa.evalPrediction(i, testsample.examples[i], y, model, sparm, teststats);
+			ssa.evalPrediction(i, testsample.examples[i], y, model, sparm);
 
 			if (ssa.emptyLabel(testsample.examples[i].y)) {
 				no_accuracy = 1;
@@ -287,7 +286,7 @@ public class ClassifyStruct {
 		avgloss /= testsample.n;
 
 
-		ssa.printStructTestingStats(testsample, model, sparm, teststats);
+		ssa.printStructTestingStats(testsample, model, sparm);
 
 	}
 
@@ -365,7 +364,7 @@ public class ClassifyStruct {
 		// PrintWriter predfl;
 		STRUCTMODEL model;
 		STRUCT_LEARN_PARM sparm = new STRUCT_LEARN_PARM();
-		STRUCT_TEST_STATS teststats = null;
+
 		SAMPLE testsample;
 		LABEL y = new LABEL();
 		FactoryStruct.api_type = 0;
@@ -412,7 +411,7 @@ public class ClassifyStruct {
 				incorrect++;
 			}
 
-			ssa.evalPrediction(i, testsample.examples[i], y, model, sparm, teststats);
+			ssa.evalPrediction(i, testsample.examples[i], y, model, sparm);
 
 			if (ssa.emptyLabel(testsample.examples[i].y)) {
 				no_accuracy = 1;
@@ -428,7 +427,7 @@ public class ClassifyStruct {
 		System.out.println("Average loss on test set:" + (float) avgloss);
 		System.out.println("Zero/one-error on test set " + (float) 100.0 * incorrect / testsample.n + "(" + correct + " correct, " + incorrect + " incorrect," + testsample.n + ", total");
 
-		ssa.printStructTestingStats(testsample, model, sparm, teststats);
+		ssa.printStructTestingStats(testsample, model, sparm);
 
 	}
 

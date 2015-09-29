@@ -24,13 +24,8 @@ import org.click.classify.svmstruct.data.WORD;
  */
 public class Multiclass extends Struct {
 
-	// private static Logger logger = Logger
-	// .getLogger(Multiclass.class);
-
-	// public Common com=null;
 	public Multiclass() {
 		super();
-		// com=new Common();
 	}
 
 	@Override
@@ -58,14 +53,7 @@ public class Multiclass extends Struct {
 		}
 
 		sparm.num_features = totwords;
-		if (CommonStruct.struct_verbosity >= 0) {
-			System.out.println("Training set properties: " + sparm.num_features + " features " + sparm.num_classes + " classes");
-		}
-
 		sm.sizePsi = sparm.num_features * sparm.num_classes;
-		if (CommonStruct.struct_verbosity >= 2) {
-			System.out.println("Size of Phi: " + sm.sizePsi + "\n");
-		}
 	}
 
 	@Override
@@ -124,7 +112,7 @@ public class Multiclass extends Struct {
 
 		// NOTE: This function could be made much more efficient by not always
 		// computing a new PSI vector.
-		////doc = x.doc.copyDoc();
+
 		doc = new DOC();
 		ybar.scores = null;
 		ybar.num_classes = sparm.num_classes;
@@ -151,7 +139,6 @@ public class Multiclass extends Struct {
 	public double loss(LABEL y, LABEL ybar, STRUCT_LEARN_PARM sparm) {
 
 		if (sparm.loss_function == 0) { // type 0 loss: 0/1 loss
-			// System.err.println("y.class_index:"+y.class_index);
 			if (y.class_index == ybar.class_index)
 				return (0);
 			else
@@ -164,7 +151,6 @@ public class Multiclass extends Struct {
 			// Put your code for different loss functions here. But then
 			// find_most_violated_constraint_???(x, y, sm) has to return the
 			// highest scoring label with the largest loss.
-
 			System.exit(1);
 		}
 
@@ -185,10 +171,7 @@ public class Multiclass extends Struct {
 		double score = 0.0, bestscore = -1;
 		WORD[] words;
 
-		///doc = x.doc.copyDoc();
-		doc= new DOC();
-		
-
+		doc= new DOC();	
 		y.scores = new double[sparm.num_classes + 1];
 		y.num_classes = sparm.num_classes;
 		words = x.doc.fvec.words;
@@ -333,11 +316,8 @@ public class Multiclass extends Struct {
 		double[] target = null;
 		int totwords, i, num_classes = 0;
 
-		// logger.info("begin read documents");
 		ReadStruct rs = new ReadStruct();
 		docs = com.readDocumentsFromArraylist(list, target, rs);
-		// logger.info("end read documents");
-
 		target = rs.read_target;
 		totwords = rs.read_totwords;
 		n = rs.read_totdocs;

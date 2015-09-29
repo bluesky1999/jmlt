@@ -474,11 +474,6 @@ public class LearnStruct {
 		// === main loop=======
 		do { // iteratively find and add constraints to working set
 
-			//if (CommonStruct.struct_verbosity >= 1) {
-			// logger.info("in loop Iter " + (++numIt) + ": ");
-			//	System.out.println("in loop Iter " + (numIt) + ": ");
-			//}
-
 			// compute current slack
 			alphasum = 0;
 			for (j = 0; (j < cset.m); j++) {
@@ -490,20 +485,12 @@ public class LearnStruct {
 				}
 			}
 			slack = Math.max(0, slack);
-			// logge.info("slack val is :" + slack);
-
 			// find a violated joint constraint
 			lhs = null;
 			rhs = 0;
 
 			if (alg_type == ONESLACK_DUAL_CACHE_ALG) {
-
-				// logger.info("epsilon_est is " + epsilon_est + " \n");
 				System.out.println("epsilon_est is " + epsilon_est + " ");
-
-				// Is there is a sufficiently violated constraint in cache?
-				// viol = compute_violation_of_constraint_in_cache(epsilon_est /
-				// 2);
 
 				if (viol - slack > Math.max(epsilon_est / 10, sparm.epsilon)) {
 					// There is a sufficiently violated constraint in cache, so
@@ -571,7 +558,6 @@ public class LearnStruct {
 				} // end of example loop
 
 				// create sparse vector from dense sum
-				// System.out.println("kernel type is " + kparm.kernel_type);
 				if (kparm.kernel_type == ModelConstant.LINEAR) {
 					lhs = com.createSvectorNR(lhs_n, sm.sizePsi, null, 1.0, CommonStruct.COMPACT_ROUNDING_THRESH);
 				}
@@ -585,7 +571,6 @@ public class LearnStruct {
 			ceps = Math.max(0, rhs - lhsXw - slack);
 			if ((ceps > sparm.epsilon) || cached_constraint != 0) {
 				// resize constraint matrix and add new constraint
-				// cset.lhs=new DOC[cset.m+1];
 				int ti = 0;
 				ti = cset.m + 1;
 				cset.lhs = com.reallocDOCS(cset.lhs, ti);
@@ -634,8 +619,6 @@ public class LearnStruct {
 				// linear. If not, ignore the weight vector since its content is
 				// bogus.
 				com.addWeightVectorToLinearModel(svmModel);
-
-				// sm.svm_model = svmModel.copyMODEL();
 
 				sm.svm_model = svmModel;
 
@@ -692,15 +675,9 @@ public class LearnStruct {
 			CommonStruct.printW(sm.w, sizePsi, n, lparm.svm_c);
 
 		if (svmModel != null) {
-			if (svmModel.kernel_parm == null) {
-				// logger.info("svmModel kernel_parm is null");
-			}
 
-			// logger.info("sv num there:" + svmModel.sv_num);
-			// sm.svm_model = svm_com.copy_model(svmModel);
 			sm.svm_model = svmModel;
 			sm.w = sm.svm_model.lin_weights; /* short cut to weight vector */
-
 		}
 
 		ssa.printStructLearningStats(sample, sm, cset, alpha, sparm);
@@ -784,9 +761,6 @@ public class LearnStruct {
 			ybar = ssa.findMostViolatedConstraintMarginrescaling(ex.x, ex.y, sm, sparm);
 		}
 
-		if (ssa.emptyLabel(ybar)) {
-			// logger.info("ERROR: empty label was returned for example\n");
-		}
 
 		// get psi(x,y) and psi(x,ybar)
 		if (fycached != null)

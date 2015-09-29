@@ -25,7 +25,6 @@ import org.click.classify.svmstruct.data.ReadSummary;
 import org.click.classify.svmstruct.data.SAMPLE;
 import org.click.classify.svmstruct.data.STRUCTMODEL;
 import org.click.classify.svmstruct.data.STRUCT_LEARN_PARM;
-import org.click.classify.svmstruct.data.STRUCT_TEST_STATS;
 import org.click.classify.svmstruct.data.SVECTOR;
 import org.click.classify.svmstruct.data.WORD;
 import org.click.lib.string.SSO;
@@ -297,7 +296,6 @@ public abstract class Struct {
 
 					modelfl.print((model.alpha[i] * v.factor) + " ");
 					modelfl.print("qid:" + v.kernel_id + " ");
-					// logger.info("i="+i+" v.length:"+v.words.length);
 					for (j = 0; j < v.words.length; j++) {
 						modelfl.print((v.words[j]).wnum + ":" + (double) (v.words[j]).weight + " ");
 					}
@@ -457,11 +455,6 @@ public abstract class Struct {
 			}
 			br.close();
 
-			// if (svm_common.verbosity >= 1) {
-			// System.out.println(" (" + (model.sv_num - 1)
-			// + " support vectors read) ");
-			// }
-			// logger.info("kernel type here:"+model.kernel_parm.kernel_type);
 			sm.svm_model = model;
 			sm.sizePsi = model.totwords;
 			sm.w = null;
@@ -498,7 +491,7 @@ public abstract class Struct {
 
 	public abstract void writeLabel(PrintWriter fp, LABEL y, LABEL ybar);
 
-	public void evalPrediction(int exnum, EXAMPLE ex, LABEL ypred, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, STRUCT_TEST_STATS teststats) {
+	public void evalPrediction(int exnum, EXAMPLE ex, LABEL ypred, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 		if (exnum == 0) {
 			// this is the first time the function is called. So
 			// initialize the teststats
@@ -506,7 +499,7 @@ public abstract class Struct {
 		}
 	}
 
-	public void printStructTestingStats(SAMPLE sample, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm, STRUCT_TEST_STATS teststats) {
+	public void printStructTestingStats(SAMPLE sample, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 
 	}
 
@@ -532,7 +525,6 @@ public abstract class Struct {
 		double temp_weight = 0.0;
 
 		for (int i = 0; i < sample_arr.length; i++) {
-			// System.out.println(i+" "+sample_arr[i]);
 			temp_token = sample_arr[i];
 			if (Pattern.matches("\\d+:[\\d\\.]+", temp_token)) {
 				temp_index = Integer.parseInt(temp_token.substring(0, temp_token.indexOf(":")));
