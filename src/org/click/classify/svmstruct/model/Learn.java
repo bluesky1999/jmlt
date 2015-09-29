@@ -43,9 +43,6 @@ public class Learn {
 		double[] c;
 		int iterations, svsetnum = 0;
 		int maxslackid;
-
-		int[] unlabeled;
-		int[] inconsistent;
 		double r_delta_avg;
 		int[] index;
 		int[] index2dnum;
@@ -65,8 +62,6 @@ public class Learn {
 		}
 
 		label = new int[totdoc];
-		unlabeled = new int[totdoc];
-		inconsistent = new int[totdoc];
 		c = new double[totdoc];
 		a = new double[totdoc];
 		lin = new double[totdoc];
@@ -111,8 +106,6 @@ public class Learn {
 			a[i] = 0;
 			lin[i] = 0;
 			c[i] = rhs[i];
-			unlabeled[i] = 0;
-			inconsistent[i] = 0;
 			learn_parm.svm_cost[i] = learn_parm.svm_c * learn_parm.svm_costratio * docs[i].costfactor;
 			label[i] = 1;
 		}
@@ -154,7 +147,7 @@ public class Learn {
 			compute_index(index, totdoc, index2dnum);
 			update_linear_component(docs, label, index2dnum, alpha, a, index2dnum, totdoc, totwords, kernel_parm, lin, aicache, weights);
 
-			calculate_svm_model(docs, label, unlabeled, lin, alpha, a, c, learn_parm, index2dnum, index2dnum, model);
+			calculate_svm_model(docs, label,  lin, alpha, a, c, learn_parm, index2dnum, index2dnum, model);
 			for (i = 0; i < totdoc; i++) {
 				a[i] = alpha[i];
 			}
@@ -168,10 +161,8 @@ public class Learn {
 
 		if (learn_parm.sharedslack != 0) {
 			iterations = optimize_to_convergence_sharedslack(docs, label, totdoc, totwords, learn_parm, kernel_parm, model, a, lin, c, checkStruct);
-
 		} else {
-			iterations = optimize_to_convergence(docs, label, totdoc, totwords, learn_parm, kernel_parm, model, inconsistent, unlabeled, a, lin, c, -1, 1, checkStruct);
-
+			iterations = optimize_to_convergence(docs, label, totdoc, totwords, learn_parm, kernel_parm, model, a, lin, c, -1, 1, checkStruct);
 		}
 
 		if (learn_parm.sharedslack != 0) {
@@ -221,7 +212,7 @@ public class Learn {
 	}
 
 	public void update_linear_component(DOC[] docs, int[] label, double[] a, double[] a_old, int[] working2dnum, int totdoc, int totwords, KERNEL_PARM kernel_parm, double[] lin, double[] aicache, double[] weights) {
-		int i, ii, j, jj;
+		int i, ii,  jj;
 		double tec;
 		SVECTOR f;
 
@@ -355,7 +346,7 @@ public class Learn {
 		}
 	}
 
-	public int calculate_svm_model(DOC[] docs, int[] label, int[] unlabeled, double[] lin, double[] a, double[] a_old, double[] c, LEARN_PARM learn_parm, int[] working2dnum, int[] active2dnum, MODEL model) {
+	public int calculate_svm_model(DOC[] docs, int[] label,  double[] lin, double[] a, double[] a_old, double[] c, LEARN_PARM learn_parm, int[] working2dnum, int[] active2dnum, MODEL model) {
 		int i, ii, pos, b_calculated = 0, first_low, first_high;
 		double ex_c, b_temp, b_low, b_high;
 
@@ -459,7 +450,7 @@ public class Learn {
 		return (model.sv_num - 1);
 	}
 
-	public int calculate_svm_model(DOC[] docs, int[] label, int[] unlabeled, double[] lin, double[] a, double[] a_old, double[] c, LEARN_PARM learn_parm, int[] working2dnum,  MODEL model) {
+	public int calculate_svm_model(DOC[] docs, int[] label,  double[] lin, double[] a, double[] a_old, double[] c, LEARN_PARM learn_parm, int[] working2dnum,  MODEL model) {
 		int i, ii, pos, b_calculated = 0, first_low, first_high;
 		double ex_c, b_temp, b_low, b_high;
 
@@ -563,7 +554,7 @@ public class Learn {
 		return (model.sv_num - 1);
 	}
 	
-	public int optimize_to_convergence(DOC[] docs, int[] label, int totdoc, int totwords, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm,  MODEL model, int[] inconsistent, int[] unlabeled, double[] a, double[] lin, double[] c, int heldout, int retrain, CheckStruct struct) {
+	public int optimize_to_convergence(DOC[] docs, int[] label, int totdoc, int totwords, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm,  MODEL model,   double[] a, double[] lin, double[] c, int heldout, int retrain, CheckStruct struct) {
 
 		int[] chosen;
 		int[] key;
@@ -571,16 +562,14 @@ public class Learn {
 		int[] last_suboptimal_at;
 		double noshrink;
 		CommonStruct.verbosity = 0;
-		int inconsistentnum, choosenum, already_chosen = 0, iteration;
-		int misclassified, supvecnum = 0;
-		int inactivenum;
+		int  choosenum, already_chosen = 0, iteration;
+		int supvecnum = 0;
+	
 		int[] working2dnum;
 		int[] selexam;
-		int activenum;
 		double eq;
 		double[] a_old;
-		int transductcycle;
-		int transduction;
+
 		double epsilon_crit_org;
 		double bestmaxdiff;
 		int bestmaxdiffiter, terminate;
@@ -626,9 +615,6 @@ public class Learn {
 		}
 
 		choosenum = 0;
-		inconsistentnum = 0;
-		transductcycle = 0;
-		transduction = 0;
 
 		if (retrain == 0) {
 			retrain = 1;
@@ -643,17 +629,8 @@ public class Learn {
 			chosen[i] = 0;
 			a_old[i] = a[i];
 			last_suboptimal_at[i] = 1;
-			if (inconsistent[i] != 0) {
-				inconsistentnum++;
-			}
-
-			if (unlabeled[i] != 0) {
-				transduction = 1;
-			}
 		}
 
-	
-		inactivenum = 0;
 		clear_index(working2dnum);
 
 		/** main loop ***/
@@ -667,7 +644,7 @@ public class Learn {
 
 			for (jj = 0; (j = working2dnum[jj]) >= 0; jj++) {
 
-				if ((chosen[j] >= (learn_parm.svm_maxqpsize / Math.min(learn_parm.svm_maxqpsize, learn_parm.svm_newvarsinqp))) || (inconsistent[j] != 0) || (j == heldout)) {
+				if ((chosen[j] >= (learn_parm.svm_maxqpsize / Math.min(learn_parm.svm_maxqpsize, learn_parm.svm_newvarsinqp)))  || (j == heldout)) {
 					chosen[j] = 0;
 					choosenum--;
 				} else {
@@ -686,7 +663,7 @@ public class Learn {
 				clear_index(working2dnum);
 
 				for (i = 0; i < totdoc; i++) {
-					if (((inconsistent[i] > 0) || (heldout == i)) && (a[i] != 0)) {
+					if (( (heldout == i)) && (a[i] != 0)) {
 						chosen[i] = 99999;
 						choosenum++;
 						a[i] = 0;
@@ -721,40 +698,31 @@ public class Learn {
 					already_chosen = 0;
 
 					if ((Math.min(learn_parm.svm_newvarsinqp, learn_parm.svm_maxqpsize - choosenum) >= 4) && (kernel_parm.kernel_type != ModelConstant.LINEAR)) {
-						already_chosen = select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, (Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp) / 2), learn_parm, inconsistent,  working2dnum, selcrit, selexam, 1, key, chosen);
+						already_chosen = select_next_qp_subproblem_grad(label,  a, lin, c, totdoc, (Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp) / 2), learn_parm,  working2dnum, selcrit, selexam, 1, key, chosen);
 
 						choosenum += already_chosen;
 					}
 
-					choosenum += select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp - already_chosen), learn_parm, inconsistent,  working2dnum, selcrit, selexam, 0, key, chosen);
+					choosenum += select_next_qp_subproblem_grad(label, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp - already_chosen), learn_parm,  working2dnum, selcrit, selexam, 0, key, chosen);
 
 				} else {
-					choosenum += select_next_qp_subproblem_rand(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp), learn_parm, inconsistent,  working2dnum, selcrit, selexam, key, chosen, iteration);
+					choosenum += select_next_qp_subproblem_rand(label,  a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp), learn_parm,  working2dnum, selcrit, selexam, key, chosen, iteration);
 				}
 			}
 
 			if (retrain != 2) {
-				optimize_svm(docs, label, unlabeled, inconsistent, 0.0, chosen,  model, totdoc, working2dnum, choosenum, a, lin, c, learn_parm, aicache, kernel_parm, qp, epsilon_crit_org);
+				optimize_svm(docs, label,  0.0, chosen,  model, totdoc, working2dnum, choosenum, a, lin, c, learn_parm, aicache, kernel_parm, qp, epsilon_crit_org);
 			}
 
 			update_linear_component(docs, label, a, a_old, working2dnum, totdoc, totwords, kernel_parm, lin, aicache, weights);
 
-			supvecnum = calculate_svm_model(docs, label, unlabeled, lin, a, a_old, c, learn_parm, working2dnum,  model);
+			supvecnum = calculate_svm_model(docs, label, lin, a, a_old, c, learn_parm, working2dnum,  model);
 
 			for (jj = 0; (i = working2dnum[jj]) >= 0; jj++) {
 				a_old[i] = a[i];
 			}
 
-			if (retrain == 2) { // reset inconsistent unlabeled examples
-				for (i = 0; (i < totdoc); i++) {
-					if ((inconsistent[i] != 0) && (unlabeled[i] != 0)) {
-						inconsistent[i] = 0;
-						label[i] = 0;
-					}
-				}
-			}
-
-			retrain = check_optimality(model, label, unlabeled, a, lin, c, totdoc, learn_parm, epsilon_crit_org, inconsistent,  last_suboptimal_at, iteration, kernel_parm, struct);
+			retrain = check_optimality(model, label,  a, lin, c, totdoc, learn_parm, epsilon_crit_org,   last_suboptimal_at, iteration, kernel_parm, struct);
 
 			// checking whether optimizer got stuck
 			if (struct.maxdiff < bestmaxdiff) {
@@ -770,9 +738,8 @@ public class Learn {
 
 			noshrink = 0;
 
-			if ((retrain == 0) && (inactivenum > 0) && ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == ModelConstant.LINEAR))) {
+			if ((retrain == 0) && ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == ModelConstant.LINEAR))) {
 
-				inactivenum =0;
 				// reset watchdog
 				bestmaxdiff = struct.maxdiff;
 				bestmaxdiffiter = iteration;
@@ -816,7 +783,6 @@ public class Learn {
 	 * Working set selection
 	 * 
 	 * @param label
-	 * @param unlabeled
 	 * @param a
 	 * @param lin
 	 * @param c
@@ -833,7 +799,7 @@ public class Learn {
 	 * @param chosen
 	 * @return
 	 */
-	public int select_next_qp_subproblem_grad(int[] label, int[] unlabeled, double[] a, double[] lin, double[] c, int totdoc, int qp_size, LEARN_PARM learn_parm, int[] inconsistent,  int[] working2dnum, double[] selcrit, int[] select, int cache_only, int[] key, int[] chosen) {
+	public int select_next_qp_subproblem_grad(int[] label,  double[] a, double[] lin, double[] c, int totdoc, int qp_size, LEARN_PARM learn_parm,  int[] working2dnum, double[] selcrit, int[] select, int cache_only, int[] key, int[] chosen) {
 
 		int choosenum, i, k, activedoc, inum, valid;
 		double s;
@@ -848,7 +814,7 @@ public class Learn {
 
 			valid = 1;
 
-			if ((valid != 0) && (!((a[i] <= (0 + learn_parm.epsilon_a)) && (s < 0))) && (!((a[i] >= (learn_parm.svm_cost[i] - learn_parm.epsilon_a)) && (s > 0))) && (chosen[i] == 0) && (label[i] != 0) && (inconsistent[i] == 0)) {
+			if ((valid != 0) && (!((a[i] <= (0 + learn_parm.epsilon_a)) && (s < 0))) && (!((a[i] >= (learn_parm.svm_cost[i] - learn_parm.epsilon_a)) && (s > 0))) && (chosen[i] == 0) && (label[i] != 0)) {
 
 				selcrit[activedoc] = (double) label[i] * (learn_parm.eps - (double) label[i] * c[i] + (double) label[i] * lin[i]);
 
@@ -878,7 +844,7 @@ public class Learn {
 			s = label[i];
 			valid = 1;
 
-			if (valid != 0 && (!((a[i] <= (0 + learn_parm.epsilon_a)) && (s < 0))) && (!((a[i] >= (learn_parm.svm_cost[i] - learn_parm.epsilon_a)) && (s > 0))) && (chosen[i] == 0) && (label[i] != 0) && (inconsistent[i] == 0)) {
+			if (valid != 0 && (!((a[i] <= (0 + learn_parm.epsilon_a)) && (s < 0))) && (!((a[i] >= (learn_parm.svm_cost[i] - learn_parm.epsilon_a)) && (s > 0))) && (chosen[i] == 0) && (label[i] != 0) ) {
 				selcrit[activedoc] = -(double) label[i] * (learn_parm.eps - (double) label[i] * c[i] + (double) label[i] * lin[i]);
 
 				if (Math.abs(selcrit[activedoc]) > (double) (0.5)) {
@@ -888,7 +854,6 @@ public class Learn {
 			}
 		}
 		
-		int j;
 
 		select_top_n(selcrit, activedoc, select, qp_size / 2);
 
@@ -938,7 +903,7 @@ public class Learn {
 		}
 	}
 
-	public int select_next_qp_subproblem_rand(int[] label, int[] unlabeled, double[] a, double[] lin, double[] c, int totdoc, int qp_size, LEARN_PARM learn_parm, int[] inconsistent,  int[] working2dnum, double[] selcrit, int[] select, int[] key, int[] chosen, int iteration) {
+	public int select_next_qp_subproblem_rand(int[] label,  double[] a, double[] lin, double[] c, int totdoc, int qp_size, LEARN_PARM learn_parm, int[] working2dnum, double[] selcrit, int[] select, int[] key, int[] chosen, int iteration) {
 		int choosenum, i,  k, activedoc, inum;
 		double s = 0;
 
@@ -950,7 +915,7 @@ public class Learn {
 		for (i = 0;i<label.length; i++) {
 			s -= label[i];
 
-			if ((!((a[i] <= (0 + learn_parm.epsilon_a)) && (s < 0))) && (!((a[i] >= (learn_parm.svm_cost[i] - learn_parm.epsilon_a)) && (s > 0))) && (inconsistent[i] == 0) && (label[i] != 0) && (chosen[i] == 0)) {
+			if ((!((a[i] <= (0 + learn_parm.epsilon_a)) && (s < 0))) && (!((a[i] >= (learn_parm.svm_cost[i] - learn_parm.epsilon_a)) && (s > 0))) && (label[i] != 0) && (chosen[i] == 0)) {
 				selcrit[activedoc] = (i + iteration) % totdoc;
 				key[activedoc] = i;
 				activedoc++;
@@ -969,7 +934,7 @@ public class Learn {
 		activedoc = 0;
 		for (i = 0; i<label.length; i++) {
 			s = label[i];
-			if ((!((a[i] <= (0 + learn_parm.epsilon_a)) && (s < 0))) && (!((a[i] >= (learn_parm.svm_cost[i] - learn_parm.epsilon_a)) && (s > 0))) && (inconsistent[i] == 0) && (label[i] != 0) && (chosen[i] == 0)) {
+			if ((!((a[i] <= (0 + learn_parm.epsilon_a)) && (s < 0))) && (!((a[i] >= (learn_parm.svm_cost[i] - learn_parm.epsilon_a)) && (s > 0))) && (label[i] != 0) && (chosen[i] == 0)) {
 				selcrit[activedoc] = (i + iteration) % totdoc;
 				key[activedoc] = i;
 				activedoc++;
@@ -989,11 +954,11 @@ public class Learn {
 
 	}
 
-	public void optimize_svm(DOC[] docs, int[] label, int[] unlabeled, int[] exclude_from_eq_const, double eq_target, int[] chosen, MODEL model, int totdoc, int[] working2dnum, int varnum, double[] a, double[] lin, double[] c, LEARN_PARM learn_parm, double[] aicache, KERNEL_PARM kernel_parm, QP qp, double epsilon_crit_target) {
+	public void optimize_svm(DOC[] docs, int[] label,  double eq_target, int[] chosen, MODEL model, int totdoc, int[] working2dnum, int varnum, double[] a, double[] lin, double[] c, LEARN_PARM learn_parm, double[] aicache, KERNEL_PARM kernel_parm, QP qp, double epsilon_crit_target) {
 		int i;
 		double[] a_v;
 
-		compute_matrices_for_optimization(docs, label, unlabeled, exclude_from_eq_const, eq_target, chosen, working2dnum, model, a, lin, c, varnum, totdoc, learn_parm, aicache, kernel_parm, qp);
+		compute_matrices_for_optimization(docs, label,  eq_target, chosen, working2dnum, model, a, lin, c, varnum, totdoc, learn_parm, aicache, kernel_parm, qp);
 
 		// call the qp-subsolver
 		Hideo shid = new Hideo();
@@ -1006,7 +971,7 @@ public class Learn {
 
 	}
 
-	public void compute_matrices_for_optimization(DOC[] docs, int[] label, int[] unlabeled, int[] exclude_from_eq_const, double eq_target, int[] chosen,  int[] key, MODEL model, double[] a, double[] lin, double[] c, int varnum, int totdoc, LEARN_PARM learn_parm, double[] aicache, KERNEL_PARM kernel_parm, QP qp) {
+	public void compute_matrices_for_optimization(DOC[] docs, int[] label,  double eq_target, int[] chosen,  int[] key, MODEL model, double[] a, double[] lin, double[] c, int varnum, int totdoc, LEARN_PARM learn_parm, double[] aicache, KERNEL_PARM kernel_parm, QP qp) {
 
 		int ki, kj, i, j;
 		double kernel_temp;
@@ -1016,7 +981,7 @@ public class Learn {
 
 		for (j = 1; j < model.sv_num; j++) {
 
-			if ((chosen[model.supvec[j].docnum] == 0) && (exclude_from_eq_const[model.supvec[j].docnum] == 0)) {
+			if ((chosen[model.supvec[j].docnum] == 0)) {
 				qp.opt_ce0[0] += model.alpha[j];
 			}
 		}
@@ -1083,7 +1048,7 @@ public class Learn {
 		return (criterion);
 	}
 
-	public int check_optimality(MODEL model, int[] label, int[] unlabeled, double[] a, double[] lin, double[] c, int totdoc, LEARN_PARM learn_parm, double epsilon_crit_org, int[] inconsistent, int[] last_suboptimal_at, int iteration, KERNEL_PARM kernel_parm, CheckStruct struct) {
+	public int check_optimality(MODEL model, int[] label,  double[] a, double[] lin, double[] c, int totdoc, LEARN_PARM learn_parm, double epsilon_crit_org,  int[] last_suboptimal_at, int iteration, KERNEL_PARM kernel_parm, CheckStruct struct) {
 		int  ii, retrain;
 		double dist = 0, ex_c, target;
 		if (kernel_parm.kernel_type == ModelConstant.LINEAR) { // be optimistic
@@ -1097,7 +1062,7 @@ public class Learn {
 		struct.misclassified = 0;
 
 		for (ii = 0; ii<lin.length; ii++) {
-			if ((inconsistent[ii] == 0) && (label[ii] != 0)) {
+			if ( (label[ii] != 0)) {
 				dist = (lin[ii] - model.b) * (double) label[ii];
 				target = -(learn_parm.eps - (double) label[ii] * c[ii]);
 				ex_c = learn_parm.svm_cost[ii] - learn_parm.epsilon_a;
@@ -1136,7 +1101,7 @@ public class Learn {
 	}
 
 
-	public void write_prediction(String predfile, MODEL model, double[] lin, double[] a, int[] unlabeled, int[] label, int totdoc, LEARN_PARM learn_parm) {
+	public void write_prediction(String predfile, MODEL model, double[] lin, double[] a, int[] label, int totdoc, LEARN_PARM learn_parm) {
 		FileWriter fw = null;
 		PrintWriter pw = null;
 		try {
@@ -1151,12 +1116,12 @@ public class Learn {
 
 		a_max = learn_parm.epsilon_a;
 		for (i = 0; i < totdoc; i++) {
-			if ((unlabeled[i] != 0) && (a[i] > a_max)) {
+			if ((a[i] > a_max)) {
 				a_max = a[i];
 			}
 		}
 		for (i = 0; i < totdoc; i++) {
-			if (unlabeled[i] != 0) {
+			
 				if ((a[i] > (learn_parm.epsilon_a))) {
 					dist = (double) label[i] * (1.0 - learn_parm.epsilon_crit - a[i] / (a_max * 2.0));
 				} else {
@@ -1167,7 +1132,7 @@ public class Learn {
 				} else {
 					System.out.println((-dist) + ":-1 " + dist + ":1");
 				}
-			}
+			
 		}
 		try {
 			fw.close();
@@ -1203,11 +1168,9 @@ public class Learn {
 		int i, j, jj;
 		int[] last_suboptimal_at;
 		int noshrink;
-		int[] unlabeled;
 
-		int[] inconsistent;
 		int choosenum, already_chosen = 0, iteration;
-		int misclassified, supvecnum = 0;
+		int supvecnum = 0;
 	
 		int[] working2dnum;
 		int[] selexam;
@@ -1216,7 +1179,7 @@ public class Learn {
 		double criterion, eq_target;
 		double[] a_old;
 		double[] alphaslack;
-		double t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0; // timing
+
 		double epsilon_crit_org;
 		double bestmaxdiff;
 		int bestmaxdiffiter, terminate;
@@ -1238,8 +1201,7 @@ public class Learn {
 		learn_parm.totwords = totwords;
 
 		chosen = new int[totdoc];
-		unlabeled = new int[totdoc];
-		inconsistent = new int[totdoc];
+
 		ignore = new int[totdoc];
 		last_suboptimal_at = new int[totdoc];
 		key = new int[totdoc + 11];
@@ -1290,8 +1252,7 @@ public class Learn {
 
 		for (i = 0; i < totdoc; i++) { // various inits
 			chosen[i] = 0;
-			unlabeled[i] = 0;
-			inconsistent[i] = 0;
+
 			ignore[i] = 0;
 			alphaslack[docs[i].slackid] += a[i];
 			a_old[i] = a[i];
@@ -1336,11 +1297,11 @@ public class Learn {
 					already_chosen = 0;
 					if ((Math.min(learn_parm.svm_newvarsinqp, learn_parm.svm_maxqpsize - choosenum) >= 4) && (kernel_parm.kernel_type != ModelConstant.LINEAR)) {
 						// select part of the working set from cache
-						already_chosen = select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, (int) (Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp) / 2), learn_parm, inconsistent,  working2dnum, selcrit, selexam, 1, key, chosen);
+						already_chosen = select_next_qp_subproblem_grad(label,  a, lin, c, totdoc, (int) (Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp) / 2), learn_parm,   working2dnum, selcrit, selexam, 1, key, chosen);
 
 						choosenum += already_chosen;
 					}
-					choosenum += select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp - already_chosen), learn_parm, inconsistent,  working2dnum, selcrit, selexam, 0, key, chosen);
+					choosenum += select_next_qp_subproblem_grad(label, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp - already_chosen), learn_parm,   working2dnum, selcrit, selexam, 0, key, chosen);
 
 				} else {// do a step with all examples from same slack set
 
@@ -1362,7 +1323,7 @@ public class Learn {
 						}
 					}
 					learn_parm.biased_hyperplane = 1;
-					choosenum = select_next_qp_subproblem_grad(label, unlabeled, a, lin, c, totdoc, learn_parm.svm_maxqpsize, learn_parm, ignore,  working2dnum, selcrit, selexam, 0, key, chosen);
+					choosenum = select_next_qp_subproblem_grad(label, a, lin, c, totdoc, learn_parm.svm_maxqpsize, learn_parm,   working2dnum, selcrit, selexam, 0, key, chosen);
 					learn_parm.biased_hyperplane = 0;
 				}
 			} else {
@@ -1370,14 +1331,14 @@ public class Learn {
 				// once in a while, select a somewhat random working set to
 				// get unlocked of infinite loops due to numerical
 				// inaccuracies in the core qp-solver
-				choosenum += select_next_qp_subproblem_rand(label, unlabeled, a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp), learn_parm, inconsistent,  working2dnum, selcrit, selexam, key, chosen, iteration);
+				choosenum += select_next_qp_subproblem_rand(label,  a, lin, c, totdoc, Math.min(learn_parm.svm_maxqpsize - choosenum, learn_parm.svm_newvarsinqp), learn_parm,  working2dnum, selcrit, selexam, key, chosen, iteration);
 			}
 
 			if (jointstep != 0) {
 				learn_parm.biased_hyperplane = 1;
 			}
 
-			optimize_svm(docs, label, unlabeled, ignore, eq_target, chosen,  model, totdoc, working2dnum, choosenum, a, lin, c, learn_parm, aicache, kernel_parm, qp, epsilon_crit_org);
+			optimize_svm(docs, label,  eq_target, chosen,  model, totdoc, working2dnum, choosenum, a, lin, c, learn_parm, aicache, kernel_parm, qp, epsilon_crit_org);
 
 			learn_parm.biased_hyperplane = 0;
 
@@ -1413,7 +1374,7 @@ public class Learn {
 			update_linear_component(docs, label,  a, a_old, working2dnum, totdoc, totwords, kernel_parm, lin, aicache, weights);
 			compute_shared_slacks(docs, label, a, lin, c,  learn_parm, slack, alphaslack);
 
-			supvecnum = calculate_svm_model(docs, label, unlabeled, lin, a, a_old, c, learn_parm, working2dnum, model);
+			supvecnum = calculate_svm_model(docs, label,  lin, a, a_old, c, learn_parm, working2dnum, model);
 
 			for (jj = 0; (i = working2dnum[jj]) >= 0; jj++) {
 				a_old[i] = a[i];
@@ -1457,7 +1418,7 @@ public class Learn {
 
 	/** compute the value of shared slacks and the joint alphas */
 	public void compute_shared_slacks(DOC[] docs, int[] label, double[] a, double[] lin, double[] c, LEARN_PARM learn_parm, double[] slack, double[] alphaslack) {
-		int jj, i;
+		int jj;
 		double dist, target;
 
 		for (jj = 0;jj<lin.length; jj++) { // clear slack											// variables
@@ -1503,7 +1464,7 @@ public class Learn {
 
 	/** returns the slackset with the largest internal violation */
 	public int select_next_qp_slackset(DOC[] docs, int[] label, double[] a, double[] lin, double[] slack, double[] alphaslack, double[] c, LEARN_PARM learn_parm,  CheckStruct struct) {
-		int i, ii, maxdiffid;
+		int  ii, maxdiffid;
 		double dist, target, maxdiff, ex_c;
 
 		maxdiff = 0;
