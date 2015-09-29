@@ -1,7 +1,5 @@
 package org.click.classify.svmstruct.model;
 
-import java.io.File;
-
 import org.click.classify.svmstruct.data.EXAMPLE;
 import org.click.classify.svmstruct.data.KERNEL_PARM;
 import org.click.classify.svmstruct.data.LEARN_PARM;
@@ -18,8 +16,6 @@ public class MainStruct {
 	public static int verbosity;
 	public static int struct_verbosity;
 	public static int alg_type;
-
-	// private static Logger logger = Logger.getLogger(MainStruct.class);
 
 	public Common com = null;
 
@@ -331,20 +327,8 @@ public class MainStruct {
 		long start_time = TimeOpera.getCurrentTimeLong();
 
 		read_input_parameters(args.length + 1, args, struct_parm, learn_parm, kernel_parm);
-
-		if (struct_verbosity >= 1) {
-			System.out.println("Reading training examples...");
-			// logger.info("Reading training examples...");
-		}
-
 		// read the training examples
 		sample = ssa.readStructExamples(trainfile, struct_parm);
-		if (struct_verbosity >= 1) {
-			// logger.info("done\n");
-		}
-		// logger.info("alg_tye is " + alg_type + " \n");
-
-		EXAMPLE tempex = null;
 
 		// Do the learning and return structmodel.
 		LearnStruct ssl = new LearnStruct();
@@ -357,27 +341,15 @@ public class MainStruct {
 		} else if (alg_type == 3) {
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm, kernel_parm, structmodel, CommonStruct.ONESLACK_DUAL_ALG);
 		} else if (alg_type == 4) {
-			// logger.info("learn_parm.sharedslack:" + learn_parm.sharedslack);
 			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm, kernel_parm, structmodel, CommonStruct.ONESLACK_DUAL_CACHE_ALG);
 		}  else {
 			System.exit(1);
 		}
 
-		// Warning: The model contains references to the original data 'docs'.
-		// If you want to free the original data, and only keep the model, you
-		// have to make a deep copy of 'model'.
-		if (struct_verbosity >= 1) {
-			// logger.info("Writing learned model...");
-		}
-		ssa.writeStructModel(modelfile, structmodel, struct_parm);
-		if (struct_verbosity >= 1) {
-			// logger.info("done\n");
-		}
 
 		long end_time = TimeOpera.getCurrentTimeLong();
 		double tot_time = (double) (end_time - start_time) / (double) 1000;
 
-		// logger.info("tot_time:" + tot_time);
 		System.out.println("tot_time:" + tot_time);
 
 	}
@@ -403,17 +375,9 @@ public class MainStruct {
 
 		ms.read_input_parameters(args.length + 1, args, struct_parm, learn_parm, kernel_parm);
 
-		if (struct_verbosity >= 1) {
-			System.out.println("Reading training examples...");
-			// logger.info("Reading training examples...");
-		}
 
 		// read the training examples
 		sample = ssa.readStructExamples(trainfile, struct_parm);
-		if (struct_verbosity >= 1) {
-			// ////logger.info("done\n");
-		}
-		// logger.info("alg_tye is " + alg_type + " \n");
 
 		EXAMPLE tempex = null;
 
@@ -434,21 +398,13 @@ public class MainStruct {
 			System.exit(1);
 		}
 
-		// Warning: The model contains references to the original data 'docs'.
-		// If you want to free the original data, and only keep the model, you
-		// have to make a deep copy of 'model'.
-		if (struct_verbosity >= 1) {
-			// logger.info("Writing learned model...");
-		}
+
 		ssa.writeStructModel(modelfile, structmodel, struct_parm);
-		if (struct_verbosity >= 1) {
-			// logger.info("done\n");
-		}
+
 
 		long end_time = TimeOpera.getCurrentTimeLong();
 		double tot_time = (double) (end_time - start_time) / (double) 1000;
 
-		// logger.info("tot_time:" + tot_time);
 		System.out.println("tot_time:" + tot_time);
 
 	}

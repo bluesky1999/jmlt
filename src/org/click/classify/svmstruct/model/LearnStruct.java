@@ -439,9 +439,6 @@ public class LearnStruct {
 
 			for (i = 0; i < n; i++) {
 
-				if (CommonStruct.struct_verbosity >= 1)
-					com.printPercentProgress(n, 10, ".");
-
 				// compute most violating fydelta=fy-fybar and rhs for
 				// example i
 				find_most_violated_constraint(ex[i], fycache[i], n, sm, sparm, violStruct);

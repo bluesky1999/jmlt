@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import org.click.classify.svmstruct.data.CONSTSET;
@@ -30,14 +29,10 @@ import org.click.lib.time.TimeOpera;
 
 public class Common {
 
-	public static int kernel_cache_statistic = 0;
-	public static int progress_n;
 
 	public SVECTOR createSvector(WORD[] words, String userdefined, double factor) {
 		SVECTOR vec;
-		int fnum, i;
-
-		fnum = 0;
+		int i;
 
 		vec = new SVECTOR();
 		vec.words = new WORD[words.length];
@@ -99,7 +94,6 @@ public class Common {
 	}
 
 	public double singleKernel(KERNEL_PARM kernel_parm, SVECTOR a, SVECTOR b) {
-		kernel_cache_statistic++;
 
 		switch (kernel_parm.kernel_type) {
 		case ModelConstant.LINEAR:
@@ -267,13 +261,9 @@ public class Common {
 
 	public DOC[] readDocuments(String docfile, ReadStruct struct) {
 
-		String line, comment;
-
+		String line;
 		DOC[] docs;
-
-		int dnum = 0, wpos, dpos = 0, dneg = 0, dunlab = 0, queryid, slackid, max_docs;
-		int max_words_doc, ll;
-		double doc_label, costfactor;
+		int dnum = 0;
 		FileReader fr = null;
 		BufferedReader br = null;
 
@@ -284,12 +274,6 @@ public class Common {
 		ReadSummary summary = nol_ll(docfile); // scan size of input file
 		struct.read_max_words_doc = summary.read_max_words_doc + 2;
 		struct.read_max_docs = summary.read_max_docs + 2;
-
-		System.err.println("struct.read_max_words_doc:" + struct.read_max_words_doc);
-		System.err.println("struct.read_max_docs:" + struct.read_max_docs);
-		if (CommonStruct.verbosity >= 1) {
-			System.out.println("done\n");
-		}
 
 		try {
 			fr = new FileReader(new File(docfile));
@@ -330,19 +314,12 @@ public class Common {
 					continue;
 				}
 				label[dnum] = rs.read_doc_label;
-				if (rs.read_doc_label > 0)
-					dpos++;
-				if (rs.read_doc_label < 0)
-					dneg++;
-				if (rs.read_doc_label == 0)
-					dunlab++;
+	
 				if ((rs.read_wpos > 1) && ((words[rs.read_wpos - 2]).wnum > rs.read_totwords))
 					struct.read_totwords = words[rs.read_wpos - 2].wnum;
 
 				docs[dnum] = createExample(dnum, rs.read_queryid, rs.read_slackid, rs.read_costfactor, createSvector(words, rs.read_comment, 1.0));
 				dnum++;
-				//System.err.println("dnum:" + dnum);
-				// rs=null;
 			}
 
 			fr.close();
@@ -360,27 +337,17 @@ public class Common {
 
 
 	public WORD[] parseDocument(String line, int max_words_doc, ReadStruct struct) {
-		int wpos = 0, pos;
-		int wnum;
-		double weight;
-		String featurepair, junk;
+		int wpos = 0;
+
 		if (SSO.tioe(line)) {
 			return null;
 		}
 
 		ArrayList<WORD> wlist = new ArrayList<WORD>();
 
-		// ///=======///WORD[] read_words = new WORD[max_words_doc];
-		// ///=======///for (int k = 0; k < read_words.length; k++) {
-		// ///=======/// read_words[k] = new WORD();
-		// ///=======/// read_words[k].wnum = 0;
-		// ///=======/// read_words[k].weight = 0;
-		// ///=======/// }
 		struct.read_queryid = 0;
 		struct.read_slackid = 0;
 		struct.read_costfactor = 1;
-
-		pos = 0;
 		struct.read_comment = "";
 		String dline = "";
 
@@ -421,9 +388,6 @@ public class Common {
 				struct.read_costfactor = Double.parseDouble(sstr);
 			} else if (Pattern.matches("[\\d]+", pstr)) {
 				WORD w = new WORD();
-				// ///=======///read_words[wpos].wnum = Integer.parseInt(pstr);
-				// ///=======///read_words[wpos].weight =
-				// Double.parseDouble(sstr);
 				w.wnum = Integer.parseInt(pstr);
 				w.weight = Double.parseDouble(sstr);
 				wlist.add(w);
@@ -431,8 +395,6 @@ public class Common {
 			}
 		}
 
-		// ///=======///read_words[wpos].wnum = 0;
-		// ///=======///struct.read_wpos = wpos +1;
 		WORD[] read_words = new WORD[wlist.size()];
 		for (int i = 0; i < wlist.size(); i++) {
 			read_words[i] = wlist.get(i);
@@ -718,30 +680,22 @@ public class Common {
 
 	public SVECTOR shiftS(SVECTOR a, int shift) {
 		SVECTOR vec;
-		WORD[] sum;
 		WORD[] sumi;
 		WORD[] ai;
 		int veclength;
 		String userdefined = "";
-		// //logger.info("shift:"+shift);
 		ai = new WORD[a.words.length];
 		for (int k = 0; k < ai.length; k++) {
-			//ai[k] = a.words[k].copy_word();
 			ai[k] = a.words[k];
 		}
-		// ai = a.words;
+
 
 		veclength = ai.length;
 		sumi = new WORD[veclength];
 		for (int i = 0; i < ai.length; i++) {
-			//sumi[i] = ai[i].copy_word();
 			sumi[i] = new WORD();
 			sumi[i].weight = ai[i].weight;
 			sumi[i].wnum = ai[i].wnum + shift;
-		}
-
-		if (a.userdefined != null) {
-
 		}
 
 		vec = createSvectorShallow(sumi, userdefined, a.factor);
@@ -791,11 +745,9 @@ public class Common {
 			sum = smultS(a, a.factor);
 		} else {
 			sum = multaddSsR(a, a.next, a.factor, a.next.factor, min_non_zero);
-			int ii = 0;
 			for (f = a.next.next; f != null; f = f.next) {
 				oldsum = sum;
 				sum = multaddSsR(oldsum, f, 1.0, f.factor, min_non_zero);
-				ii++;
 			}
 		}
 		return (sum);
@@ -804,15 +756,13 @@ public class Common {
 	/** scale sparse vector a by factor */
 	public SVECTOR smultS(SVECTOR a, double factor) {
 		SVECTOR vec;
-		WORD[] sum, sumi;
+		WORD[]  sumi;
 		WORD[] ai;
 		int veclength;
 		String userdefined = null;
 
 		ai = a.words;
 		veclength = ai.length;
-
-		sum = new WORD[veclength];
 		sumi = new WORD[veclength];
 		ArrayList<WORD> wordlist = new ArrayList<WORD>();
 		ai = a.words;
@@ -852,7 +802,7 @@ public class Common {
 	 */
 	public SVECTOR multaddSsR(SVECTOR a, SVECTOR b, double fa, double fb, double min_non_zero) {
 		SVECTOR vec;
-		WORD[] sum, sumi;
+		WORD[]  sumi;
 		WORD[] ai, bj;
 		int veclength;
 		double weight;
@@ -889,7 +839,7 @@ public class Common {
 		veclength++;
 
 		sumi = new WORD[veclength];
-		// sumi = sum;
+
 		ai = a.words;
 		bj = b.words;
 		i = 0;
@@ -1004,7 +954,6 @@ public class Common {
 
 	/** create matrix with n rows and m colums */
 	public MATRIX createMatrix(int n, int m) {
-		int i;
 		MATRIX matrix;
 
 		matrix = new MATRIX();
@@ -1022,7 +971,7 @@ public class Common {
 	public SVECTOR addListSortSsR(SVECTOR a, double min_non_zero) {
 		SVECTOR sum, f;
 		WORD[] empty = new WORD[2];
-		WORD[] ai, concat, concati, concat_read, concat_write;
+		WORD[] ai, concat, concat_read, concat_write;
 		int length, i;
 		double weight;
 
@@ -1062,7 +1011,7 @@ public class Common {
 			}
 
 			weight = concat_write[cwi].weight;
-			for (i = i; (i < length - 1); i++) {
+			for (; (i < length - 1); i++) {
 				if (concat_write[cwi].wnum == concat_read[cri].wnum) {
 					weight += (double) concat_read[cri].weight;
 					cri++;
@@ -1129,17 +1078,7 @@ public class Common {
 			addVectorNs(vec_n, f, f.factor * faktor);
 	}
 
-	/**
-	 * every time this function gets called, progress is incremented. It prints
-	 * symbol every percentperdot calls, assuming that maximum is the max number
-	 * of calls
-	 */
-	public void printPercentProgress(int maximum, int percentperdot, String symbol) {
-		if ((percentperdot * ((double) progress_n - 1) / maximum) != (percentperdot * ((double) progress_n) / maximum)) {
-			// //logger.info(symbol);
-		}
-		progress_n++;
-	}
+
 
 	/** multiplies the factor of each element in vector list with factor */
 	public void multSvectorList(SVECTOR a, double factor) {
@@ -1185,8 +1124,6 @@ public class Common {
 	 * are not initialized.
 	 */
 	public MATRIX reallocMatrix(MATRIX matrix, int n, int m) {
-		int i;
-
 		if (matrix == null)
 			return (createMatrix(n, m));
 
@@ -1232,22 +1169,18 @@ public class Common {
 				InputStreamReader model_isr = new InputStreamReader(model_is);
 				br = new BufferedReader(model_isr);
 			}
-			int i, queryid, slackid;
-			double costfactor;
-			int max_sv, max_words, wpos;
+			int i, queryid;
+	
+			int  max_words;
 			String line, comment;
 			WORD[] words;
-			String version_buffer;
 
-			if (CommonStruct.verbosity >= 1) {
-				// logger.info("Reading model...");
-			}
 
 			ReadSummary summary = nol_ll(modelfile);
 			max_words = summary.read_max_words_doc;
 			max_words += 2;
 			line = br.readLine();
-			version_buffer = SSO.afterStr(line, "SVM-multiclass Version").trim();
+			
 			model.kernel_parm = new KERNEL_PARM();
 
 			line = br.readLine();
@@ -1307,11 +1240,7 @@ public class Common {
 				read_words = parseDocument(line, max_words, rs);
 				model.alpha[i] = rs.read_doc_label;
 				queryid = rs.read_queryid;
-				slackid = rs.read_slackid;
-				costfactor = rs.read_costfactor;
-				wpos = rs.read_wpos;
 				comment = rs.read_comment;
-				// words = svm_common.read_words;
 				words = read_words;
 				model.supvec[i] = createExample(-1, 0, 0, 0.0, createSvector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
@@ -1328,9 +1257,7 @@ public class Common {
 	}
 
 	public int size_svector(SVECTOR fvec) {
-		int len = 0;
 		WORD[] words = fvec.words;
-		int i = 0;
 		return words.length;
 
 	}
@@ -1569,7 +1496,7 @@ public class Common {
 		int i, j, k, pivot, temp2;
 		int[] pindex;
 		int[] swap;
-		double sum, pscore, temp;
+		double pscore, temp;
 		double[] dG;
 		MATRIX G;
 

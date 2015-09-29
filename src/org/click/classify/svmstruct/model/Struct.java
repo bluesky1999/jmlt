@@ -65,11 +65,7 @@ public abstract class Struct {
 	public CONSTSET initStructConstraints(SAMPLE sample, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
 
 		CONSTSET c = new CONSTSET();
-		int sizePsi = sm.sizePsi;
-		int i;
-		WORD[] words = new WORD[2];
-
-		if (true) { /* normal case: start with empty set of constraints */
+		if (true) { // normal case: start with empty set of constraints 
 			c.lhs = null;
 			c.rhs = null;
 			c.m = 0;
@@ -229,9 +225,8 @@ public abstract class Struct {
 
 		File modelfl;
 		STRUCTMODEL sm = new STRUCTMODEL();
-		int i, queryid, slackid;
-		double costfactor;
-		int max_sv, max_words, ll, wpos;
+		int i, queryid;
+		int max_words;
 		String line, comment;
 		WORD[] words;
 		String version_buffer;
@@ -240,7 +235,6 @@ public abstract class Struct {
 
 		ReadSummary summary = null;
 		summary = sc.nol_ll(file); /* scan size of model file */
-		max_sv = summary.read_max_docs;
 		max_words = summary.read_max_words_doc;
 		max_words += 2;
 
@@ -336,14 +330,9 @@ public abstract class Struct {
 				read_words = sc.parseDocument(line, max_words, rs);
 				model.alpha[i] = rs.read_doc_label;
 				queryid = rs.read_queryid;
-				slackid = rs.read_slackid;
-				costfactor = rs.read_costfactor;
-				wpos = rs.read_wpos;
 				comment = rs.read_comment;
 				// words = sc.read_words;
 				words = read_words;
-				// System.out.println("words:" + words.length);
-				// System.out.println("queryid:" + queryid);
 				model.supvec[i] = sc.createExample(-1, 0, 0, 0.0, sc.createSvector(words, comment, 1.0));
 				model.supvec[i].fvec.kernel_id = queryid;
 				// System.err.println("read supvec["+i+"]:"+model.supvec[i].fvec.toString());

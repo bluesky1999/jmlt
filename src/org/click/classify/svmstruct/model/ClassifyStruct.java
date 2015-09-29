@@ -1,19 +1,12 @@
 package org.click.classify.svmstruct.model;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Map;
 
+import java.io.PrintWriter;
 import org.click.classify.svmstruct.data.LABEL;
 import org.click.classify.svmstruct.data.ModelConstant;
 import org.click.classify.svmstruct.data.SAMPLE;
 import org.click.classify.svmstruct.data.STRUCTMODEL;
 import org.click.classify.svmstruct.data.STRUCT_LEARN_PARM;
-import org.click.lib.string.SSO;
 
 public class ClassifyStruct {
 
