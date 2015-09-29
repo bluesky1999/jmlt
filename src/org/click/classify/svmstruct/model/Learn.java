@@ -1306,11 +1306,11 @@ public class Learn {
 		int[] inconsistent;
 		int choosenum, already_chosen = 0, iteration;
 		int misclassified, supvecnum = 0;
-		int inactivenum;
+	
 		int[] working2dnum;
 		int[] selexam;
 		int[] ignore;
-		int activenum, retrain, maxslackid, slackset, jointstep;
+		int  retrain, maxslackid, slackset, jointstep;
 		double criterion, eq_target;
 		double[] a_old;
 		double[] alphaslack;
@@ -1396,7 +1396,7 @@ public class Learn {
 			last_suboptimal_at[i] = 1;
 		}
 
-		inactivenum = totdoc - totdoc;
+
 		clear_index(working2dnum);
 
 		// call to init slack and alphaslack
