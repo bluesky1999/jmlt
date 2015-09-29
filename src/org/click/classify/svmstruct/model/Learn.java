@@ -25,7 +25,7 @@ import org.click.classify.svmstruct.model.Common;
 public class Learn {
 
 	// private static Logger logger = Logger.getLogger(Learn.class);
-	//public int kernel_cache_statistic;
+
 	public static final int MAXSHRINK = 50000;
 
 	public Common com = null;
@@ -560,7 +560,6 @@ public class Learn {
 		int[] key;
 		int i, j, jj;
 		int[] last_suboptimal_at;
-		double noshrink;
 		CommonStruct.verbosity = 0;
 		int  choosenum, already_chosen = 0, iteration;
 		int supvecnum = 0;
@@ -633,7 +632,7 @@ public class Learn {
 
 		clear_index(working2dnum);
 
-		/** main loop ***/
+		////// main loop 
 		for (; (retrain != 0) && (terminate == 0); iteration++) {
 
 			if (learn_parm.svm_newvarsinqp > learn_parm.svm_maxqpsize) {
@@ -736,8 +735,6 @@ public class Learn {
 				retrain = 0;
 			}
 
-			noshrink = 0;
-
 			if ((retrain == 0) && ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == ModelConstant.LINEAR))) {
 
 				// reset watchdog
@@ -745,7 +742,6 @@ public class Learn {
 				bestmaxdiffiter = iteration;
 
 				// termination criterion
-				noshrink = 1;
 				retrain = 0;
 				if (struct.maxdiff > learn_parm.epsilon_crit) {
 					retrain = 1;
@@ -759,7 +755,6 @@ public class Learn {
 			if ((retrain == 0) && (learn_parm.epsilon_crit > epsilon_crit_org)) {
 				learn_parm.epsilon_crit /= 2.0;
 				retrain = 1;
-				noshrink = 1;
 			}
 			if (learn_parm.epsilon_crit < epsilon_crit_org) {
 				learn_parm.epsilon_crit = epsilon_crit_org;
@@ -1153,12 +1148,10 @@ public class Learn {
 	 * @param learn_parm
 	 * @param kernel_parm
 	 * @param kernel_cache
-	 * @param shrink_state
 	 * @param model
 	 * @param a
 	 * @param lin
 	 * @param c
-	 * @param timing_profile
 	 * @return
 	 */
 	public int optimize_to_convergence_sharedslack(DOC[] docs, int[] label, int totdoc, int totwords, LEARN_PARM learn_parm, KERNEL_PARM kernel_parm,  MODEL model, double[] a, double[] lin, double[] c, CheckStruct struct) {
@@ -1167,11 +1160,9 @@ public class Learn {
 		int[] key;
 		int i, j, jj;
 		int[] last_suboptimal_at;
-		int noshrink;
 
 		int choosenum, already_chosen = 0, iteration;
-		int supvecnum = 0;
-	
+		int supvecnum = 0;	
 		int[] working2dnum;
 		int[] selexam;
 		int[] ignore;
@@ -1306,7 +1297,6 @@ public class Learn {
 				} else {// do a step with all examples from same slack set
 
 					jointstep = 1;
-
 					// clear working set
 					for (jj = 0; (j = working2dnum[jj]) >= 0; jj++) {
 						chosen[j] = 0;
@@ -1394,15 +1384,13 @@ public class Learn {
 				terminate = 1;
 				retrain = 0;
 			}
-			noshrink = 0;
- 
+
 			if ((retrain == 0) && (learn_parm.epsilon_crit > struct.maxdiff)) {
 				learn_parm.epsilon_crit = struct.maxdiff;
 			}
 			if ((retrain == 0) && (learn_parm.epsilon_crit > epsilon_crit_org)) {
 				learn_parm.epsilon_crit /= 2.0;
 				retrain = 1;
-				noshrink = 1;
 			}
 			if (learn_parm.epsilon_crit < epsilon_crit_org) {
 				learn_parm.epsilon_crit = epsilon_crit_org;
@@ -1455,9 +1443,7 @@ public class Learn {
 
 			if (((target - dist) > slack[docs[i].slackid])
 					&& Math.abs(target - dist) > (double) (0.5)) {
-
 				slack[docs[i].slackid] =target-dist;
-
 			}
 		}
 	}
@@ -1512,7 +1498,6 @@ public class Learn {
 			if ((a[ii] > learn_parm.epsilon_a) && (dist > target)) {
 				if ((dist - target) > struct.maxdiff) { // largest violation
 					struct.maxdiff = dist - target;
-
 				}
 			}
 			if ((alphaslack[docs[ii].slackid] < ex_c) && (slack[docs[ii].slackid] > 0)) {
