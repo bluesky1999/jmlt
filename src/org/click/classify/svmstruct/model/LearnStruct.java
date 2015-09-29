@@ -465,16 +465,11 @@ public class LearnStruct {
 				int ti = 0;
 				ti = cset.m + 1;
 				cset.lhs = com.reallocDOCS(cset.lhs, ti);
-
 				cset.lhs[cset.m] = com.createExample(cset.m, 0, 1, 1, lhs);
-
-				// cset.rhs = new double[cset.m + 1];
 				cset.rhs = com.reallocDoubleArr(cset.rhs, cset.m + 1);
 				cset.rhs[cset.m] = rhs;
-				// alpha = new double[cset.m + 1];
 				alpha = com.reallocDoubleArr(alpha, cset.m + 1);
 				alpha[cset.m] = 0;
-				// alphahist = new int[cset.m + 1];
 				alphahist = com.reallocIntArr(alphahist, cset.m + 1);
 				alphahist[cset.m] = optcount;
 				cset.m++;
@@ -482,18 +477,16 @@ public class LearnStruct {
 					kparm.gram_matrix = update_kernel_matrix(kparm.gram_matrix, cset.m - 1, cset, kparm);
 				}
 
-				// set svm precision so that higher than eps of most violated
-				// constr
-
-				epsilon = Math.min(epsilon, ceps); /* best eps so far */
+				// set svm precision so that higher than eps of most violated constr best eps so far
+				epsilon = Math.min(epsilon, ceps); 
 				lparm.epsilon_crit = epsilon / 2;
 
 				svmModel = new MODEL();
 				// Run the QP solver on cset.
 				kernel_type_org = kparm.kernel_type;
 				if ((alg_type == CommonStruct.ONESLACK_DUAL_ALG) || (alg_type == CommonStruct.ONESLACK_DUAL_CACHE_ALG))
-					kparm.kernel_type = ModelConstant.GRAM; // use kernel stored
-															// in kparm
+				// use kernel stored in kparm
+				kparm.kernel_type = ModelConstant.GRAM; 
 
 				sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm, svmModel, alpha);
 				kparm.kernel_type = (short) kernel_type_org;
@@ -521,13 +514,6 @@ public class LearnStruct {
 					if ((alphahist[j] > -1) && (alpha[j] != 0)) {
 						alphahist[j] = optcount;
 					}
-				}
-
-				// Check if some of the linear constraints have not been active
-				// in a while. Those constraints are then removed to avoid
-				// bloating the working set beyond necessity.
-				if (CommonStruct.struct_verbosity >= 3) {
-					// logger.info("Reducing working set...");
 				}
 
 				// 在这里要将某些限制去掉

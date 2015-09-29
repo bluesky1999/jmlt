@@ -16,17 +16,17 @@ public class CommonStruct {
     public static final int   ONESLACK_DUAL_ALG      =  3;
     public static final int   ONESLACK_DUAL_CACHE_ALG  =4;
     public static final int   USE_FYCACHE=0;
-  //  public static final double COMPACT_ROUNDING_THRESH= 10E-15;
+    // public static final double COMPACT_ROUNDING_THRESH= 10E-15;
     public static final double COMPACT_ROUNDING_THRESH= 10E-15;
     public static final int   DEFAULT_ALG_TYPE  = 3;
     
     
-    /* default precision for solving the optimization problem */
+    // default precision for solving the optimization problem 
     public static final double DEFAULT_EPS  =   0.1 ;
     
     public static final int DEFAULT_LOSS_FCT  = 0;
     
-    /* default loss rescaling method: 1=slack_rescaling, 2=margin_rescaling */
+    // default loss rescaling method: 1=slack_rescaling, 2=margin_rescaling 
     public static final int DEFAULT_RESCALING = 2;
     
     /* decide whether to evaluate sum before storing vectors in constraint
