@@ -90,23 +90,6 @@ public abstract class Struct {
 	public abstract SVECTOR psi(PATTERN x, LABEL y, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm);
 
 	/**
-	 * 在主循环中判段是否终止迭代
-	 * 
-	 * @param ceps
-	 * @param cached_constraint
-	 * @param sample
-	 * @param sm
-	 * @param cset
-	 * @param alpha
-	 * @param sparm
-	 * @return
-	 */
-	public boolean finalizeIteration(double ceps, int cached_constraint, SAMPLE sample, STRUCTMODEL sm, CONSTSET cset, double[] alpha, STRUCT_LEARN_PARM sparm) {
-
-		return false;
-	}
-
-	/**
 	 * 找出样本<x,y> 损失最大的 y'。即loss(<x,y>,<x,y'>)最大 ，损失函数类型是slackrescaling
 	 * 
 	 * @param x
@@ -157,75 +140,16 @@ public abstract class Struct {
 	 */
 	public void printStructLearningStats(SAMPLE sample, STRUCTMODEL sm, CONSTSET cset, double[] alpha, STRUCT_LEARN_PARM sparm) {
 
-		/* Replace SV with single weight vector */
-		/*******************
-		 * MODEL model=sm.svm_model.copyMODEL();
-		 ******************/
-
+		// Replace SV with single weight vector 
 		MODEL model = sm.svm_model;
 		if (model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
 
 			sm.svm_model = com.compactLinearModel(model);
-			sm.w = sm.svm_model.lin_weights; /* short cut to weight vector */
-
+			sm.w = sm.svm_model.lin_weights; // short cut to weight vector 
 		}
 	}
 
-	/**
-	 * 初始化svm_struct
-	 * 
-	 * @param args
-	 */
-	public void svmStructLearnApiInit(String[] args) {
-
-	}
-
-	public void printStructHelp() {
-
-	}
-
-	/**
-	 * Parses the command line parameters that start with -- for the
-	 * classification module
-	 * 
-	 * @param sparm
-	 */
-	public void parseStructParametersClassify(STRUCT_LEARN_PARM sparm) {
-		int i;
-
-		for (i = 0; (i < sparm.custom_argc) && ((sparm.custom_argv[i]).charAt(0) == '-'); i++) {
-			switch ((sparm.custom_argv[i]).charAt(2)) {
-			/* case 'x': i++; strcpy(xvalue,sparm->custom_argv[i]); break; */
-			default:
-				System.out.print("\nUnrecognized option " + sparm.custom_argv[i] + "!\n\n");
-				System.exit(0);
-			}
-		}
-	}
-
-	/**
-	 * Parses the command line parameters that start with --
-	 * 
-	 * @param sparm
-	 */
-	public void parseStructParameters(STRUCT_LEARN_PARM sparm) {
-		int i;
-
-		for (i = 0; (i < sparm.custom_argc) && ((sparm.custom_argv[i]).charAt(0) == '-'); i++) {
-			switch ((sparm.custom_argv[i]).charAt(2)) {
-			case 'a':
-				i++; /* strcpy(learn_parm->alphafile,argv[i]); */
-				break;
-			case 'e':
-				i++; /* sparm->epsilon=atof(sparm->custom_argv[i]); */
-				break;
-			case 'k':
-				i++; /* sparm->newconstretrain=atol(sparm->custom_argv[i]); */
-				break;
-			}
-		}
-	}
-
+	
 	/**
 	 * 读取svm struct 样本
 	 * 
@@ -234,24 +158,6 @@ public abstract class Struct {
 	 * @return
 	 */
 	public abstract SAMPLE readStructExamples(String file, STRUCT_LEARN_PARM sparm);
-
-	/**
-	 * 从标准输入读取svm struct样本
-	 * 
-	 * @param is
-	 * @param sparm
-	 * @return
-	 */
-	public abstract SAMPLE readStructExamplesFromStream(InputStream is, STRUCT_LEARN_PARM sparm);
-
-	/**
-	 * 从arraylist读取svm struct样本
-	 * 
-	 * @param is
-	 * @param sparm
-	 * @return
-	 */
-	public abstract SAMPLE readStructExamplesFromArraylist(ArrayList<String> list, STRUCT_LEARN_PARM sparm);
 
 	/**
 	 * 写svm struct模型到文件
@@ -311,13 +217,6 @@ public abstract class Struct {
 		}
 	}
 
-	public void svmStructClassifyApiInit(int argc, String[] args) {
-
-	}
-
-	public void printStructHelpClassify() {
-
-	}
 
 	/**
 	 * 读取svm struct 模型
@@ -490,22 +389,6 @@ public abstract class Struct {
 	}
 
 	public abstract void writeLabel(PrintWriter fp, LABEL y, LABEL ybar);
-
-	public void evalPrediction(int exnum, EXAMPLE ex, LABEL ypred, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
-		if (exnum == 0) {
-			// this is the first time the function is called. So
-			// initialize the teststats
-
-		}
-	}
-
-	public void printStructTestingStats(SAMPLE sample, STRUCTMODEL sm, STRUCT_LEARN_PARM sparm) {
-
-	}
-
-	public void svmStructLearnApiExit() {
-
-	}
 
 	public abstract PATTERN sample2pattern(String words);
 

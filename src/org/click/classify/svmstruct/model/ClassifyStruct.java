@@ -29,22 +29,9 @@ public class ClassifyStruct {
 	public void init_svm_struct(String model_file) {
 		com = new Common();
 		String[] args = { "no.txt", model_file, "no.txt" };
-		int correct = 0, incorrect = 0, no_accuracy = 0;
-		int i;
-		double t1, runtime = 0;
-		double avgloss = 0, l = 0;
-		PrintWriter predfl;
 		sparm = new STRUCT_LEARN_PARM();
-
-		SAMPLE testsample;
-		LABEL y = new LABEL();
-
 		ssa = FactoryStruct.get_svm_struct_api();
-		ssa.svmStructClassifyApiInit(args.length + 1, args);
-
 		readInputParameters(args.length + 1, args, sparm, CommonStruct.verbosity, CommonStruct.struct_verbosity);
-
-
 		model = ssa.readStructModel(modelfile, sparm);
 
 		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
@@ -73,221 +60,6 @@ public class ClassifyStruct {
 			return ssa.classifyStructExample(ssa.sample2pattern(sample), model, sparm);
 
 		return null;
-	}
-
-	/**
-	 * 从arraylist读取未分类样本， 结果写到标准输出 输入格式: identified format samples
-	 * 输出格式：identified label
-	 */
-	public void classifyFromArraylist(ArrayList<String> input_list, String model_file) {
-		String[] args = { "no.txt", model_file, "no.txt" };
-		int correct = 0, incorrect = 0, no_accuracy = 0;
-		int i;
-		double t1, runtime = 0;
-		double avgloss = 0, l = 0;
-		PrintWriter predfl;
-		STRUCTMODEL model;
-		STRUCT_LEARN_PARM sparm = new STRUCT_LEARN_PARM();
-	
-		SAMPLE testsample;
-		LABEL y = new LABEL();
-
-		ssa = FactoryStruct.get_svm_struct_api();
-		ssa.svmStructClassifyApiInit(args.length + 1, args);
-
-		readInputParameters(args.length + 1, args, sparm,CommonStruct.verbosity, CommonStruct.struct_verbosity);
-
-		model = ssa.readStructModel(modelfile, sparm);
-
-		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
-			com.addWeightVectorToLinearModel(model.svm_model);
-			model.w = model.svm_model.lin_weights;
-
-		}
-
-		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ArrayList<String> sample_list = new ArrayList<String>();
-		ArrayList<String> identifier_list = new ArrayList<String>();
-		String linestd = "";
-
-		String[] tokens = null;
-		String docid = "";
-		String doclabel = "5";
-		String docwords = "";
-
-		try {
-
-			for (int k = 0; k < input_list.size(); k++) {
-				linestd = input_list.get(k);
-				if (SSO.tioe(linestd)) {
-					continue;
-				}
-	
-				tokens = linestd.split("\\s+");
-				if (tokens.length < 2) {
-					continue;
-				}
-
-				docid = tokens[0];
-
-				docwords = "";
-				for (int j = 1; j < tokens.length; j++) {
-					docwords += (tokens[j] + " ");
-				}
-				docwords = docwords.trim();
-				identifier_list.add(docid);
-				sample_list.add(doclabel + " " + docwords);
-
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		testsample = ssa.readStructExamplesFromArraylist(sample_list, sparm);
-
-		for (i = 0; i < testsample.n; i++) {
-
-			t1 = com.getRuntime();
-			y = ssa.classifyStructExample(testsample.examples[i].x, model, sparm);
-			if (y == null) {
-				continue;
-			}
-
-			runtime += (com.getRuntime() - t1);
-			
-			System.out.println(identifier_list.get(i) + " " + y.toString());
-
-			l = ssa.loss(testsample.examples[i].y, y, sparm);
-
-			avgloss += l;
-			if (l == 0) {
-				correct++;
-			} else {
-				incorrect++;
-			}
-
-			ssa.evalPrediction(i, testsample.examples[i], y, model, sparm);
-
-			if (ssa.emptyLabel(testsample.examples[i].y)) {
-				no_accuracy = 1;
-			}
-
-
-		}
-
-		avgloss /= testsample.n;
-
-
-		System.err.println("Average loss on test set:" + (float) avgloss);
-		System.err.println("Zero/one-error on test set " + (float) 100.0 * incorrect / testsample.n + "(" + correct + " correct, " + incorrect + " incorrect," + testsample.n + ", total");
-
-		ssa.printStructTestingStats(testsample, model, sparm);
-	}
-
-	/**
-	 * 从标准输入读取未分类样本， 结果写到标准输出 输入格式: identified format samples 输出格式：identified
-	 * label
-	 */
-	public void classifyFromStream(String model_file) {
-
-		String[] args = { "no.txt", model_file, "no.txt" };
-		int correct = 0, incorrect = 0, no_accuracy = 0;
-		int i;
-		double t1, runtime = 0;
-		double avgloss = 0, l = 0;
-		PrintWriter predfl;
-		STRUCTMODEL model;
-		STRUCT_LEARN_PARM sparm = new STRUCT_LEARN_PARM();
-
-		SAMPLE testsample;
-		LABEL y = new LABEL();
-
-		ssa = FactoryStruct.get_svm_struct_api();
-		ssa.svmStructClassifyApiInit(args.length + 1, args);
-
-		readInputParameters(args.length + 1, args, sparm, CommonStruct.verbosity, CommonStruct.struct_verbosity);
-
-
-		model = ssa.readStructModel(modelfile, sparm);
-
-		if (model.svm_model.kernel_parm.kernel_type == ModelConstant.LINEAR) {
-			com.addWeightVectorToLinearModel(model.svm_model);
-			model.w = model.svm_model.lin_weights;
-		}
-
-
-		Struct ssa = FactoryStruct.get_svm_struct_api();
-
-		InputStreamReader isrstd = new InputStreamReader(System.in);
-		BufferedReader brstd = new BufferedReader(isrstd);
-		ArrayList<String> sample_list = new ArrayList<String>();
-		ArrayList<String> identifier_list = new ArrayList<String>();
-		String linestd = "";
-
-		String[] tokens = null;
-		String docid = "";
-		String doclabel = "5";
-		String docwords = "";
-		try {
-			while ((linestd = brstd.readLine()) != null) {
-
-				linestd = linestd.trim();
-				tokens = linestd.split("\\s+");
-				if (tokens.length < 2) {
-					continue;
-				}
-
-				docid = tokens[0];
-
-				docwords = "";
-				for (int j = 1; j < tokens.length; j++) {
-					docwords += (tokens[j] + " ");
-				}
-				docwords = docwords.trim();
-				identifier_list.add(docid);
-				sample_list.add(doclabel + " " + docwords);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		testsample = ssa.readStructExamplesFromArraylist(sample_list, sparm);
-
-		for (i = 0; i < testsample.n; i++) {
-
-			t1 = com.getRuntime();
-			y = ssa.classifyStructExample(testsample.examples[i].x, model, sparm);
-			if (y == null) {
-				continue;
-			}
-			runtime += (com.getRuntime() - t1);
-			System.out.println(identifier_list.get(i) + " " + y.toString());
-
-			l = ssa.loss(testsample.examples[i].y, y, sparm);
-
-			avgloss += l;
-			if (l == 0) {
-				correct++;
-			} else {
-				incorrect++;
-			}
-
-			ssa.evalPrediction(i, testsample.examples[i], y, model, sparm);
-
-			if (ssa.emptyLabel(testsample.examples[i].y)) {
-				no_accuracy = 1;
-			}
-
-
-		}
-
-		avgloss /= testsample.n;
-
-
-		ssa.printStructTestingStats(testsample, model, sparm);
-
 	}
 
 	public void readInputParameters(int argc, String[] argv, STRUCT_LEARN_PARM struct_parm, int verbosity, int struct_verbosity) {
@@ -337,8 +109,6 @@ public class ClassifyStruct {
 		if ((i + 2) < argc) {
 			predictionsfile = argv[2];
 		}
-		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.parseStructParametersClassify(struct_parm);
 	}
 
 	public void printHelp() {
@@ -349,19 +119,15 @@ public class ClassifyStruct {
 		System.out.println("   usage: svm_struct_classify [options] example_file model_file output_file\n\n");
 		System.out.println("options: -h         -> this help\n");
 		System.out.println("         -v [0..3]  -> verbosity level (default 2)\n\n");
-		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.printStructHelpClassify();
 	}
 
 	public static void main(String[] args) throws Exception {
 
 		ClassifyStruct cs = new ClassifyStruct();
 		cs.com = new Common();
-		int correct = 0, incorrect = 0, no_accuracy = 0;
+		int correct = 0, incorrect = 0;
 		int i;
-		double t1, runtime = 0;
 		double avgloss = 0, l = 0;
-		// PrintWriter predfl;
 		STRUCTMODEL model;
 		STRUCT_LEARN_PARM sparm = new STRUCT_LEARN_PARM();
 
@@ -369,8 +135,6 @@ public class ClassifyStruct {
 		LABEL y = new LABEL();
 		FactoryStruct.api_type = 0;
 		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.svmStructClassifyApiInit(args.length + 1, args);
-
 		cs.readInputParameters(args.length + 1, args, sparm, CommonStruct.verbosity, CommonStruct.struct_verbosity);
 
 
@@ -385,8 +149,6 @@ public class ClassifyStruct {
 		testsample = ssa.readStructExamples(testfile, sparm);
 
 		for (i = 0; i < testsample.n; i++) {
-
-			t1 = cs.com.getRuntime();
 			y = ssa.classifyStructExample(testsample.examples[i].x, model, sparm);
 			if (y == null) {
 				continue;
@@ -400,23 +162,13 @@ public class ClassifyStruct {
 			if (FactoryStruct.api_type != 2) {
 				pw.println(testsample.examples[i].y.class_index + " " + y.class_index);
 			}
-			runtime += (cs.com.getRuntime() - t1);
-
 			l = ssa.loss(testsample.examples[i].y, y, sparm);
-
 			avgloss += l;
 			if (l == 0) {
 				correct++;
 			} else {
 				incorrect++;
 			}
-
-			ssa.evalPrediction(i, testsample.examples[i], y, model, sparm);
-
-			if (ssa.emptyLabel(testsample.examples[i].y)) {
-				no_accuracy = 1;
-			}
-
 
 		}
 
@@ -426,8 +178,6 @@ public class ClassifyStruct {
 
 		System.out.println("Average loss on test set:" + (float) avgloss);
 		System.out.println("Zero/one-error on test set " + (float) 100.0 * incorrect / testsample.n + "(" + correct + " correct, " + incorrect + " incorrect," + testsample.n + ", total");
-
-		ssa.printStructTestingStats(testsample, model, sparm);
 
 	}
 

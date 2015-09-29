@@ -328,7 +328,7 @@ public class LearnStruct {
 				} while ((use_shrinking != 0) && (activenum > 0));
 			} while (((totconstraints - old_totconstraints) > tolerance) || (dont_stop != 0));
 
-		} while ((epsilon > sparm.epsilon) || ssa.finalizeIteration(ceps, 0, sample, sm, cset, alpha, sparm)); // main_loop
+		} while ((epsilon > sparm.epsilon)); // main_loop
 
 		if (CommonStruct.struct_verbosity >= 1) {
 			// compute sum of slacks
@@ -654,7 +654,7 @@ public class LearnStruct {
 
 			System.out.println("Iter " + numIt + " (NumConst=" + cset.m + ", SV=" + (svmModel.sv_num - 1) + ", CEps=" + ceps + ", QPEps=" + svmModel.maxdiff + ")");
 			numIt++;
-		} while (cached_constraint != 0 || (ceps > sparm.epsilon) || ssa.finalizeIteration(ceps, cached_constraint, sample, sm, cset, alpha, sparm));
+		} while (cached_constraint != 0 || (ceps > sparm.epsilon) );
 
 		if (CommonStruct.struct_verbosity >= 1) {
 			slack = 0;

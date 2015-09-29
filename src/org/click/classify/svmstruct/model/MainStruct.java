@@ -312,8 +312,7 @@ public class MainStruct {
 			print_help();
 			System.exit(0);
 		}
-		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.parseStructParameters(struct_parm);
+
 	}
 
 	public void train(String[] args) {
@@ -328,7 +327,6 @@ public class MainStruct {
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
 		STRUCTMODEL structmodel = new STRUCTMODEL();
 		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.svmStructLearnApiInit(args);
 
 		long start_time = TimeOpera.getCurrentTimeLong();
 
@@ -384,7 +382,6 @@ public class MainStruct {
 		// logger.info("tot_time:" + tot_time);
 		System.out.println("tot_time:" + tot_time);
 
-		ssa.svmStructLearnApiExit();
 	}
 
 	public static void main(String[] args) {
@@ -404,7 +401,6 @@ public class MainStruct {
 		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
 		STRUCTMODEL structmodel = new STRUCTMODEL();
 		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.svmStructLearnApiInit(args);
 		long start_time = TimeOpera.getCurrentTimeLong();
 
 		ms.read_input_parameters(args.length + 1, args, struct_parm, learn_parm, kernel_parm);
@@ -459,78 +455,8 @@ public class MainStruct {
 		// logger.info("tot_time:" + tot_time);
 		System.out.println("tot_time:" + tot_time);
 
-		ssa.svmStructLearnApiExit();
 	}
 
-	public void train_from_stream(double c, String model_file) {
-		String[] args = { "-c", c + "", "no.txt", model_file };
-		SAMPLE sample; /* training sample */
-		LEARN_PARM learn_parm = new LEARN_PARM();
-		KERNEL_PARM kernel_parm = new KERNEL_PARM();
-		STRUCT_LEARN_PARM struct_parm = new STRUCT_LEARN_PARM();
-		STRUCTMODEL structmodel = new STRUCTMODEL();
-
-		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.svmStructLearnApiInit(args);
-
-		long start_time = TimeOpera.getCurrentTimeLong();
-
-		read_input_parameters(args.length + 1, args, struct_parm, learn_parm, kernel_parm);
-
-		if (struct_verbosity >= 1) {
-			System.out.println("Reading training examples...");
-			// logger.info("Reading training examples...");
-		}
-
-		// read the training examples
-		sample = ssa.readStructExamplesFromStream(System.in, struct_parm);
-		if (struct_verbosity >= 1) {
-			// logger.info("done\n");
-		}
-		// logger.info("alg_tye is " + alg_type + " \n");
-
-		EXAMPLE tempex = null;
-
-		// Do the learning and return structmodel.
-		LearnStruct ssl = new LearnStruct();
-		if (alg_type == 0) {
-			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm, structmodel, CommonStruct.NSLACK_ALG);
-		} else if (alg_type == 1) {
-			ssl.svm_learn_struct(sample, struct_parm, learn_parm, kernel_parm, structmodel, CommonStruct.NSLACK_SHRINK_ALG);
-		} else if (alg_type == 2) {
-			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm, kernel_parm, structmodel, CommonStruct.ONESLACK_PRIMAL_ALG);
-		} else if (alg_type == 3) {
-			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm, kernel_parm, structmodel, CommonStruct.ONESLACK_DUAL_ALG);
-		} else if (alg_type == 4) {
-			// logger.info("learn_parm.sharedslack:" + learn_parm.sharedslack);
-			ssl.svm_learn_struct_joint(sample, struct_parm, learn_parm, kernel_parm, structmodel, CommonStruct.ONESLACK_DUAL_CACHE_ALG);
-		} else if (alg_type == 9) {
-			ssl.svm_learn_struct_joint_custom(sample, struct_parm, learn_parm, kernel_parm, structmodel);
-		} else {
-			System.exit(1);
-		}
-
-		// Warning: The model contains references to the original data 'docs'.
-		// If you want to free the original data, and only keep the model, you
-		// have to make a deep copy of 'model'.
-
-		if (struct_verbosity >= 1) {
-			// logger.info("Writing learned model...");
-		}
-		ssa.writeStructModel(modelfile, structmodel, struct_parm);
-		if (struct_verbosity >= 1) {
-			// logger.info("done\n");
-		}
-
-		long end_time = TimeOpera.getCurrentTimeLong();
-		double tot_time = (double) (end_time - start_time) / (double) 1000;
-
-		// logger.info("tot_time:" + tot_time);
-		System.out.println("tot_time:" + tot_time);
-
-		ssa.svmStructLearnApiExit();
-
-	}
 
 	public void print_help() {
 		System.out.print("\nSVM-struct learning module: " + CommonStruct.INST_NAME + ", " + CommonStruct.INST_VERSION + ", " + CommonStruct.INST_VERSION_DATE + "\n");
@@ -604,7 +530,6 @@ public class MainStruct {
 		System.out.print("                        (in the same order as in the training set)\n");
 		System.out.print("Application-Specific Options:\n");
 		Struct ssa = FactoryStruct.get_svm_struct_api();
-		ssa.printStructHelp();
 		wait_any_key();
 		System.out.print("\nMore details in:\n");
 		System.out.print("[1] T. Joachims, Learning to Align Sequences: A Maximum Margin Aproach.\n");

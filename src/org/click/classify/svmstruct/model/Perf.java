@@ -495,17 +495,6 @@ public class Perf extends Struct {
 
 	}
 
-	@Override
-	public SAMPLE readStructExamplesFromStream(InputStream is, STRUCT_LEARN_PARM sparm) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public SAMPLE readStructExamplesFromArraylist(ArrayList<String> list, STRUCT_LEARN_PARM sparm) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	/**
 	 * Finds the label yhat for pattern x that scores the highest according to
