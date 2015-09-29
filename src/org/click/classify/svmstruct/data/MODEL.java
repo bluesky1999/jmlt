@@ -20,9 +20,6 @@ public class MODEL {
 	  
 	  public KERNEL_PARM kernel_parm;
 	  
-	  public double loo_error,loo_recall,loo_precision;
-	  public double xa_error,xa_recall,xa_precision;
-	  
 	  //weights for linear case using folding
 	  public double[] lin_weights;
 	  

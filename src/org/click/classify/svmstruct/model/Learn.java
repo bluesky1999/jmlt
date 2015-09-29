@@ -83,12 +83,7 @@ public class Learn {
 		model.totdoc = totdoc;
 		model.kernel_parm = kernel_parm;
 		model.sv_num = 1;
-		model.loo_error = -1;
-		model.loo_recall = -1;
-		model.loo_precision = -1;
-		model.xa_error = -1;
-		model.xa_recall = -1;
-		model.xa_precision = -1;
+
 
 		r_delta_avg = estimate_r_delta_average(docs, totdoc, kernel_parm);
 
@@ -735,7 +730,7 @@ public class Learn {
 				retrain = 0;
 			}
 
-			if ((retrain == 0) && ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == ModelConstant.LINEAR))) {
+			if ((retrain == 0) && ((kernel_parm.kernel_type == ModelConstant.LINEAR))) {
 
 				// reset watchdog
 				bestmaxdiff = struct.maxdiff;

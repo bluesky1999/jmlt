@@ -18,7 +18,6 @@ import org.click.classify.svmstruct.data.LEARN_PARM;
 import org.click.classify.svmstruct.data.MATRIX;
 import org.click.classify.svmstruct.data.MODEL;
 import org.click.classify.svmstruct.data.ModelConstant;
-import org.click.classify.svmstruct.data.RANDPAIR;
 import org.click.classify.svmstruct.data.ReadStruct;
 import org.click.classify.svmstruct.data.ReadSummary;
 import org.click.classify.svmstruct.data.SVECTOR;
@@ -229,28 +228,18 @@ public class Common {
 		learn_parm.biased_hyperplane = 1;
 		learn_parm.sharedslack = 0;
 		learn_parm.remove_inconsistent = 0;
-		learn_parm.skip_final_opt_check = 0;
 		learn_parm.svm_maxqpsize = 10;
 		// learn_parm.svm_maxqpsize = 100;
 		learn_parm.svm_newvarsinqp = 0;
-		learn_parm.svm_iter_to_shrink = -9999;
 		// learn_parm.maxiter = 100000;
 		learn_parm.maxiter = 100000;
 
-		learn_parm.kernel_cache_size = 40;
 		// learn_parm.kernel_cache_size = 400;
 		learn_parm.svm_c = 0.0;
 		learn_parm.eps = 0.1;
-		learn_parm.transduction_posratio = -1.0;
 		learn_parm.svm_costratio = 1.0;
-		learn_parm.svm_costratio_unlab = 1.0;
-		learn_parm.svm_unlabbound = 1E-5;
 		learn_parm.epsilon_crit = 0.001;
 		learn_parm.epsilon_a = 1E-15;
-		// learn_parm.epsilon_a = 1E-5;
-		learn_parm.compute_loo = 0;
-		learn_parm.rho = 1.0;
-		learn_parm.xa_depth = 0;
 		kernel_parm.kernel_type = ModelConstant.LINEAR;
 		kernel_parm.poly_degree = 3;
 		kernel_parm.rbf_gamma = 1.0;
@@ -625,14 +614,7 @@ public class Common {
 
 	public boolean checkLearningParms(LEARN_PARM learn_parm, KERNEL_PARM kernel_parm) {
 		System.out.println("check_learning_parms");
-		if ((learn_parm.skip_final_opt_check != 0) && (kernel_parm.kernel_type == ModelConstant.LINEAR)) {
-			System.out.println("\nIt does not make sense to skip the final optimality check for linear kernels.\n\n");
-			learn_parm.skip_final_opt_check = 0;
-		}
-		if ((learn_parm.skip_final_opt_check != 0) && (learn_parm.remove_inconsistent != 0)) {
-			System.out.println("\nIt is necessary to do the final optimality check when removing inconsistent \nexamples.\n");
-			return false;
-		}
+
 		if ((learn_parm.svm_maxqpsize < 2)) {
 			System.out.println("\nMaximum size of QP-subproblems not in valid range: " + learn_parm.svm_maxqpsize + " [2..]\n");
 			return false;
@@ -642,19 +624,12 @@ public class Common {
 			System.out.println("new variables [" + learn_parm.svm_newvarsinqp + "] entering the working set in each iteration.\n");
 			return false;
 		}
-		if (learn_parm.svm_iter_to_shrink < 1) {
-			System.out.println("\nMaximum number of iterations for shrinking not in valid range: " + learn_parm.svm_iter_to_shrink + " [1,..]\n");
-			return false;
-		}
+
 		if (learn_parm.svm_c < 0) {
 			System.out.println("\nThe C parameter must be greater than zero!\n\n");
 			return false;
 		}
-		if (learn_parm.transduction_posratio > 1) {
-			System.out.println("\nThe fraction of unlabeled examples to classify as positives must\n");
-			System.out.println("be less than 1.0 !!!\n\n");
-			return false;
-		}
+
 		if (learn_parm.svm_costratio <= 0) {
 			System.out.println("\nThe COSTRATIO parameter must be greater than zero!\n\n");
 			return false;
@@ -663,17 +638,8 @@ public class Common {
 			System.out.println("\nThe epsilon parameter must be greater than zero!\n\n");
 			return false;
 		}
-		if (learn_parm.rho < 0) {
-			System.out.println("\nThe parameter rho for xi/alpha-estimates and leave-one-out pruning must\n");
-			System.out.println("be greater than zero (typically 1.0 or 2.0, see T. Joachims, Estimating the\n");
-			System.out.println("Generalization Performance of an SVM Efficiently, ICML, 2000.)!\n\n");
-			return false;
-		}
-		if ((learn_parm.xa_depth < 0) || (learn_parm.xa_depth > 100)) {
-			System.out.println("\nThe parameter depth for ext. xi/alpha-estimates must be in [0..100] (zero\n");
-			System.out.println("for switching to the conventional xa/estimates described in T. Joachims,\n");
-			System.out.println("Estimating the Generalization Performance of an SVM Efficiently, ICML, 2000.)\n");
-		}
+
+
 		System.out.println("true");
 		return true;
 	}

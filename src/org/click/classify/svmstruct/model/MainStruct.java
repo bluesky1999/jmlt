@@ -43,23 +43,14 @@ public class MainStruct {
 		struct_verbosity = 1; // verbosity for struct learning portion
 		learn_parm.biased_hyperplane = 1;
 		learn_parm.remove_inconsistent = 0;
-		learn_parm.skip_final_opt_check = 0;
 		learn_parm.svm_maxqpsize = 10;
 		learn_parm.svm_newvarsinqp = 0;
-		learn_parm.svm_iter_to_shrink = -9999;
 		learn_parm.maxiter = 100000;
-		learn_parm.kernel_cache_size = 40;
 		learn_parm.svm_c = 99999999; // overridden by struct_parm->C
 		learn_parm.eps = 0.001; // overridden by struct_parm->epsilon
-		learn_parm.transduction_posratio = -1.0;
 		learn_parm.svm_costratio = 1.0;
-		learn_parm.svm_costratio_unlab = 1.0;
-		learn_parm.svm_unlabbound = 1E-5;
 		learn_parm.epsilon_crit = 0.001;
 		learn_parm.epsilon_a = 1E-10; // changed from 1e-15
-		learn_parm.compute_loo = 0;
-		learn_parm.rho = 1.0;
-		learn_parm.xa_depth = 0;
 		kernel_parm.kernel_type = 0;
 		kernel_parm.poly_degree = 3;
 		kernel_parm.rbf_gamma = 1.0;
@@ -94,17 +85,9 @@ public class MainStruct {
 				i++;
 				struct_parm.newconstretrain = Integer.parseInt(argv[i]);
 				break;
-			case 'h':
-				i++;
-				learn_parm.svm_iter_to_shrink = Integer.parseInt(argv[i]);
-				break;
 			case '#':
 				i++;
 				learn_parm.maxiter = Integer.parseInt(argv[i]);
-				break;
-			case 'm':
-				i++;
-				learn_parm.kernel_cache_size = Integer.parseInt(argv[i]);
 				break;
 			case 'w':
 				i++;
@@ -195,21 +178,6 @@ public class MainStruct {
 		System.out.println("modelfile:" + modelfile);
 		System.out.println("struct_parm.C:" + struct_parm.C);
 
-		if (learn_parm.svm_iter_to_shrink == -9999) {
-			learn_parm.svm_iter_to_shrink = 100;
-		}
-
-		if ((learn_parm.skip_final_opt_check != 0) && (kernel_parm.kernel_type == ModelConstant.LINEAR)) {
-			System.out.print("\nIt does not make sense to skip the final optimality check for linear kernels.\n\n");
-			learn_parm.skip_final_opt_check = 0;
-		}
-
-		if ((learn_parm.skip_final_opt_check != 0) && (learn_parm.remove_inconsistent != 0)) {
-			System.out.print("\nIt is necessary to do the final optimality check when removing inconsistent \nexamples.\n");
-			wait_any_key();
-			print_help();
-			System.exit(0);
-		}
 
 		if ((learn_parm.svm_maxqpsize < 2)) {
 			System.out.print("\nMaximum size of QP-subproblems not in valid range: " + learn_parm.svm_maxqpsize + " [2..]\n");
@@ -226,12 +194,6 @@ public class MainStruct {
 			System.exit(0);
 		}
 
-		if (learn_parm.svm_iter_to_shrink < 1) {
-			System.out.print("\nMaximum number of iterations for shrinking not in valid range: " + learn_parm.svm_iter_to_shrink + " [1,..]\n");
-			wait_any_key();
-			print_help();
-			System.exit(0);
-		}
 
 		if (struct_parm.C < 0) {
 			System.out.print("\nYou have to specify a value for the parameter '-c' (C>0)!\n\n");
@@ -242,14 +204,6 @@ public class MainStruct {
 
 		if (((alg_type) < 0) || (((alg_type) > 5) && ((alg_type) != 9))) {
 			System.out.print("\nAlgorithm type must be either '0', '1', '2', '3', '4', or '9'!\n\n");
-			wait_any_key();
-			print_help();
-			System.exit(0);
-		}
-
-		if (learn_parm.transduction_posratio > 1) {
-			System.out.print("\nThe fraction of unlabeled examples to classify as positives must\n");
-			System.out.print("be less than 1.0 !!!\n\n");
 			wait_any_key();
 			print_help();
 			System.exit(0);
@@ -292,22 +246,7 @@ public class MainStruct {
 			print_help();
 			System.exit(0);
 		}
-		if (learn_parm.rho < 0) {
-			System.out.print("\nThe parameter rho for xi/alpha-estimates and leave-one-out pruning must\n");
-			System.out.print("be greater than zero (typically 1.0 or 2.0, see T. Joachims, Estimating the\n");
-			System.out.print("Generalization Performance of an SVM Efficiently, ICML, 2000.)!\n\n");
-			wait_any_key();
-			print_help();
-			System.exit(0);
-		}
-		if ((learn_parm.xa_depth < 0) || (learn_parm.xa_depth > 100)) {
-			System.out.print("\nThe parameter depth for ext. xi/alpha-estimates must be in [0..100] (zero\n");
-			System.out.print("for switching to the conventional xa/estimates described in T. Joachims,\n");
-			System.out.print("Estimating the Generalization Performance of an SVM Efficiently, ICML, 2000.)\n");
-			wait_any_key();
-			print_help();
-			System.exit(0);
-		}
+
 
 	}
 
