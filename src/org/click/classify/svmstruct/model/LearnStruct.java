@@ -808,7 +808,7 @@ public class LearnStruct {
 		com.appendSvectorList(fybar, fy); // compute fy-fybar
 
 		struct.fydelta = fybar;
-		struct.rhs = WU.div(lossval, n, 20);
+		struct.rhs = lossval/(double)n;
 	}
 
 	/**

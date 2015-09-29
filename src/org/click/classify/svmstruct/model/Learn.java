@@ -279,7 +279,7 @@ public class Learn {
 		} else {
 			for (jj = 0; (i = working2dnum[jj]) >= 0; jj++) {
 				if (a[i] != a_old[i]) {
-					get_kernel_row(docs, i, totdoc, active2dnum, aicache, kernel_parm);
+					get_kernel_row(docs, i, active2dnum, aicache, kernel_parm);
 					for (ii = 0; (j = active2dnum[ii]) >= 0; ii++) {
 						tec = aicache[j];
 						lin[j] += (((a[i] * tec) - (a_old[i] * tec)) * (double) label[i]);
@@ -308,6 +308,7 @@ public class Learn {
 		return (avgxlen / totdoc);
 	}
 
+	//shrink_state.active, totdoc, active2dnum
 	public int compute_index(int[] binfeature, int range, int[] index) {
 		int i, ii;
 		ii = 0;
@@ -326,12 +327,15 @@ public class Learn {
 		return ii;
 	}
 
-	public void get_kernel_row(DOC[] docs, int docnum, int totdoc, int[] active2dnum, double[] buffer, KERNEL_PARM kernel_parm) {
+	public void get_kernel_row(DOC[] docs, int docix, int[] active2dnum, double[] buffer, KERNEL_PARM kernel_parm) {
 		int i, j;
 		DOC ex;
-		ex = docs[docnum];
+		ex = docs[docix];
 
 		for (i = 0; (j = active2dnum[i]) >= 0; i++) {
+			if (i != j) {
+				System.err.println("i=" + i + " j=" + j);
+			}
 			buffer[j] = com.kernel(kernel_parm, ex, docs[j]);
 		}
 	}
@@ -701,9 +705,9 @@ public class Learn {
 				bestmaxdiffiter = iteration;
 			} else if (((iteration % 10) == 0) && (noshrink == 0)) {
 
-				activenum = shrink_problem(docs, learn_parm, shrink_state, kernel_parm, active2dnum, last_suboptimal_at, iteration, totdoc, Math.max((activenum / 10), Math.max((totdoc / 500), 100)), a, inconsistent);
+				///activenum = shrink_problem(docs, learn_parm, shrink_state, kernel_parm, active2dnum, last_suboptimal_at, iteration, totdoc, Math.max((activenum / 10), Math.max((totdoc / 500), 100)), a, inconsistent);
 
-				inactivenum = totdoc - activenum;
+				///inactivenum = totdoc - activenum;
 			}
 
 			if ((retrain == 0) && (learn_parm.remove_inconsistent != 0)) {
@@ -773,7 +777,7 @@ public class Learn {
 			s = -label[j];
 
 			valid = 1;
-		
+
 			if ((valid != 0) && (!((a[j] <= (0 + learn_parm.epsilon_a)) && (s < 0))) && (!((a[j] >= (learn_parm.svm_cost[j] - learn_parm.epsilon_a)) && (s > 0))) && (chosen[j] == 0) && (label[j] != 0) && (inconsistent[j] == 0)) {
 
 				selcrit[activedoc] = (double) label[j] * (learn_parm.eps - (double) label[j] * c[j] + (double) label[j] * lin[j]);
@@ -1122,7 +1126,7 @@ public class Learn {
 				compute_index(changed, totdoc, changed2dnum);
 
 				for (ii = 0; (i = changed2dnum[ii]) >= 0; ii++) {
-					get_kernel_row(docs, i, totdoc, inactive2dnum, aicache, kernel_parm);
+					get_kernel_row(docs, i, inactive2dnum, aicache, kernel_parm);
 					for (jj = 0; (j = inactive2dnum[jj]) >= 0; jj++) {
 						kernel_val = aicache[j];
 						lin[j] += (((a[i] * kernel_val) - (a_old[i] * kernel_val)) * (double) label[i]);
@@ -1483,7 +1487,8 @@ public class Learn {
 	 * Shrink some variables away. Do the shrinking only if at least minshrink
 	 * variables can be removed.
 	 */
-	public int shrink_problem(DOC[] docs, LEARN_PARM learn_parm, SHRINK_STATE shrink_state, KERNEL_PARM kernel_parm, int[] active2dnum, int[] last_suboptimal_at, int iteration, int totdoc, int minshrink, double[] a, int[] inconsistent) {
+	/*
+	public int sshrink_problem(DOC[] docs, LEARN_PARM learn_parm, SHRINK_STATE shrink_state, KERNEL_PARM kernel_parm, int[] active2dnum, int[] last_suboptimal_at, int iteration, int totdoc, int minshrink, double[] a, int[] inconsistent) {
 		int i, ii, change, activenum, lastiter;
 		double[] a_old;
 
@@ -1532,7 +1537,7 @@ public class Learn {
 		}
 		return (activenum);
 	}
-
+	*/
 	/**
 	 * Throw out examples with multipliers at upper bound. This corresponds to
 	 * the -i 1 option. ATTENTION: this is just a heuristic for finding a close
@@ -1904,8 +1909,8 @@ public class Learn {
 			}
 
 			if (((iteration % 10) == 0) && (noshrink == 0)) {
-				activenum = shrink_problem(docs, learn_parm, shrink_state, kernel_parm, active2dnum, last_suboptimal_at, iteration, totdoc, Math.max((int) (activenum / 10), Math.max((int) (totdoc / 500), 100)), a, inconsistent);
-				inactivenum = totdoc - activenum;
+				///activenum = shrink_problem(docs, learn_parm, shrink_state, kernel_parm, active2dnum, last_suboptimal_at, iteration, totdoc, Math.max((int) (activenum / 10), Math.max((int) (totdoc / 500), 100)), a, inconsistent);
+				///inactivenum = totdoc - activenum;
 			}
 		}
 
@@ -1929,11 +1934,12 @@ public class Learn {
 
 			dist = (lin[i]) * (double) label[i];
 
-			target = -WU.sub(learn_parm.eps, WU.mul((double) label[i], c[i]));
-
+			//target = -WU.sub(learn_parm.eps, WU.mul((double) label[i], c[i]));
+			target = -(learn_parm.eps - (double) label[i] * c[i]);
 			if (((target - dist) > slack[docs[i].slackid]) && Math.abs(target - dist) > (double) (0.5)) {
 
-				slack[docs[i].slackid] = WU.sub(target, dist);
+				//slack[docs[i].slackid] = WU.sub(target, dist);
+				slack[docs[i].slackid] = target - dist;
 			}
 		}
 	}
@@ -2107,11 +2113,9 @@ public class Learn {
 		return (maxxlen);
 	}
 
-
 	public void clear_index(double[] index) {
 		index[0] = -1;
 	}
-
 
 	public static void main(String[] args) {
 
