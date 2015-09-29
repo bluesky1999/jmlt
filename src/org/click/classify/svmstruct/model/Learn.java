@@ -734,9 +734,7 @@ public class Learn {
 			}
 
 			if (retrain != 2) {
-
 				optimize_svm(docs, label, unlabeled, inconsistent, 0.0, chosen,  model, totdoc, working2dnum, choosenum, a, lin, c, learn_parm, aicache, kernel_parm, qp, epsilon_crit_org);
-
 			}
 
 			update_linear_component(docs, label, a, a_old, working2dnum, totdoc, totwords, kernel_parm, lin, aicache, weights);
@@ -774,9 +772,6 @@ public class Learn {
 
 			if ((retrain == 0) && (inactivenum > 0) && ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == ModelConstant.LINEAR))) {
 
-				//reactivate_inactive_examples(label, unlabeled, a, shrink_state, lin, c, totdoc, totwords, iteration, learn_parm, inconsistent, docs, kernel_parm, model, aicache, weights, struct);
-
-				//activenum = compute_index(shrink_state.active, totdoc, active2dnum);
 				inactivenum =0;
 				// reset watchdog
 				bestmaxdiff = struct.maxdiff;
@@ -802,26 +797,7 @@ public class Learn {
 			if (learn_parm.epsilon_crit < epsilon_crit_org) {
 				learn_parm.epsilon_crit = epsilon_crit_org;
 			}
-	
-
-			if ((retrain == 0) && (learn_parm.remove_inconsistent != 0)) {
-				if (learn_parm.remove_inconsistent == 1) {
-
-					retrain = identify_inconsistent(a, label, unlabeled, totdoc, learn_parm, inconsistent, struct);
-
-				} else if (learn_parm.remove_inconsistent == 2) {
-					retrain = identify_misclassified(lin, label, unlabeled, totdoc, model, inconsistent, struct);
-				} else if (learn_parm.remove_inconsistent == 3) {
-					retrain = identify_one_misclassified(lin, label, unlabeled, totdoc, model, inconsistent, struct);
-				}
-				if (retrain != 0) {
-					if (kernel_parm.kernel_type == ModelConstant.LINEAR) { // reinit
-																			// shrinking
-
-						learn_parm.epsilon_crit = 2.0;
-					}
-				}
-			}
+		
 		}// end of loop
 
 		learn_parm.epsilon_crit = epsilon_crit_org;
@@ -1202,80 +1178,6 @@ public class Learn {
 
 	}
 	
-	/**
-	 * Throw out examples with multipliers at upper bound. This corresponds to
-	 * the -i 1 option. ATTENTION: this is just a heuristic for finding a close
-	 * to minimum number of examples to exclude to make the problem separable
-	 * with desired margin
-	 */
-	int identify_inconsistent(double[] a, int[] label, int[] unlabeled, int totdoc, LEARN_PARM learn_parm, int[] inconsistent, CheckStruct struct) {
-		int i, retrain;
-
-		retrain = 0;
-		for (i = 0; i < totdoc; i++) {
-			if ((inconsistent[i] == 0) && (unlabeled[i] == 0) && (a[i] >= (learn_parm.svm_cost[i] - learn_parm.epsilon_a))) {
-				struct.inconsistentnum++;
-				inconsistent[i] = 1; // never choose again
-				retrain = 2; // start over
-				///if (CommonStruct.verbosity >= 3) {
-				///	System.out.println("inconsistent(" + i + ")..");
-				///}
-			}
-		}
-		return (retrain);
-	}
-
-	/**
-	 * Throw out misclassified examples. This corresponds to the -i 2 option.
-	 * ATTENTION: this is just a heuristic for finding a close to minimum number
-	 * of examples to exclude to make the problem separable with desired margin
-	 */
-	public int identify_misclassified(double[] lin, int[] label, int[] unlabeled, int totdoc, MODEL model, int[] inconsistent, CheckStruct struct) {
-		int i, retrain;
-		double dist;
-
-		retrain = 0;
-		for (i = 0; i < totdoc; i++) {
-			dist = (lin[i] - model.b) * (double) label[i]; // 'distance' from
-															// hyperplane
-			if ((inconsistent[i] == 0) && (unlabeled[i] == 0) && (dist <= 0)) {
-				struct.inconsistentnum++;
-				inconsistent[i] = 1; // never choose again
-				retrain = 2; // start over
-			}
-		}
-		return (retrain);
-	}
-
-	/**
-	 * Throw out the 'most misclassified' example. This corresponds to the -i 3
-	 * option. ATTENTION: this is just a heuristic for finding a close to
-	 * minimum number of examples to exclude to make the problem separable with
-	 * desired margin
-	 */
-	public int identify_one_misclassified(double[] lin, int[] label, int[] unlabeled, int totdoc, MODEL model, int[] inconsistent, CheckStruct struct) {
-		int i, retrain, maxex = -1;
-		double dist, maxdist = 0;
-
-		retrain = 0;
-		for (i = 0; i < totdoc; i++) {
-			if ((inconsistent[i] == 0) && (unlabeled[i] == 0)) {
-				dist = (lin[i] - model.b) * (double) label[i];// 'distance' from hyperplane
-
-				if (dist < maxdist) {
-					maxdist = dist;
-					maxex = i;
-				}
-			}
-		}
-		if (maxex >= 0) {
-			struct.inconsistentnum++;
-			inconsistent[maxex] = 1; // never choose again
-			retrain = 2; // start over
-		}
-		return (retrain);
-	}
-
 	/***
 	 * 此方法有问题
 	 * 
@@ -1395,7 +1297,6 @@ public class Learn {
 			a_old[i] = a[i];
 			last_suboptimal_at[i] = 1;
 		}
-
 
 		clear_index(working2dnum);
 
@@ -1533,7 +1434,6 @@ public class Learn {
 				retrain = 0;
 			}
 			noshrink = 0;
-
  
 			if ((retrain == 0) && (learn_parm.epsilon_crit > struct.maxdiff)) {
 				learn_parm.epsilon_crit = struct.maxdiff;
@@ -1546,8 +1446,6 @@ public class Learn {
 			if (learn_parm.epsilon_crit < epsilon_crit_org) {
 				learn_parm.epsilon_crit = epsilon_crit_org;
 			}
-
-
 		}
 
 		learn_parm.epsilon_crit = epsilon_crit_org; // restore org
