@@ -38,12 +38,9 @@ public class Learn {
 
 		int i;
 		int[] label;
-		//int misclassified, upsupvecnum;
-		//double loss = 0, model_length, alphasum, example_length;
 		double[] lin;
 		double[] a;
 		double[] c;
-		///double runtime_start, runtime_end;
 		int iterations, svsetnum = 0;
 		int maxslackid;
 
@@ -66,8 +63,6 @@ public class Learn {
 		if ((learn_parm.svm_newvarsinqp < 2) || (learn_parm.svm_newvarsinqp > learn_parm.svm_maxqpsize)) {
 			learn_parm.svm_newvarsinqp = learn_parm.svm_maxqpsize;
 		}
-
-		///init_shrink_state(shrink_state, totdoc, MAXSHRINK);
 
 		label = new int[totdoc];
 		unlabeled = new int[totdoc];
@@ -224,7 +219,6 @@ public class Learn {
 		}
 
 	}
-
 
 	public void update_linear_component(DOC[] docs, int[] label, double[] a, double[] a_old, int[] working2dnum, int totdoc, int totwords, KERNEL_PARM kernel_parm, double[] lin, double[] aicache, double[] weights) {
 		int i, ii, j, jj;
@@ -1824,30 +1818,7 @@ public class Learn {
 			}
 			noshrink = 0;
 
-                ///if ((retrain == 0) && (inactivenum > 0) && ((learn_parm.skip_final_opt_check == 0) || (kernel_parm.kernel_type == ModelConstant.LINEAR))) {
-
-			  ///reactivate_inactive_examples(label, unlabeled, a, shrink_state, lin, c, totdoc, totwords, iteration, learn_parm, inconsistent, docs, kernel_parm, model, aicache, weights, struct);
-				// Update to new active variables.
-			///inactivenum = totdoc - totdoc;
-
-				// check optimality, since check in reactivate does not work for
-				// sharedslacks
-			///compute_shared_slacks(docs, label, a, lin, c,  learn_parm, slack, alphaslack);
-
-			///retrain = check_optimality_sharedslack(docs, model, label, a, lin, c, slack, alphaslack, totdoc, learn_parm, epsilon_crit_org,  last_suboptimal_at, iteration, kernel_parm, struct);
-
-				// reset watchdog
-			///bestmaxdiff = struct.maxdiff;
-			///bestmaxdiffiter = iteration;
-				// termination criterion
-			///noshrink = 1;
-			///retrain = 0;
-			///if (struct.maxdiff > learn_parm.epsilon_crit) {
-			///	retrain = 1;
-			///}
-
-			///}
-
+ 
 			if ((retrain == 0) && (learn_parm.epsilon_crit > struct.maxdiff)) {
 				learn_parm.epsilon_crit = struct.maxdiff;
 			}
