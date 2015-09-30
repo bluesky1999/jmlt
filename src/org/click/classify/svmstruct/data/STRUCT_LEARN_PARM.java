@@ -1,5 +1,7 @@
 package org.click.classify.svmstruct.data;
 
+import org.click.classify.svmstruct.model.CommonStruct;
+
 public class STRUCT_LEARN_PARM {
 
 	/**
@@ -73,5 +75,18 @@ public class STRUCT_LEARN_PARM {
 						// new examples in svm_perf_classify. This uses more
 						// memory, but is faster if the support vectors in the
 						// model are dense.
+	
+	public STRUCT_LEARN_PARM()
+	{
+		this.C = -0.01;
+		this.slack_norm = 1;
+		this.epsilon = CommonStruct.DEFAULT_EPS;
+		this.custom_argc = 0;
+		this.loss_function = CommonStruct.DEFAULT_LOSS_FCT;
+		this.loss_type = CommonStruct.DEFAULT_RESCALING;
+		this.newconstretrain = 100;
+		this.ccache_size = 5;
+		this.batch_size = 100;
+	}
 
 }

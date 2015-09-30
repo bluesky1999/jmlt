@@ -123,7 +123,8 @@ public class LearnStruct {
 		lparm.epsilon_crit = epsilon;
 		Learn sl = new Learn();
 
-		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, svmModel, alpha);
+		////sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, svmModel, alpha);
+		sl.svm_learn_optimization(cset.lhs, cset.rhs,  sizePsi + n, lparm, kparm, svmModel, alpha);
 		com.addWeightVectorToLinearModel(svmModel);
 		sm.svm_model = svmModel;
 		sm.w = svmModel.lin_weights;
@@ -269,7 +270,8 @@ public class LearnStruct {
 							svmModel = new MODEL();
 
 							// Run the QP solver on cset.
-							sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, svmModel, alpha);
+							///sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi + n, lparm, kparm, svmModel, alpha);
+							sl.svm_learn_optimization(cset.lhs, cset.rhs, sizePsi + n, lparm, kparm, svmModel, alpha);
 
 							// Always add weight vector, in case part of the
 							// kernel is linear. If not, ignore the weight
@@ -396,8 +398,9 @@ public class LearnStruct {
 		svmModel = new MODEL();
 		lparm.epsilon_crit = epsilon;
 
-		sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm, svmModel, alpha);
-
+		///sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm, svmModel, alpha);
+		sl.svm_learn_optimization(cset.lhs, cset.rhs, sizePsi, lparm, kparm, svmModel, alpha);
+		
 		// //logger.info("sl totwords:"+svmModel.totwords);
 		com.addWeightVectorToLinearModel(svmModel);
 		sm.svm_model = svmModel;
@@ -488,7 +491,8 @@ public class LearnStruct {
 				// use kernel stored in kparm
 				kparm.kernel_type = ModelConstant.GRAM; 
 
-				sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm, svmModel, alpha);
+				///sl.svm_learn_optimization(cset.lhs, cset.rhs, cset.m, sizePsi, lparm, kparm, svmModel, alpha);
+				sl.svm_learn_optimization(cset.lhs, cset.rhs, sizePsi, lparm, kparm, svmModel, alpha);
 				kparm.kernel_type = (short) kernel_type_org;
 
 				svmModel.kernel_parm.kernel_type = (short) kernel_type_org;

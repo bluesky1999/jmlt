@@ -51,6 +51,8 @@ public class Multiclass extends Struct {
 
 		sparm.num_features = totwords;
 		sm.sizePsi = sparm.num_features * sparm.num_classes;
+		lparm.totwords = sm.sizePsi+1;
+
 	}
 
 	@Override

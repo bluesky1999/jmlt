@@ -997,7 +997,7 @@ public class Hideo {
 		int opt_m = 1;
 		int opt_n = 2;
 
-		QP qp = new QP();
+		QP qp = new QP(2);
 		qp.opt_up = opt_up;
 		qp.opt_low = opt_low;
 		qp.opt_g = opt_g;

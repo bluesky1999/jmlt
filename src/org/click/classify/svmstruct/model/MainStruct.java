@@ -26,37 +26,10 @@ public class MainStruct {
 
 		// set default
 		alg_type = CommonStruct.DEFAULT_ALG_TYPE;
-		struct_parm.C = -0.01;
-		struct_parm.slack_norm = 1;
-		struct_parm.epsilon = CommonStruct.DEFAULT_EPS;
-		struct_parm.custom_argc = 0;
-		struct_parm.loss_function = CommonStruct.DEFAULT_LOSS_FCT;
-		struct_parm.loss_type = CommonStruct.DEFAULT_RESCALING;
-		struct_parm.newconstretrain = 100;
-		struct_parm.ccache_size = 5;
-		struct_parm.batch_size = 100;
-
 		modelfile = "svm_struct_model";
-		learn_parm.predfile = "trans_predictions";
-		learn_parm.alphafile = "";
 		verbosity = 0;// verbosity for svm_light
 		struct_verbosity = 1; // verbosity for struct learning portion
-		learn_parm.biased_hyperplane = 1;
-		learn_parm.remove_inconsistent = 0;
-		learn_parm.svm_maxqpsize = 10;
-		learn_parm.svm_newvarsinqp = 0;
-		learn_parm.maxiter = 100000;
-		learn_parm.svm_c = 99999999; // overridden by struct_parm->C
-		learn_parm.eps = 0.001; // overridden by struct_parm->epsilon
-		learn_parm.svm_costratio = 1.0;
-		learn_parm.epsilon_crit = 0.001;
-		learn_parm.epsilon_a = 1E-10; // changed from 1e-15
-		kernel_parm.kernel_type = 0;
-		kernel_parm.poly_degree = 3;
-		kernel_parm.rbf_gamma = 1.0;
-		kernel_parm.coef_lin = 1;
-		kernel_parm.coef_const = 1;
-		kernel_parm.custom = "empty";
+
 		type = "c";
 
 		for (i = 0; (i < argc) && ((argv[i].charAt(0)) == '-'); i++) {
@@ -159,6 +132,10 @@ public class MainStruct {
 				print_help();
 				System.exit(0);
 			}
+		}
+		
+		if ((learn_parm.svm_newvarsinqp < 2) || (learn_parm.svm_newvarsinqp > learn_parm.svm_maxqpsize)) {
+			learn_parm.svm_newvarsinqp = learn_parm.svm_maxqpsize;
 		}
 
 		System.out.println("c is:" + struct_parm.C);
