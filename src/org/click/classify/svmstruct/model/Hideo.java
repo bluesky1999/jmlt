@@ -814,7 +814,6 @@ public class Hideo {
 			} else if ((primal[i] > (low[i] + epsilon_hideo)) && (dist > (1.0 + epsilon_crit))) {
 				epsilon_hideo = (primal[i] - low[i]) * 2.0;
 			}
-
 		}
 
 		for (i = 0; i < n; i++) { // clip alphas to bounds

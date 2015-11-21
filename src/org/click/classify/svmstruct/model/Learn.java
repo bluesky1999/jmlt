@@ -149,6 +149,7 @@ public class Learn {
 					maxslackid = docs[i].slackid;
 				}
 			}
+			
 			compute_index(index, totdoc, index2dnum);
 			slack = new double[maxslackid + 1];
 			alphaslack = new double[maxslackid + 1];
@@ -370,7 +371,6 @@ public class Learn {
 
 		// No alpha in the working set not at bounds, so b was not calculated in
 		// the usual way. The following handles this special case.
-
 		if ((learn_parm.biased_hyperplane != 0) && (b_calculated == 0) && ((model.sv_num - 1) == model.at_upper_bound)) {
 			first_low = 1;
 			first_high = 1;
@@ -974,7 +974,6 @@ public class Learn {
 				// compute quadratic part of objective function
 				qp.opt_g[varnum * i + j] = (double) label[ki] * (double) label[kj] * kernel_temp;
 				qp.opt_g[varnum * j + i] = (double) label[ki] * (double) label[kj] * kernel_temp;
-
 			}
 
 		}
@@ -1381,7 +1380,7 @@ public class Learn {
 		int jj, i;
 		double dist, target;
 
-		for (jj = 0; (i = index2dnum[jj]) >= 0; jj++) { /* clear slack variables */
+		for (jj = 0; (i = index2dnum[jj]) >= 0; jj++) { // clear slack variables
 			slack[docs[i].slackid] = 0.0;
 		}
 		for (jj = 0; (i = index2dnum[jj]) >= 0; jj++) {
