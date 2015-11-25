@@ -1,0 +1,7 @@
+series of process for samples
+
+for example:
+    generate word dictionary and label dictionary
+    convert plain file to format file
+    split format file into train file or test file
+    
