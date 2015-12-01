@@ -182,9 +182,12 @@ class TimSort<T> {
 		if (nRemaining < 2)
 			return; // Arrays of size 0 and 1 are always sorted
 
+		
+		
 		// If array is small, do a "mini-TimSort" with no merges
 		if (nRemaining < MIN_MERGE) {
 			int initRunLen = countRunAndMakeAscending(a, lo, hi, c);
+			System.err.println("initRunLen:"+initRunLen);
 			binarySort(a, lo, hi, lo + initRunLen, c);
 			return;
 		}
@@ -196,10 +199,15 @@ class TimSort<T> {
 		 */
 		TimSort<T> ts = new TimSort<>(a, c);
 		int minRun = minRunLength(nRemaining);
+		
+		System.err.println("minRun:"+minRun);
+		
 		do {
+		
 			// Identify next run
 			int runLen = countRunAndMakeAscending(a, lo, hi, c);
-
+			System.err.println("runLen:"+runLen);
+			
 			// If run is short, extend to min(minRun, nRemaining)
 			if (runLen < minRun) {
 				int force = nRemaining <= minRun ? nRemaining : minRun;
@@ -251,19 +259,19 @@ class TimSort<T> {
 			start++;
 		for (; start < hi; start++) {
 			T pivot = a[start];
-            System.err.println("=======================");
-			System.err.println("pivot:"+pivot);
+            //System.err.println("=======================");
+			//System.err.println("pivot:"+pivot);
 			// Set left (and right) to the index where a[start] (pivot) belongs
 			int left = lo;
 			int right = start;
 			assert left <= right;
 			
-			for(int t=0;t<a.length;t++)
-			{
-			  System.err.print(a[t]+" ");	
-			}
+			//for(int t=0;t<a.length;t++)
+			//{
+			//  System.err.print(a[t]+" ");	
+			//}
 			
-			System.err.println();
+			//System.err.println();
 			
 			/*
 			 * Invariants:
@@ -289,7 +297,7 @@ class TimSort<T> {
 			int n = start - left; // The number of elements to move
 			// Switch is just an optimization for arraycopy in default case
 			//the left is position of insert element(pivot)
-			System.err.println("start:"+start+" left:"+left+" right:"+right+" n:"+n+" (left+2):"+(a[left+2])+" pivot:"+pivot);
+			//System.err.println("start:"+start+" left:"+left+" right:"+right+" n:"+n+" (left+2):"+(a[left+2])+" pivot:"+pivot);
 			switch (n) {
 			case 2:
 				a[left + 2] = a[left + 1];
@@ -425,13 +433,17 @@ class TimSort<T> {
 	 * method.
 	 */
 	private void mergeCollapse() {
+		System.err.println("stackSize:"+stackSize);
 		while (stackSize > 1) {
 			int n = stackSize - 2;
 			if (n > 0 && runLen[n - 1] <= runLen[n] + runLen[n + 1]) {
+				System.err.println("runLen[n-1]:"+(n-1)+":"+runLen[n-1]+" "+"runLen[n]:"+(n)+":"+runLen[n]+" "+"runLen[n+1]:"+(n+1)+":"+runLen[n+1]);
+
 				if (runLen[n - 1] < runLen[n + 1])
 					n--;
 				mergeAt(n);
 			} else if (runLen[n] <= runLen[n + 1]) {
+				System.err.println("runLen[n]:"+(n)+":"+runLen[n]+" "+"runLen[n+1]:"+(n+1)+":"+runLen[n+1]);
 				mergeAt(n);
 			} else {
 				break; // Invariant is established
@@ -445,6 +457,7 @@ class TimSort<T> {
 	 */
 	private void mergeForceCollapse() {
 		while (stackSize > 1) {
+			System.err.println("stackSize:"+stackSize);
 			int n = stackSize - 2;
 			if (n > 0 && runLen[n - 1] < runLen[n + 1])
 				n--;
@@ -972,9 +985,26 @@ class TimSort<T> {
 
 
 	public static void main(String[] args) {
-		Integer[] a = { 1, 5, 6, 7, 9, 4, 2 };
-		
+		Integer[] a = { 135,1, 5, 6, 7, 9, 4, 2,110,120,49,12,15,10,21,24,34,50,89,87,54,102,150,160,32,69,90,68,200,27,33,55,66,97,400,51,73,78,72,22,23,186 };
+		//Integer[] a = { 1, 5, 6, 7, 9, 4, 2,110,120,49,12,15,10,21,24,34,50,89,87,54,102,150 };
+
+		/*
 		TimSort.binarySort(a,0,a.length,0, new Comparator<Integer>(){  
+
+			@Override
+			public int compare(Integer o1, Integer o2) {
+				if (o1.intValue()<o2.intValue())
+					return -1;
+				else if(o1.intValue()==o2.intValue())
+				    return 0;
+				else
+					return 1;
+			}  
+              
+        });
+        */
+		
+		TimSort.sort(a,new Comparator<Integer>(){  
 
 			@Override
 			public int compare(Integer o1, Integer o2) {
