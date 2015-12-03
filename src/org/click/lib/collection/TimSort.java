@@ -128,6 +128,8 @@ class TimSort<T> {
 	private final int[] runBase;
 	private final int[] runLen;
 
+	public int loop = 0;
+
 	/**
 	 * Creates a TimSort instance to maintain the state of an ongoing sort.
 	 *
@@ -144,6 +146,8 @@ class TimSort<T> {
 		int len = a.length;
 		@SuppressWarnings({ "unchecked", "UnnecessaryLocalVariable" })
 		T[] newArray = (T[]) new Object[len < 2 * INITIAL_TMP_STORAGE_LENGTH ? len >>> 1 : INITIAL_TMP_STORAGE_LENGTH];
+
+		//System.out.println("newArray.len:"+newArray.length);
 		tmp = newArray;
 
 		/*
@@ -182,12 +186,10 @@ class TimSort<T> {
 		if (nRemaining < 2)
 			return; // Arrays of size 0 and 1 are always sorted
 
-		
-		
 		// If array is small, do a "mini-TimSort" with no merges
 		if (nRemaining < MIN_MERGE) {
 			int initRunLen = countRunAndMakeAscending(a, lo, hi, c);
-			System.err.println("initRunLen:"+initRunLen);
+			//System.out.println("initRunLen:"+initRunLen);
 			binarySort(a, lo, hi, lo + initRunLen, c);
 			return;
 		}
@@ -199,23 +201,27 @@ class TimSort<T> {
 		 */
 		TimSort<T> ts = new TimSort<>(a, c);
 		int minRun = minRunLength(nRemaining);
-		
-		System.err.println("minRun:"+minRun);
-		
+
+		//System.out.println("minRun:"+minRun);
+
 		do {
-		
+
 			// Identify next run
 			int runLen = countRunAndMakeAscending(a, lo, hi, c);
-			System.err.println("runLen:"+runLen);
-			
+			//System.out.println("runLen:"+runLen);
+
 			// If run is short, extend to min(minRun, nRemaining)
 			if (runLen < minRun) {
+			
 				int force = nRemaining <= minRun ? nRemaining : minRun;
 				binarySort(a, lo, lo + force, lo + runLen, c);
 				runLen = force;
+				System.out.println("runLen is smaller than minRun lo:"+lo+"  runLen:"+runLen+" force:"+force+" nRemaining:"+nRemaining);
+
 			}
 
 			// Push run onto pending-run stack, and maybe merge
+			System.err.println("put lo:"+lo+" runLen:"+runLen);
 			ts.pushRun(lo, runLen);
 			ts.mergeCollapse();
 
@@ -259,20 +265,20 @@ class TimSort<T> {
 			start++;
 		for (; start < hi; start++) {
 			T pivot = a[start];
-            //System.err.println("=======================");
-			//System.err.println("pivot:"+pivot);
+			//System.out.println("=======================");
+			//System.out.println("pivot:"+pivot);
 			// Set left (and right) to the index where a[start] (pivot) belongs
 			int left = lo;
 			int right = start;
 			assert left <= right;
-			
+
 			//for(int t=0;t<a.length;t++)
 			//{
-			//  System.err.print(a[t]+" ");	
+			//  System.out.print(a[t]+" ");	
 			//}
-			
-			//System.err.println();
-			
+
+			//System.out.println();
+
 			/*
 			 * Invariants:
 			 *   pivot >= all in [lo, left).
@@ -297,7 +303,7 @@ class TimSort<T> {
 			int n = start - left; // The number of elements to move
 			// Switch is just an optimization for arraycopy in default case
 			//the left is position of insert element(pivot)
-			//System.err.println("start:"+start+" left:"+left+" right:"+right+" n:"+n+" (left+2):"+(a[left+2])+" pivot:"+pivot);
+			//System.out.println("start:"+start+" left:"+left+" right:"+right+" n:"+n+" (left+2):"+(a[left+2])+" pivot:"+pivot);
 			switch (n) {
 			case 2:
 				a[left + 2] = a[left + 1];
@@ -349,12 +355,16 @@ class TimSort<T> {
 
 		// Find end of run, and reverse range if descending
 		if (c.compare(a[runHi++], a[lo]) < 0) { // Descending
-			while (runHi < hi && c.compare(a[runHi], a[runHi - 1]) < 0)
+			while (runHi < hi && c.compare(a[runHi], a[runHi - 1]) < 0) {
 				runHi++;
+				//System.out.println("runHi:"+runHi);
+			}
 			reverseRange(a, lo, runHi);
 		} else { // Ascending
-			while (runHi < hi && c.compare(a[runHi], a[runHi - 1]) >= 0)
+			while (runHi < hi && c.compare(a[runHi], a[runHi - 1]) >= 0) {
+				//System.out.println("runHi2:"+runHi);
 				runHi++;
+			}
 		}
 
 		return runHi - lo;
@@ -418,6 +428,7 @@ class TimSort<T> {
 	private void pushRun(int runBase, int runLen) {
 		this.runBase[stackSize] = runBase;
 		this.runLen[stackSize] = runLen;
+		System.out.println("stackSize:"+stackSize);
 		stackSize++;
 	}
 
@@ -433,17 +444,21 @@ class TimSort<T> {
 	 * method.
 	 */
 	private void mergeCollapse() {
-		System.err.println("stackSize:"+stackSize);
+		//System.out.println("stackSize:"+stackSize);
 		while (stackSize > 1) {
 			int n = stackSize - 2;
 			if (n > 0 && runLen[n - 1] <= runLen[n] + runLen[n + 1]) {
-				System.err.println("runLen[n-1]:"+(n-1)+":"+runLen[n-1]+" "+"runLen[n]:"+(n)+":"+runLen[n]+" "+"runLen[n+1]:"+(n+1)+":"+runLen[n+1]);
+				//System.out.println("runLen[n-1]:"+(n-1)+":"+runLen[n-1]+" "+"runLen[n]:"+(n)+":"+runLen[n]+" "+"runLen[n+1]:"+(n+1)+":"+runLen[n+1]);
 
 				if (runLen[n - 1] < runLen[n + 1])
 					n--;
+				loop++;
+				//System.out.print("loop="+loop+" ");
 				mergeAt(n);
 			} else if (runLen[n] <= runLen[n + 1]) {
-				System.err.println("runLen[n]:"+(n)+":"+runLen[n]+" "+"runLen[n+1]:"+(n+1)+":"+runLen[n+1]);
+				//System.out.println("runLen[n]:"+(n)+":"+runLen[n]+" "+"runLen[n+1]:"+(n+1)+":"+runLen[n+1]);
+				loop++;
+				//System.out.print("loop="+loop+" ");
 				mergeAt(n);
 			} else {
 				break; // Invariant is established
@@ -457,7 +472,7 @@ class TimSort<T> {
 	 */
 	private void mergeForceCollapse() {
 		while (stackSize > 1) {
-			System.err.println("stackSize:"+stackSize);
+			//System.out.println("stackSize:"+stackSize);
 			int n = stackSize - 2;
 			if (n > 0 && runLen[n - 1] < runLen[n + 1])
 				n--;
@@ -467,7 +482,7 @@ class TimSort<T> {
 
 	/**
 	 * Merges the two runs at stack indices i and i+1. Run i must be the
-	 * penultimate or antepenultimate run on the stack. In other words, i must
+	 * penultimate(last second) or antepenultimate(last third) run on the stack. In other words, i must
 	 * be equal to stackSize-2 or stackSize-3.
 	 *
 	 * @param i
@@ -702,10 +717,27 @@ class TimSort<T> {
 	 */
 	private void mergeLo(int base1, int len1, int base2, int len2) {
 		assert len1 > 0 && len2 > 0 && base1 + len1 == base2;
-
+		//System.out.println("mergeLo loop:"+loop+" base1:"+base1+" len1:"+len1+" base2:"+base2+" len2:"+len2+" tmp.len:"+tmp.length);
 		// Copy first run into temp array
 		T[] a = this.a; // For performance
 		T[] tmp = ensureCapacity(len1);
+		System.out.println("mergeLo loop:" + loop + " base1:" + base1 + " len1:" + len1 + " base2:" + base2 + " len2:" + len2 + " tmp.len:" + tmp.length);
+		//copy the a[base1,base1+len1] to tmp[0,len1]
+		
+		System.out.print("[");
+		for (int k = base1; k < base1 + len1; k++) {
+			System.out.print( k + ":" + a[k] + "" + " ");
+		}
+
+		System.out.println("]");
+		
+		System.out.print("[");
+		for (int k = base2; k < base2 + len2; k++) {
+			System.out.print( k + ":" + a[k] + "" + " ");
+		}
+
+		System.out.println("]");
+
 		System.arraycopy(a, base1, tmp, 0, len1);
 
 		int cursor1 = 0; // Indexes into tmp array
@@ -821,10 +853,26 @@ class TimSort<T> {
 	 */
 	private void mergeHi(int base1, int len1, int base2, int len2) {
 		assert len1 > 0 && len2 > 0 && base1 + len1 == base2;
-
+		//System.out.println("mergeHi loop:"+loop+"  base1:"+base1+" len1:"+len1+" base2:"+base2+" len2:"+len2+" tmp.len:"+tmp.length);
 		// Copy second run into temp array
 		T[] a = this.a; // For performance
 		T[] tmp = ensureCapacity(len2);
+		System.out.println("mergeHi loop:" + loop + "  base1:" + base1 + " len1:" + len1 + " base2:" + base2 + " len2:" + len2 + " tmp.len:" + tmp.length);
+
+		System.out.print("[");
+		for (int k = base1; k < base1 + len1; k++) {
+			System.out.print( k + ":" + a[k] + "" + " ");
+		}
+
+		System.out.println("]");
+
+		System.out.print("[");
+		for (int k = base2; k < base2 + len2; k++) {
+			System.out.print( k + ":" + a[k] + "" + " ");
+		}
+
+		System.out.println("]");
+
 		System.arraycopy(a, base2, tmp, 0, len2);
 
 		int cursor1 = base1 + len1 - 1; // Indexes into a
@@ -983,11 +1031,16 @@ class TimSort<T> {
 			throw new ArrayIndexOutOfBoundsException(toIndex);
 	}
 
-
 	public static void main(String[] args) {
-		Integer[] a = { 135,1, 5, 6, 7, 9, 4, 2,110,120,49,12,15,10,21,24,34,50,89,87,54,102,150,160,32,69,90,68,200,27,33,55,66,97,400,51,73,78,72,22,23,186 };
+		//Integer[] a = { 135,1, 6, 5, 7, 9, 4, 2,110,120,49,12,15,10,21,24,34,50,89,87,54,102,150,160,32,69,90,68,200,27,33,55,66,97,400,51,73,78,72,22,23,186 };
 		//Integer[] a = { 1, 5, 6, 7, 9, 4, 2,110,120,49,12,15,10,21,24,34,50,89,87,54,102,150 };
 
+		int len = 200;
+		Integer[] a = new Integer[len];
+
+		for (int i = 0; i < len; i++) {
+			a[i] = (int) (Math.random() * 1000000);
+		}
 		/*
 		TimSort.binarySort(a,0,a.length,0, new Comparator<Integer>(){  
 
@@ -1000,29 +1053,28 @@ class TimSort<T> {
 				else
 					return 1;
 			}  
-              
-        });
-        */
-		
-		TimSort.sort(a,new Comparator<Integer>(){  
+		      
+		});
+		*/
+
+		TimSort.sort(a, new Comparator<Integer>() {
 
 			@Override
 			public int compare(Integer o1, Integer o2) {
-				if (o1.intValue()<o2.intValue())
+				if (o1.intValue() < o2.intValue())
 					return -1;
-				else if(o1.intValue()==o2.intValue())
-				    return 0;
+				else if (o1.intValue() == o2.intValue())
+					return 0;
 				else
 					return 1;
-			}  
-              
-        });
-        
-		for(int i=0;i<a.length;i++)
-		{
-			System.err.println(i+":"+a[i]);
-		}
-	    
-	    
+			}
+
+		});
+
+		//for(int i=0;i<a.length;i++)
+		//{
+		//System.out.println(i+":"+a[i]);
+		//}
+
 	}
 }
