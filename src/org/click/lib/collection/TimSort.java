@@ -497,6 +497,7 @@ class TimSort<T> {
 		int len1 = runLen[i];
 		int base2 = runBase[i + 1];
 		int len2 = runLen[i + 1];
+		System.out.println("mergeAt "+" loop:"+loop+" base1:"+base1+" len1:"+len1+" base2:"+base2+" len2:"+len2);
 		assert len1 > 0 && len2 > 0;
 		assert base1 + len1 == base2;
 
@@ -537,6 +538,8 @@ class TimSort<T> {
 			mergeLo(base1, len1, base2, len2);
 		else
 			mergeHi(base1, len1, base2, len2);
+		
+		//System.err.println("mergeAt after base1:"+base1+" len1:"+len1+" base2:"+base2+" len2:"+len2);
 	}
 
 	/**
