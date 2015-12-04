@@ -204,10 +204,13 @@ class TimSort<T> {
 
 		//System.out.println("minRun:"+minRun);
 
+		int ll=1;
 		do {
 
+			System.out.println("ll:"+ll);
 			// Identify next run
 			int runLen = countRunAndMakeAscending(a, lo, hi, c);
+			System.out.println("runLen:"+runLen+"  lo:"+lo+" hi:"+hi);
 			//System.out.println("runLen:"+runLen);
 
 			// If run is short, extend to min(minRun, nRemaining)
@@ -228,6 +231,7 @@ class TimSort<T> {
 			// Advance to find next run
 			lo += runLen;
 			nRemaining -= runLen;
+			ll++;
 		} while (nRemaining != 0);
 
 		// Merge all remaining runs to complete sort
@@ -428,7 +432,6 @@ class TimSort<T> {
 	private void pushRun(int runBase, int runLen) {
 		this.runBase[stackSize] = runBase;
 		this.runLen[stackSize] = runLen;
-		System.out.println("stackSize:"+stackSize);
 		stackSize++;
 	}
 
@@ -444,23 +447,26 @@ class TimSort<T> {
 	 * method.
 	 */
 	private void mergeCollapse() {
-		//System.out.println("stackSize:"+stackSize);
+		System.out.println("stackSize:"+stackSize);
 		while (stackSize > 1) {
 			int n = stackSize - 2;
 			if (n > 0 && runLen[n - 1] <= runLen[n] + runLen[n + 1]) {
-				//System.out.println("runLen[n-1]:"+(n-1)+":"+runLen[n-1]+" "+"runLen[n]:"+(n)+":"+runLen[n]+" "+"runLen[n+1]:"+(n+1)+":"+runLen[n+1]);
 
 				if (runLen[n - 1] < runLen[n + 1])
 					n--;
 				loop++;
 				//System.out.print("loop="+loop+" ");
+				System.out.println("loop:"+loop+" runLen[n-1]:"+(n-1)+":"+runLen[n-1]+" "+"runLen[n]:"+(n)+":"+runLen[n]+" "+"runLen[n+1]:"+(n+1)+":"+runLen[n+1]);
+
 				mergeAt(n);
 			} else if (runLen[n] <= runLen[n + 1]) {
 				//System.out.println("runLen[n]:"+(n)+":"+runLen[n]+" "+"runLen[n+1]:"+(n+1)+":"+runLen[n+1]);
 				loop++;
+				System.out.println("loop:"+loop+" runLen[n]:"+(n)+":"+runLen[n]+" "+"runLen[n+1]:"+(n+1)+":"+runLen[n+1]);
+
 				//System.out.print("loop="+loop+" ");
 				mergeAt(n);
-			} else {
+			} else {			
 				break; // Invariant is established
 			}
 		}
