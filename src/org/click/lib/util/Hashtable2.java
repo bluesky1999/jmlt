@@ -523,7 +523,7 @@ public class Hashtable2<K,V>
             rehash();
 
             tab = table;
-            hash = hash(key);
+            hash = hash(key);//the previous hash is based on old table.length
             index = (hash & 0x7FFFFFFF) % tab.length;
         }
 
