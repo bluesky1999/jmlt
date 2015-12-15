@@ -224,7 +224,6 @@ public class Hashtable2<K,V>
 
     private int hash(Object k) {
         // hashSeed will be zero if alternative hashing is disabled.
-    	System.err.println("hashSeed:"+hashSeed);
         return hashSeed ^ k.hashCode();
     }
 
@@ -506,9 +505,10 @@ public class Hashtable2<K,V>
         // Makes sure the key is not already in the hashtable.
         Entry tab[] = table;
         int hash = hash(key);
-        System.err.println("hash:"+hash);
+       // System.err.println("hash:"+hash);
         int index = (hash & 0x7FFFFFFF) % tab.length;
-        System.err.println("index:"+index); 
+        System.err.println("tab.length:"+tab.length);
+       // System.err.println("index:"+index); 
         for (Entry<K,V> e = tab[index] ; e != null ; e = e.next) {
             if ((e.hash == hash) && e.key.equals(key)) {
                 V old = e.value;
@@ -1194,7 +1194,12 @@ public class Hashtable2<K,V>
     	ht.put("two", 1);
     	ht.put("three", 1);
     	ht.put("abcdefghik", 1);
-    	
+		for(int i=0;i<100;i++)
+		{
+			String abc=ObjectTest.randString(32);
+			ht.put(abc, 1);
+		    //System.err.println(abc+":"+abc.hashCode());
+		}
     	System.out.println("abcdefghik:"+ht.get("abcdefghik"));
     	
     }
