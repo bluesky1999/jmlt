@@ -50,6 +50,7 @@ public class BinaryHeapPriorityQueue<E> extends AbstractSet<E> implements Priori
   /**
    * <code>keyToEntry</code> maps heap objects to their heap
    * entries.
+   * quickly check whether the binaryHeapPriorityQueue contains a key
    */
   private Map<E,Entry<E>> keyToEntry;
 
@@ -199,6 +200,7 @@ public class BinaryHeapPriorityQueue<E> extends AbstractSet<E> implements Priori
    */
   public E removeFirst() {
     E first = getFirst();
+    System.err.println("first:"+first);
     remove(first);
     return first;
   }
