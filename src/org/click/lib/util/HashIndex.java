@@ -7,6 +7,9 @@ import java.util.concurrent.Semaphore;
 /**
  * An Index is a collection that maps between an Object vocabulary and a
  * contiguous non-negative integer index series beginning (inclusively) at 0.
+ * key: word, value: index of word in the vocabulary
+ * objects is the arrayList 
+ * indexs is the hashMap
  * It supports constant-time lookup in
  * both directions (via <code>get(int)</code> and <code>indexOf(E)</code>.
  * The <code>indexOf(E)</code> method compares objects by

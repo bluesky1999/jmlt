@@ -522,6 +522,7 @@ public class Hashtable2<K,V>
             // Rehash the table if the threshold is exceeded
             rehash();
 
+            //put the element in the new location of hash table
             tab = table;
             hash = hash(key);//the previous hash is based on old table.length
             index = (hash & 0x7FFFFFFF) % tab.length;
